@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>📘 {{ subject_name }}</h2>
+    <p>Welcome to {{ subject_name }}! Assignments and resources will appear here.</p>
+
+    <ul>
+        <li>Assignment 1 - Due Date: 2025-09-15</li>
+        <li>Assignment 2 - Due Date: 2025-09-22</li>
+    </ul>
+
+    <a href="{{ url_for('student.dashboard') }}" class="btn">⬅ Back to Dashboard</a>
+</div>
+{% endblock %}

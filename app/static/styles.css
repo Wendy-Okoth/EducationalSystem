@@ -1,0 +1,177 @@
+
+/* Gradient background: Purple → Blue */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+/* Card-style container for content */
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin-top: 6rem;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Buttons */
+button, .btn {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #5a6edc, #6a3e9e);
+}
+
+/* Form inputs */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+}
+
+/* Headings */
+h1 {
+    color: #764ba2;
+}
+
+/* Navbar styles */
+.navbar {
+    width: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Brand styling */
+.nav-brand {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+}
+
+/* Navigation links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.8rem;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover / Active states */
+.nav-links a:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+.nav-links a.active {
+    background: white;
+    color: #764ba2;
+}
+
+/* Small animation for smooth page load */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Profile card tweak */
+.card p {
+    margin: 0.3rem 0;
+}
+
+/* Subject links */
+.card ul li a {
+    text-decoration: none;
+    color: #667eea;
+    font-weight: 500;
+}
+
+.card ul li a:hover {
+    color: #764ba2;
+}
+
+/* Dashboard grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* Card style */
+.card {
+    background: white;
+    color: #333;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+}
+
+.card h2 {
+    margin-bottom: 1rem;
+    color: #667eea;
+}
+
+/* Lists inside cards */
+.card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
+.card ul li {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #eee;
+}

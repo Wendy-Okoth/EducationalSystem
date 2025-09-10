@@ -8,3 +8,4 @@ def dashboard():
         return redirect(url_for("auth.login"))
 
     return render_template("teacher_dashboard.html")
+   

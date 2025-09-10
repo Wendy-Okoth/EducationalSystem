@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>📚 All Subjects</h2>
+    <ul>
+        {% for subject in subjects %}
+        <li>
+            <a href="{{ url_for('student.subject', subject_id=subject.id) }}">
+                {{ subject.name }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('student.dashboard') }}" class="btn">⬅ Back to Dashboard</a>
+</div>
+{% endblock %}

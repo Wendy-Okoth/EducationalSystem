@@ -2,7 +2,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
+from app import db
 
 class Role:
     STUDENT = "STUDENT"
@@ -16,7 +16,10 @@ class User(db.Model):
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default=Role.STUDENT)
+
+    # Store role as string (matches your redirects)
+    role = db.Column(db.String(20), default=Role.STUDENT, nullable=False)
+
     is_active = db.Column(db.Boolean, default=False)   # Admin approval
     fees_paid = db.Column(db.Boolean, default=False)   # Only for students
     authorized = db.Column(db.Boolean, default=False)  # Only for teachers

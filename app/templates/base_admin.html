@@ -1,0 +1,13 @@
+<!-- base_admin.html -->
+{% extends "base.html" %}
+
+{% block navbar %}
+<nav class="navbar">
+  <div class="nav-brand">EduSystem</div>
+  <ul class="nav-links">
+    <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+    <li><a href="{{ url_for('admin.users') }}">Manage Users</a></li>
+    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+  </ul>
+</nav>
+{% endblock %}

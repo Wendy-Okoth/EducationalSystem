@@ -19,7 +19,7 @@ def register():
         user = User(
             name=name,
             email=email,
-            role=role
+            role=role.strip().upper()
         )
         user.set_password(password)
 
@@ -36,6 +36,9 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
 
+        print("📩 Email received from form:", email)
+        print("🔑 Password received from form:", password)
+
         user = User.query.filter_by(email=email).first()
 
         if not user or not user.check_password(password):
@@ -46,21 +49,44 @@ def login():
             flash("Your account is not active yet. Contact admin.")
             return redirect(url_for("auth.login"))
 
+        # ✅ At this point user is valid
         session["user_id"] = user.id
-        session["role"] = user.role
+        # NEW (match what home() expects)
+        session["role"] = user.role if isinstance(user.role, str) else user.role.value
+        print("🧭 user.role from DB:", user.role, type(user.role))
 
-        # Redirect based on role
-        if user.role == Role.STUDENT:
-            return redirect(url_for("student.dashboard"))
-        elif user.role == Role.TEACHER:
-            return redirect(url_for("teacher.dashboard"))
-        elif user.role == Role.ADMIN:
-            return redirect(url_for("admin.dashboard"))
+
+
+        # Redirect 
+        # Redirect based on role (compare with strings)
+        if user.role == "STUDENT":
+           return redirect(url_for("student.dashboard"))
+        elif user.role == "TEACHER":
+           return redirect(url_for("teacher.dashboard"))
+        elif user.role == "ADMIN":
+             return redirect(url_for("admin.dashboard"))
+        else:
+             flash(f"Unknown role: {user.role}")
+             return redirect(url_for("auth.login"))
 
     return render_template("login.html")
+
 
 @auth_bp.route("/logout")
 def logout():
     session.clear()
     flash("Logged out successfully.")
+    return redirect(url_for("auth.login"))
+
+@auth_bp.route("/")
+def home():
+    # If user is logged in, send them to the right dashboard
+    if "role" in session:
+        if session["role"] == "STUDENT":
+            return redirect(url_for("student.dashboard"))
+        elif session["role"] == "TEACHER":
+            return redirect(url_for("teacher.dashboard"))
+        elif session["role"] == "ADMIN":
+            return redirect(url_for("admin.dashboard"))
+    # Otherwise show login page
     return redirect(url_for("auth.login"))
