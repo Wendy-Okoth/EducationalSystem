@@ -58,4 +58,4 @@ def subjects():
 @student_bp.route("/profile")
 def profile():
     # Later you can pass actual student data from DB
-    return render_template("student/profile.html")
+    return render_template("profile.html")

@@ -1,0 +1,31 @@
+{
+  "name": "edusystem",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wendy-Okoth/EducationalSystem.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Wendy-Okoth/EducationalSystem/issues"
+  },
+  "homepage": "https://github.com/Wendy-Okoth/EducationalSystem#readme",
+  "dependencies": {
+    "@fullcalendar/core": "^6.1.19",
+    "@fullcalendar/daygrid": "^6.1.19",
+    "fullcalendar": "^6.1.19"
+  },
+  "devDependencies": {
+    "vite": "^7.1.5"
+  }
+}
