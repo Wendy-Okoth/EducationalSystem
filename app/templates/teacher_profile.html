@@ -1,0 +1,12 @@
+{% extends "base_teacher.html" %}
+
+{% block content %}
+<div class="profile-container">
+  <h2>👩‍🏫 Teacher Profile</h2>
+
+  <p><strong>Name:</strong> {{ teacher.name }}</p>
+  <p><strong>Email:</strong> {{ teacher.email }}</p>
+  <p><strong>Subjects:</strong> {{ teacher.subjects }}</p>
+  <p><strong>Classes Assigned:</strong> {{ teacher.classes }}</p>
+</div>
+{% endblock %}
