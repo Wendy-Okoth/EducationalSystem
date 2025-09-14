@@ -9,6 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         student_calendar: resolve(__dirname, 'app/static/js/student_calendar.js'),
+        teacher_calendar: resolve(__dirname, 'app/static/js/teacher_calendar.js'),
       },
       output: {
         entryFileNames: 'assets/[name].js',

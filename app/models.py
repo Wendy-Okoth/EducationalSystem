@@ -4,10 +4,12 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 
+# Role constants
 class Role:
     STUDENT = "STUDENT"
     TEACHER = "TEACHER"
     ADMIN = "ADMIN"
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -16,16 +18,19 @@ class User(db.Model):
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-
-    # Store role as string (matches your redirects)
     role = db.Column(db.String(20), default=Role.STUDENT, nullable=False)
 
+    # Status flags
     is_active = db.Column(db.Boolean, default=False)   # Admin approval
     fees_paid = db.Column(db.Boolean, default=False)   # Only for students
     authorized = db.Column(db.Boolean, default=False)  # Only for teachers
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # helper methods
+    # Relationships
+    subjects = db.relationship("Subject", backref="teacher", lazy=True)
+
+
+    # Password helpers
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -35,6 +40,14 @@ class User(db.Model):
 
 class Course(db.Model):
     __tablename__ = "courses"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Subject(db.Model):
+    __tablename__ = "subjects"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
@@ -83,3 +96,5 @@ class Enrollment(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
     enrolled_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+

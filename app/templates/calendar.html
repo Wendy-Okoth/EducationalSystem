@@ -1,0 +1,25 @@
+{% extends "base_teacher.html" %}
+
+{% block content %}
+<div>  <h2>📅 Teacher Calendar</h2>
+    <div id="calendar"></div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<!-- FullCalendar CSS (already bundled via npm) -->
+<style>
+  /* Make sure calendar takes visible space */
+  #calendar {
+    max-width: 900px;
+    margin: 20px auto;
+    min-height: 300px;
+  
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load the Vite-built JavaScript bundle -->
+<script type="module" src="{{ url_for('static', filename='dist/assets/teacher_calendar.js') }}"></script>
+{% endblock %}

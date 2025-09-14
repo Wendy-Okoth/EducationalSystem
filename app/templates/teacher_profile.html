@@ -6,7 +6,21 @@
 
   <p><strong>Name:</strong> {{ teacher.name }}</p>
   <p><strong>Email:</strong> {{ teacher.email }}</p>
-  <p><strong>Subjects:</strong> {{ teacher.subjects }}</p>
-  <p><strong>Classes Assigned:</strong> {{ teacher.classes }}</p>
-</div>
+  <h3>Subjects:</h3>
+<ul>
+  {% for subject in subjects %}
+    <li>{{ subject.name }}</li>
+  {% else %}
+    <li>No subjects assigned</li>
+  {% endfor %}
+</ul>
+
+<h3>Classes Assigned:</h3>
+<ul>
+  {% for course in courses %}
+    <li>{{ course.name }}</li>
+  {% else %}
+    <li>No classes assigned</li>
+  {% endfor %}
+</ul>
 {% endblock %}

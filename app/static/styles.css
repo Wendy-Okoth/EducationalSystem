@@ -175,3 +175,11 @@ h1 {
     padding: 0.3rem 0;
     border-bottom: 1px solid #eee;
 }
+
+/* Add this to your styles.css */
+.no-card {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+}

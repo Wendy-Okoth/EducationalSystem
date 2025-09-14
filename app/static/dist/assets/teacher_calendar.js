@@ -1,0 +1,1 @@
+import{C as n,i as a}from"./index.js";document.addEventListener("DOMContentLoaded",function(){const e=document.getElementById("calendar");e&&new n(e,{plugins:[a],initialView:"dayGridMonth",height:"auto",events:[]}).render()});

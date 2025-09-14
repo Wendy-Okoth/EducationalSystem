@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for
-from app.models import User   # adjust if your models file is in a different place
+from app.models import User, Role    # adjust if your models file is in a different place
 
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
@@ -57,5 +57,13 @@ def subjects():
 
 @student_bp.route("/profile")
 def profile():
-    # Later you can pass actual student data from DB
-    return render_template("profile.html")
+    student_id = session.get("user_id")  # user_id is stored in session after login
+    
+    if not student_id:
+        return redirect(url_for("auth.login"))
+
+    student = User.query.filter_by(id=student_id, role=Role.STUDENT).first()
+
+    if not student:
+        return "Student not found", 404
+    return render_template("profile.html", student=student)
