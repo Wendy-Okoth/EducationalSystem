@@ -2,8 +2,14 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<h2>👤 Profile</h2>
-<p>Name: John Doe</p>
-<p>Email: john@example.com</p>
-<a href="{{ url_for('student.edit_profile') }}">Edit Profile</a>
+<div class="profile-card">
+    <h2>👤 Student Profile</h2>
+
+    <p><strong>Name:</strong> {{ student.name }}</p>
+    <p><strong>Email:</strong> {{ student.email }}</p>
+    <p><strong>Fees Paid:</strong> {{ "✅ Yes" if student.fees_paid else "❌ No" }}</p>
+    <p><strong>Status:</strong> {{ "Active" if student.is_active else "Pending Approval" }}</p>
+
+    <a href="{{ url_for('student.edit_profile') }}">✏️ Edit Profile</a>
+</div>
 {% endblock %}

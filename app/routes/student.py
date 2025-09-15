@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, session, redirect, url_for
+from flask import Blueprint, render_template, session, redirect, url_for , request
 from app.models import User, Role    # adjust if your models file is in a different place
-
+from app import db
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
 
@@ -15,10 +15,16 @@ def dashboard():
 
     return render_template("student_dashboard.html")
 
-@student_bp.route("/edit-profile")
+@student_bp.route("/edit-profile", methods=["GET", "POST"])
 def edit_profile():
-    if "role" not in session or session["role"] != "STUDENT":
-        return redirect(url_for("auth.login"))
+    student_id = session.get("user_id")
+    student = User.query.get(student_id)
+
+    if request.method == "POST":
+        student.name = request.form["name"]
+        student.email = request.form["email"]
+        db.session.commit()
+        return redirect(url_for("student.profile"))
     return render_template("edit_profile.html") 
 
 @student_bp.route("/calendar")
