@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import db, User, Role
+from flask_mail import Message
+from app import mail
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -90,3 +92,51 @@ def home():
             return redirect(url_for("admin.dashboard"))
     # Otherwise show login page
     return redirect(url_for("auth.login"))
+
+@auth_bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get("email")
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            flash("No account found with that email.", "danger")
+            return redirect(url_for("auth.forgot_password"))
+
+        # Generate token
+        token = user.get_reset_token()
+
+        # Send email
+        reset_link = url_for("auth.reset_password", token=token, _external=True)
+        msg = Message("Password Reset Request",
+                      sender="your_email@gmail.com",
+                      recipients=[user.email])
+        msg.body = f"""Hi {user.name},
+
+To reset your password, click the link below:
+{reset_link}
+
+If you did not request this, please ignore this email.
+"""
+        mail.send(msg)
+
+        flash("Password reset instructions have been sent to your email.", "info")
+        return redirect(url_for("auth.login"))
+
+    return render_template("forgot_password.html")
+
+@auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    user = User.verify_reset_token(token)
+    if not user:
+        flash("That reset link is invalid or has expired.", "danger")
+        return redirect(url_for("auth.forgot_password"))
+
+    if request.method == "POST":
+        new_password = request.form.get("new_password")
+        user.set_password(new_password)
+        db.session.commit()
+        flash("Your password has been updated!", "success")
+        return redirect(url_for("auth.login"))
+
+    return render_template("reset_password.html")
+

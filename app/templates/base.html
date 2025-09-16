@@ -1,4 +1,3 @@
-<!-- base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,12 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}EduSystem{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/faviconn.png') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="container">
+    <header class="header">
+        <div class="header-container">
+            <a href="{{ url_for('main.home') }}">
+                <img src="{{ url_for('static', filename='images/edulogo.png') }}" alt="EduSystem Logo" class="logo">
+            </a>
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('main.about') }}">About Us</a></li>
+                    <li><a href="{{ url_for('main.contact') }}">Contact Us</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
         {% block content %}{% endblock %}
-    </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2025 EduSystem. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#"><img src="{{ url_for('static', filename='images/instagram.png') }}" alt="Instagram"></a>
+                <a href="#"><img src="{{ url_for('static', filename='images/linkedin.png') }}" alt="TikTok"></a>
+                <a href="#"><img src="{{ url_for('static', filename='images/twitter.png') }}" alt="Twitter"></a>
+                <a href="#"><img src="{{ url_for('static', filename='images/facebook.png') }}" alt="Facebook"></a>
+            </div>
+        </div>
+    </footer>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

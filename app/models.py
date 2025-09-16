@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
+from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
 
 # Role constants
 class Role:
@@ -36,6 +38,19 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def get_reset_token(self, expires_sec=1800):  # 30 minutes
+        s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        return s.dumps({"user_id": self.id}, salt="password-reset-salt")
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=1800):
+        s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        try:
+            data = s.loads(token, salt="password-reset-salt", max_age=expires_sec)
+        except Exception:
+            return None
+        return User.query.get(data["user_id"])
 
 
 class Course(db.Model):
