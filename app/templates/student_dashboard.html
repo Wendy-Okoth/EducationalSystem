@@ -3,5 +3,94 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<section id="contact-form" class="form-container">
 <h1>🎓 Welcome, {{ student.name if student else 'Student' }}</h1>
+</section>
+ <div id="edubot-container">
+        <div id="chat-window">
+            <div id="chat-header">
+                <h3>EduBot</h3>
+                <button id="close-chat-btn">&times;</button>
+            </div>
+            <div id="chat-log">
+                <div class="chat-message bot-message">Hello there! I'm EduBot. I can provide tips for your assignments in various subjects. Just ask me and I'll answer straight away'.</div>
+            </div>
+            <div id="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button id="send-chat-btn">Send</button>
+            </div>
+        </div>
+        <button id="open-chat-btn">Chat with EduBot</button>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const chatContainer = document.getElementById("edubot-container");
+        const openBtn = document.getElementById("open-chat-btn");
+        const closeBtn = document.getElementById("close-chat-btn");
+        const chatInput = document.getElementById("chat-input");
+        const sendBtn = document.getElementById("send-chat-btn");
+        const chatLog = document.getElementById("chat-log");
+
+        // Function to open/close the chat window
+        openBtn.addEventListener("click", () => {
+            chatContainer.classList.add("open");
+        });
+
+        closeBtn.addEventListener("click", () => {
+            chatContainer.classList.remove("open");
+        });
+
+        // Function to send a message
+        function sendMessage() {
+            const userMessage = chatInput.value.trim();
+            if (userMessage === "") return;
+
+            // Display user message in chat log
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.className = "chat-message user-message";
+            userMessageDiv.textContent = userMessage;
+            chatLog.appendChild(userMessageDiv);
+
+            chatInput.value = ""; // Clear input field
+            chatLog.scrollTop = chatLog.scrollHeight; // Scroll to bottom
+
+            // Send message to the Flask back-end
+            fetch('/edubot_chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display bot's response
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.className = "chat-message bot-message";
+                botMessageDiv.textContent = data.message;
+                chatLog.appendChild(botMessageDiv);
+                chatLog.scrollTop = chatLog.scrollHeight; // Scroll to bottom
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMessageDiv = document.createElement("div");
+                errorMessageDiv.className = "chat-message bot-message";
+                errorMessageDiv.textContent = "Oops! Something went wrong. Please try again.";
+                chatLog.appendChild(errorMessageDiv);
+                chatLog.scrollTop = chatLog.scrollHeight;
+            });
+        }
+
+        // Event listeners for sending a message
+        sendBtn.addEventListener("click", sendMessage);
+        chatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+    });
+    </script>
 {% endblock %}

@@ -77,7 +77,7 @@ def login():
 @auth_bp.route("/logout")
 def logout():
     session.clear()
-    flash("Logged out successfully.")
+    flash("Logged out successfully.",'success')
     return redirect(url_for("auth.login"))
 
 @auth_bp.route("/")
@@ -139,4 +139,6 @@ def reset_password(token):
         return redirect(url_for("auth.login"))
 
     return render_template("reset_password.html")
+
+
 

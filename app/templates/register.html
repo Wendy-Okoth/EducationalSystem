@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 {% block content %}
+<section id="contact-form" class="form-container">
+  <h1>Register</h1>
 <form method="POST">
   <input type="text" name="name" placeholder="Full Name" required><br>
   <input type="email" name="email" placeholder="Email" required><br>
@@ -11,4 +13,5 @@
   </select><br>
   <button type="submit">Register</button>
 </form>
+</section>
 {% endblock %}

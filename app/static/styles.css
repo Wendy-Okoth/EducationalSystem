@@ -2,22 +2,19 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    /* This gradient is a good base for the whole page background */
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    /* Ensures the body takes up the full screen height */
+    background-color: #f4f6f9; /* Light grey background */
     min-height: 100vh;
-    /* Stacks elements vertically and allows main content to fill space */
     display: flex;
     flex-direction: column;
-    color: white;
+    color: #212529; /* Dark grey for main text */
 }
 
-/* Header Styling (new) */
+/* Header Styling */
 .header {
-    background-color: #ffffff;
+    background-color: #3498db; /* Bright blue header background */
     padding: 15px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: sticky; /* Keeps the header at the top of the viewport */
+    position: sticky;
     top: 0;
     z-index: 1000;
 }
@@ -26,21 +23,20 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    display: flex; /* Enables flexbox for logo and nav bar */
-    justify-content: space-between; /* Pushes logo to left, nav to right */
-    align-items: center; /* Vertically centers items */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .header .logo {
-    height: 100px; /* Adjust logo size */
+    height: 100px;
     width: auto;
 }
 
-/* Navbar Links (updated) */
+/* Navbar Links */
 .navbar {
-    /* No need for fixed positioning here as the parent .header handles it */
     display: flex;
-    justify-content: flex-end; /* Aligns links to the right */
+    justify-content: flex-end;
     align-items: center;
 }
 
@@ -49,33 +45,33 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 25px; /* Spacing between links */
+    gap: 25px;
 }
 
 .nav-links a {
     text-decoration: none;
-    color: #333; /* Links are dark for visibility on white header */
+    color: white; /* White links for visibility on a blue background */
     font-weight: bold;
     transition: color 0.3s;
 }
 
 .nav-links a:hover {
-    color: #007bff;
+    color: #e67e22; /* Vibrant orange on hover */
 }
 
 /* Main Content Area */
 main {
-    flex: 1; /* This is the key. It allows the main content to grow and push the footer down */
+    flex: 1;
     padding: 20px 0;
 }
 
-/* Footer Styling (new) */
+/* Footer Styling */
 .footer {
-    background-color: rgba(255, 255, 255, 0.95);
-    color: #333;
+    background-color: #3498db; /* Bright blue footer background */
+    color: #f4f6f9; /* Light grey text */
     padding: 20px 0;
     text-align: center;
-    margin-top: auto; /* Pushes the footer to the bottom */
+    margin-top: auto;
 }
 
 .footer-container {
@@ -83,7 +79,7 @@ main {
     margin: 0 auto;
     padding: 0 20px;
     display: flex;
-    justify-content: space-between; /* Spreads copyright and icons */
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -101,31 +97,35 @@ main {
 .hero {
     text-align: center;
     padding: 4rem 1rem;
-    background: none; /* Remove conflicting background */
-    color: white; /* Ensure text is white on the body gradient */
+    background: none;
+    color: #212529; /* Dark grey text */
 }
+
 .hero h1 {
     font-size: 2.5rem;
-    color: white; /* Ensure heading is white */
+    color: #212529; /* Dark grey heading */
 }
+
 .hero p {
     margin: 1rem 0;
 }
+
 .hero .btn {
-    background: #007BFF;
+    background: #e67e22; /* Vibrant orange for buttons */
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 5px;
     text-decoration: none;
 }
+
 .hero .btn:hover {
-    background: #0056b3;
+    background: #d35400; /* Darker orange on hover */
 }
 
 /* Existing card styles, kept for content sections */
-.card-container { /* Renamed for clarity */
-    background: rgba(255, 255, 255, 0.95);
-    color: #333;
+.card-container, #about, #contact {
+    background: #ffffff; /* White for a crisp look */
+    color: #212529; /* Dark grey for text */
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
@@ -133,43 +133,16 @@ main {
     max-width: 600px;
     text-align: center;
     animation: fadeIn 0.6s ease-in-out;
-    margin: 20px auto; /* Centered with top/bottom margin */
-}
-
-/* Other sections on the page, like About Us & Contact Us */
-#about, #contact {
-    max-width: 800px;
     margin: 20px auto;
-    padding: 40px;
-    background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    text-align: center;
-    color: #333;
 }
 
-/* Keyframe animations and other existing rules are kept as they are good */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+h1 {
+    color: #212529; /* Dark grey for main headings */
 }
-
-/* Form inputs */
-input[type="email"], input[type="password"], input[type="text"] {
-    width: 100%;
-    padding: 0.8rem;
-    margin: 0.5rem 0;
-    border-radius: 0.5rem;
-    border: 1px solid #ccc;
-    box-sizing: border-box; /* Crucial for form elements */
-}
-
-/* Headings */
-h1 { color: #764ba2; }
 
 /* Dashboard grid, buttons, etc. */
 button, .btn {
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: #e67e22; /* Vibrant orange for buttons */
     color: white;
     border: none;
     padding: 0.8rem 1.2rem;
@@ -182,51 +155,275 @@ button, .btn {
 
 button:hover, .btn:hover {
     transform: scale(1.05);
-    background: linear-gradient(90deg, #5a6edc, #6a3e9e);
+    background: #d35400; /* Darker orange on hover */
 }
+
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, min-content);
+    justify-content: center;
     gap: 2rem;
     margin-top: 2rem;
 }
+
 .card {
-    background: white;
-    color: #333;
+    background: #ffffff;
+    color: #212529;
     padding: 1.5rem;
     border-radius: 1rem;
     box-shadow: 0 6px 16px rgba(0,0,0,0.1);
     text-align: left;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 24px rgba(0,0,0,0.15);
 }
+
 .card h2 {
     margin-bottom: 1rem;
-    color: #667eea;
+    color: #212529; /* Dark grey for card headings */
 }
+
 .card ul {
     list-style: none;
     padding: 0;
     margin: 0 0 1rem 0;
 }
+
 .card ul li {
     padding: 0.3rem 0;
     border-bottom: 1px solid #eee;
 }
+
 .card ul li a {
     text-decoration: none;
-    color: #667eea;
+    color: #3498db; /* Bright blue for card links */
     font-weight: 500;
 }
+
 .card ul li a:hover {
-    color: #764ba2;
+    color: #e67e22; /* Vibrant orange on hover */
 }
+
 .no-card {
     background: none;
     box-shadow: none;
     padding: 0;
     border-radius: 0;
+}
+
+/* Form inputs */
+input[type="email"], input[type="password"], input[type="text"] {
+    width: 100%;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Styling for the form container */
+.form-container {
+    background: #ffffff;
+    color: #212529;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Styling for the individual form groups */
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+/* Ensure form labels are block-level for better spacing */
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+/* Style for inputs and textareas */
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Flashes messages */
+.flashes {
+    list-style-type: none;
+    padding: 0;
+    margin: 1rem auto;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* Success messages - Green */
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Error messages - Red */
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Info messages - Blue */
+.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Custom CSS to center carousel images if they are smaller than the carousel item */
+.carousel-item img {
+    margin: auto; /* This will horizontally center block-level images */
+    display: block; /* Ensure it behaves as a block element for margin:auto to work */
+    object-fit: contain; /* Prevents stretching and maintains aspect ratio */
+    max-height: 500px; /* Example: set a max height if images are very tall, adjust as needed */
+    width: auto; /* Allow width to adjust based on height to maintain aspect ratio */
+}
+
+.carousel-caption h5,
+.carousel-caption p {
+    color: #1d0d77; /* A dark gray color */
+}
+
+/* --- EduBot Chatbot Styles --- */
+#edubot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#open-chat-btn {
+    background-color: #f19346;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 25px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+#open-chat-btn:hover {
+    transform: scale(1.05);
+}
+
+#chat-window {
+    width: 320px;
+    height: 400px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#edubot-container.open #chat-window {
+    display: flex;
+}
+
+#chat-header {
+    background-color: #e78834;
+    color: white;
+    padding: 10px;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#chat-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+#close-chat-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#chat-log {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.chat-message {
+    padding: 8px 12px;
+    border-radius: 15px;
+    margin-bottom: 8px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #e0e0e0;
+    color: #333;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.bot-message {
+    background-color: #e78834;
+    color: white;
+    align-self: flex-start;
+    margin-right: auto;
+}
+
+#chat-input-container {
+    padding: 10px;
+    display: flex;
+    border-top: 1px solid #ccc;
+}
+
+#chat-input {
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 8px 12px;
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+#send-chat-btn {
+    background-color: #e78834;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    cursor: pointer;
 }

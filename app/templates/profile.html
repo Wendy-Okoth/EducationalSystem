@@ -2,6 +2,7 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
+<section id="contact-form" class="form-container">
 <div class="profile-card">
     <h2>👤 Student Profile</h2>
 
@@ -12,4 +13,5 @@
 
     <a href="{{ url_for('student.edit_profile') }}">✏️ Edit Profile</a>
 </div>
+</section>
 {% endblock %}

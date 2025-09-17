@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,27 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}EduSystem{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-  {% block navbar %}
-  <nav class="navbar">
-    <div class="nav-brand">EduSystem</div>
-    <ul class="nav-links">
-      <li><a href="{{ url_for('teacher.dashboard') }}">Dashboard</a></li>
-      <li><a href="{{ url_for('teacher.profile') }}">Profile</a></li>
-      <li><a href="{{ url_for('teacher.calendar') }}">Calendar</a></li>
-      <li><a href="{{ url_for('teacher.subjects') }}">Subjects</a></li>
-      <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-    </ul>
-  </nav>
-  {% endblock %}
-  
+    <header class="header">
+        <div class="header-container">
+            <a href="{{ url_for('teacher.dashboard') }}">
+                <img src="{{ url_for('static', filename='images/edulogo.png') }}" alt="EduSystem Logo" class="logo">
+            </a>
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('teacher.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('teacher.profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('teacher.calendar') }}">Calendar</a></li>
+                    <li><a href="{{ url_for('teacher.subjects') }}">Subjects</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-    <!-- Main content -->
-    <div class="container">
+    <main class="container">
         {% block content %}{% endblock %}
+    </main>
+
+       <footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h4>Info</h4>
+           <P><a href="#">EduSystem Website</a></P> 
+           <P><a href="#">e-Library</a></P> 
+            <P><a href="#">Scholarships available</a></P>
+        </div>
+        
+        <div class="footer-section">
+            <h4>Contact Us</h4>
+            <p>Email: support@edusystem.com</p>
+            <p>Phone: +2547 456 7890</p>
+        </div>
+
+        <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-icons">
+                <a href="#"><img src="{{ url_for('static', filename='images/instagram.png') }}" alt="Instagram"></a>
+                <a href="#"><img src="{{ url_for('static', filename='images/tiktok.png') }}" alt="TikTok"></a>
+                <a href="#"><img src="{{ url_for('static', filename='images/whatsapp.png') }}" alt="Twitter"></a>
+                <a href="#"><img src="{{ url_for('static', filename='images/facebook.png') }}" alt="Facebook"></a>
+            </div>
+        </div>
     </div>
+    
+    <div class="footer-copyright">
+        <p>&copy; 2025 EduSystem. All rights reserved.</p>
+    </div>
+</footer>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+

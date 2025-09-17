@@ -1,8 +1,24 @@
 {% extends "base_teacher.html" %}
+
 {% block title %}Teacher Dashboard{% endblock %}
 
-{% block content %}
-<h1>Teacher Dashboard</h1>
-<p>Welcome, , teacher! 📚</p>
+{% block navbar %}
+<nav class="navbar">
+    <ul class="nav-links">
+        <li><a href="{{ url_for('teacher.dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('teacher.profile') }}">Profile</a></li>
+        <li><a href="{{ url_for('teacher.calendar') }}">Calendar</a></li>
+        <li><a href="{{ url_for('teacher.subjects') }}">Subjects</a></li>
+        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+    </ul>
+</nav>
 {% endblock %}
 
+{% block content %}
+<section id="contact-form" class="form-container">
+<div class="container">
+    <h1>Teacher Dashboard</h1>
+    <p>Welcome, , teacher! 📚</p>
+</div>
+</section>
+{% endblock %}

@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "base_student.html" %}
 
 {% block content %}
+<section id="contact-form" class="form-container">
 <div class="container">
     <h2>📚 All Subjects</h2>
     <ul>
@@ -14,4 +15,5 @@
     </ul>
     <a href="{{ url_for('student.dashboard') }}" class="btn">⬅ Back to Dashboard</a>
 </div>
+</section>
 {% endblock %}
