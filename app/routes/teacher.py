@@ -4,13 +4,15 @@ from app.models import User
 
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
 
-@teacher_bp.route("/dashboard")
+@teacher_bp.route('/dashboard')
 def dashboard():
-    if "role" not in session or session["role"] != "TEACHER":
-        return redirect(url_for("auth.login"))
+    if 'user_id' not in session or session.get('role') != 'TEACHER':
+        return redirect(url_for('auth.login'))
+    
+    teacher = User.query.get(session['user_id'])
+    
+    return render_template('teacher_dashboard.html', teacher=teacher)
 
-    return render_template("teacher_dashboard.html")
-   
 @teacher_bp.route('/profile')
 def profile():
     if "role" not in session or session["role"] != "TEACHER":

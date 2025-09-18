@@ -291,7 +291,7 @@ input[type="email"], input[type="password"], input[type="text"] {
 /* Info messages - Blue */
 .info {
     background-color: #d1ecf1;
-    color: #0c5460;
+    color: #06424e;
     border: 1px solid #bee5eb;
     padding: 1rem;
     border-radius: 0.5rem;

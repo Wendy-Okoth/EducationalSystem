@@ -12,6 +12,10 @@ class Role:
     TEACHER = "TEACHER"
     ADMIN = "ADMIN"
 
+student_subjects = db.Table('student_subjects',
+    db.Column('student_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('subject_id', db.Integer, db.ForeignKey('subjects.id'), primary_key=True)
+)
 
 class User(db.Model):
     __tablename__ = "users"
@@ -30,6 +34,10 @@ class User(db.Model):
 
     # Relationships
     subjects = db.relationship("Subject", backref="teacher", lazy=True)
+
+    enrolled_subjects = db.relationship('Subject', secondary=student_subjects, lazy='subquery',
+        backref=db.backref('students', lazy=True)
+    )
 
 
     # Password helpers
