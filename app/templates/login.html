@@ -4,6 +4,7 @@
 {% block content %}
 <section id="contact-form" class="form-container">
     <h1>Login</h1>
+    <img src="{{ url_for('static', filename='images/edulogo.png') }}" alt="EduSystem Logo" class="form-logo"><br>
     <form method="POST" action="{{ url_for('auth.login') }}">
         <input type="email" name="email" placeholder="Email" required><br>
 
@@ -60,6 +61,12 @@
     right: 10px; /* Positions the icon from the right edge */
     cursor: pointer;
     color: #888;
+}
+.form-logo {
+    max-width: 120px; /* Change this value to your preferred size */
+    height: auto;
+    display: block;
+    margin: 0 auto 20px auto;
 }
 </style>
 {% endblock %}
