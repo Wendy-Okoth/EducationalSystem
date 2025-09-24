@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, session, redirect, url_for , request
-from app.models import User , db , Subject , SubjectContent
-
+from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , flash
+from app.models import User , db , Subject , SubjectContent , Assignment
+from datetime import datetime
 
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
 
@@ -79,3 +79,65 @@ def add_content():
         return redirect(url_for('teacher.add_content'))
     
     return render_template('add_content.html', subjects=subjects)
+
+@teacher_bp.route('/assignments')
+def assignments():
+    if not is_teacher():
+        return redirect(url_for('auth.login'))
+
+    teacher = User.query.get(session['user_id'])
+    my_assignments = Assignment.query.filter_by(teacher_id=teacher.id).order_by(Assignment.due_date.desc()).all()
+    
+    return render_template('assignments.html', assignments=my_assignments)
+
+@teacher_bp.route('/create_assignment', methods=['GET', 'POST'])
+def create_assignment():
+    if not is_teacher():
+        return redirect(url_for('auth.login'))
+
+    # Corrected line: Fetch all subjects from the database
+    subjects = Subject.query.all()
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        subject_id = request.form.get('subject_id')
+        due_date_str = request.form.get('due_date')
+
+        try:
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%dT%H:%M')
+        except (ValueError, TypeError):
+            flash("Invalid date format.", "danger")
+            return redirect(url_for('teacher.create_assignment'))
+
+        new_assignment = Assignment(
+            title=title,
+            content=content,
+            due_date=due_date,
+            teacher_id=session['user_id'], # Use session user_id
+            subject_id=subject_id
+        )
+
+        db.session.add(new_assignment)
+        db.session.commit()
+
+        flash("Assignment created successfully!", "success")
+        return redirect(url_for('teacher.assignments'))
+
+    return render_template('create_assignment.html', subjects=subjects)
+
+@teacher_bp.route('/api/assignments')
+def get_teacher_assignments():
+    if not is_teacher():
+        return jsonify([])
+        
+    teacher_id = session.get('user_id')
+    assignments = Assignment.query.filter_by(teacher_id=teacher_id).all()
+    
+    assignments_data = [{
+        'title': f"Assignment: {a.title}",
+        'start': a.due_date.isoformat(),
+        'end': a.due_date.isoformat(),
+    } for a in assignments]
+    
+    return jsonify(assignments_data)

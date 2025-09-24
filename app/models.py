@@ -108,11 +108,18 @@ class Assignment(db.Model):
     __tablename__ = "assignments"
 
     id = db.Column(db.Integer, primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    # Changed from course_id to subject_id to match your application's models
+    subject_id = db.Column(db.Integer, db.ForeignKey("subjects.id"), nullable=False)
+    # Added teacher_id to link the assignment to a specific teacher
+    teacher_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
-    due_date = db.Column(db.DateTime)
+    due_date = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    subject = db.relationship('Subject', backref='assignments', lazy=True)
+    teacher = db.relationship('User', backref='assignments', lazy=True)
 
 
 class Submission(db.Model):

@@ -1,0 +1,46 @@
+{% extends "base_teacher.html" %} 
+{% block title %}Content{% endblock %} 
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Assignment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <section id="contact-form" class="form-container">
+    <div class="container mt-5">
+        <h1 class="mb-4">Create New Assignment</h1>
+        <form method="POST" action="{{ url_for('teacher.create_assignment') }}">
+            <div class="mb-3">
+                <h5><label for="title" class="form-label">Assignment Title</label></h5>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <h5><label for="content" class="form-label">Assignment Content</label></h5>
+                <textarea class="form-control" id="content" name="content" rows="6" required></textarea>
+            </div>
+            <div class="mb-3">
+                <h5><label for="subject_id" class="form-label">Select Subject</label></h5>
+                <select class="form-control" id="subject_id" name="subject_id" required>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <h5><label for="due_date" class="form-label">Due Date and Time</label></h5>
+                <input type="datetime-local" class="form-control" id="due_date" name="due_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Post Assignment</button>
+            <a href="{{ url_for('teacher.assignments') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </section>
+</body>
+</html>
+{% endblock %}
