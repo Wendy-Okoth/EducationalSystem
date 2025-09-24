@@ -427,3 +427,11 @@ input[type="email"], input[type="password"], input[type="text"] {
     padding: 8px 15px;
     cursor: pointer;
 }
+
+/* Custom orange button style */
+.btn-primary {
+    color: #fff; /* White text */
+    background-color: #e78834; /* A shade of orange */
+    border-color: #e78834; /* Same as background */
+}
+

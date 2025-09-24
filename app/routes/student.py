@@ -74,30 +74,48 @@ def profile():
     return render_template("profile.html", student=student)
 
 @student_bp.route('/search_subjects')
-@login_required
 def search_subjects():
     """Route to search for subjects in the database."""
+    if 'user_id' not in session or session.get('role') != 'STUDENT':
+        return jsonify({'success': False, 'message': 'Authentication required.'}), 401
+    
     query = request.args.get('query', '')
     subjects = Subject.query.filter(Subject.name.ilike(f'%{query}%')).all()
     results = [{'id': s.id, 'name': s.name} for s in subjects]
     return jsonify(results)
 
 @student_bp.route('/add_subject', methods=['POST'])
-@login_required
 def add_subject():
-    """Route to add a subject to the student's enrollment."""
+    """Route to enroll a student in a subject using an enrollment key."""
+    # Add a manual session check to ensure the user is logged in
+    if 'user_id' not in session or session.get('role') != 'STUDENT':
+        return jsonify({'success': False, 'message': 'Authentication required.'}), 401
+
     data = request.json
     subject_id = data.get('subject_id')
-    
+    enrollment_key = data.get('enrollment_key')
+
+    if not subject_id or not enrollment_key:
+        return jsonify({'success': False, 'message': 'Missing subject ID or enrollment key.'})
+
     subject_to_add = Subject.query.get(subject_id)
-    
-    if subject_to_add:
-        # Check if the user is already enrolled in the subject
-        if subject_to_add not in current_user.enrolled_subjects:
-            current_user.enrolled_subjects.append(subject_to_add)
-            db.session.commit()
-            return jsonify({'success': True, 'message': 'Subject added!'})
-        else:
-            return jsonify({'success': False, 'message': 'Subject is already in your list.'})
-    
-    return jsonify({'success': False, 'message': 'Subject not found.'})
+
+    if not subject_to_add:
+        return jsonify({'success': False, 'message': 'Subject not found.'})
+
+    # Validate the enrollment key
+    if subject_to_add.enrollment_key != enrollment_key:
+        return jsonify({'success': False, 'message': 'Invalid enrollment key.'})
+
+    # Get the current user from the session
+    current_user = User.query.get(session['user_id'])
+
+    # Check if the user is already enrolled
+    if subject_to_add in current_user.enrolled_subjects:
+        return jsonify({'success': False, 'message': 'You are already enrolled in this subject.'})
+
+    # If the key is valid and not already enrolled, add the subject
+    current_user.enrolled_subjects.append(subject_to_add)
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Successfully enrolled!'})

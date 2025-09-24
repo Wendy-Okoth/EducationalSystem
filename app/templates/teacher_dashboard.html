@@ -8,6 +8,7 @@
         <li><a href="{{ url_for('teacher.dashboard') }}">Dashboard</a></li>
         <li><a href="{{ url_for('teacher.profile') }}">Profile</a></li>
         <li><a href="{{ url_for('teacher.calendar') }}">Calendar</a></li>
+        <li><a href="{{ url_for('teacher.add_content') }}">Content</a></li>
         <li><a href="{{ url_for('teacher.subjects') }}">Subjects</a></li>
         <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
     </ul>
@@ -17,8 +18,7 @@
 {% block content %}
 <section id="contact-form" class="form-container">
 <div class="container">
-    <h1>Teacher Dashboard</h1>
-    <p>Welcome, , teacher! 📚</p>
+    <h1>Welcome, Mwalimu {{ teacher.name if teacher else 'teacher' }}📚</h1>
 </div>
 </section>
 {% endblock %}

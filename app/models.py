@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
+from datetime import datetime
 
 # Role constants
 class Role:
@@ -76,8 +77,22 @@ class Subject(db.Model):
     name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     teacher_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    enrollment_key = db.Column(db.String(50), unique=True, nullable=False)  # Add this line
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Define the one-to-many relationship to SubjectContent
+    contents = db.relationship('SubjectContent', backref='subject', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<Subject {self.name}>'
+
+class SubjectContent(db.Model):
+    __tablename__ = 'subject_contents'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(128), nullable=False)
+    content_body = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
 
 class Material(db.Model):
     __tablename__ = "materials"
