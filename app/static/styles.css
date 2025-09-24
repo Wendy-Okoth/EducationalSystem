@@ -435,3 +435,19 @@ input[type="email"], input[type="password"], input[type="text"] {
     border-color: #e78834; /* Same as background */
 }
 
+.notification-icon {
+    position: relative; /* Allows the badge to be positioned relative to the icon */
+    display: inline-block;
+}
+
+.notification-icon .badge {
+    position: absolute;
+    top: -5px; /* Adjust as needed */
+    right: -10px; /* Adjust as needed */
+    padding: 3px 6px;
+    border-radius: 50%;
+    background-color: #e78834;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+}

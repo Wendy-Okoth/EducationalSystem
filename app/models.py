@@ -142,4 +142,22 @@ class Enrollment(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
     enrolled_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.String(255), nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    user = db.relationship('User', backref='notifications', lazy=True)
+
+class CompletedAssignment(db.Model):
+    __tablename__ = 'completed_assignments'
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False)
+    completion_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    student = db.relationship('User', backref='completed_assignments', lazy=True)
+    assignment = db.relationship('Assignment', backref='completions', lazy=True)

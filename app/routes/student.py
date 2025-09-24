@@ -1,13 +1,17 @@
 from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify
-from app.models import User, Role , Subject , db   # adjust if your models file is in a different place
+from app.models import User, Role , Subject , db ,  Assignment , Notification , CompletedAssignment
 from app import db
 from flask_login import current_user, login_required
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
 
+def is_student():
+    """Helper function to check if the user has a student role."""
+    return session.get('role') == 'STUDENT'
+
 @student_bp.route('/dashboard')
 def dashboard():
-    if 'user_id' not in session or session.get('role') != 'STUDENT':
+    if not is_student():
         return redirect(url_for('auth.login'))
     
     student = User.query.get(session['user_id'])
@@ -28,14 +32,14 @@ def edit_profile():
 
 @student_bp.route("/calendar")
 def calendar():
-    if "role" not in session or session["role"] != "STUDENT":
+    if not is_student():
         return redirect(url_for("auth.login"))
-    return render_template("student_calendar.html")  
+    return render_template("student_calendar.html") 
 
 # Subject page
 @student_bp.route("/subject/<int:subject_id>")
 def subject(subject_id):
-    if "role" not in session or session["role"] != "STUDENT":
+    if not is_student():
         return redirect(url_for("auth.login"))
 
     # For now, just dummy data until you connect DB
@@ -50,7 +54,7 @@ def subject(subject_id):
 
 @student_bp.route("/subjects")
 def subjects():
-    if "role" not in session or session["role"] != "STUDENT":
+    if not is_student():
         return redirect(url_for("auth.login"))
 
     subjects = [
@@ -62,7 +66,7 @@ def subjects():
 
 @student_bp.route("/profile")
 def profile():
-    student_id = session.get("user_id")  # user_id is stored in session after login
+    student_id = session.get("user_id")
     
     if not student_id:
         return redirect(url_for("auth.login"))
@@ -76,7 +80,7 @@ def profile():
 @student_bp.route('/search_subjects')
 def search_subjects():
     """Route to search for subjects in the database."""
-    if 'user_id' not in session or session.get('role') != 'STUDENT':
+    if not is_student():
         return jsonify({'success': False, 'message': 'Authentication required.'}), 401
     
     query = request.args.get('query', '')
@@ -88,7 +92,7 @@ def search_subjects():
 def add_subject():
     """Route to enroll a student in a subject using an enrollment key."""
     # Add a manual session check to ensure the user is logged in
-    if 'user_id' not in session or session.get('role') != 'STUDENT':
+    if not is_student():
         return jsonify({'success': False, 'message': 'Authentication required.'}), 401
 
     data = request.json
@@ -119,3 +123,100 @@ def add_subject():
     db.session.commit()
 
     return jsonify({'success': True, 'message': 'Successfully enrolled!'})
+
+@student_bp.route('/api/assignments')
+def get_student_assignments():
+    if not is_student():
+        return jsonify([])
+
+    student = User.query.get(session.get('user_id'))
+    if not student:
+        return jsonify([])
+
+    # Get all assignments for subjects the student is enrolled in
+    enrolled_subjects = student.enrolled_subjects
+    assignments_data = []
+
+    for enrollment in enrolled_subjects:
+        subject_assignments = Assignment.query.filter_by(subject_id=enrollment.subject_id).all()
+        for assignment in subject_assignments:
+            assignments_data.append({
+                'title': f"Assignment: {assignment.title}",
+                'start': assignment.due_date.isoformat(),
+                'end': assignment.due_date.isoformat(),
+                'allDay': False
+            })
+
+    return jsonify(assignments_data)
+
+@student_bp.route('/api/notifications')
+def get_unread_notifications():
+    """API endpoint to get the count of unread notifications for the student."""
+    if not is_student():
+        return jsonify({'count': 0}), 401
+
+    unread_count = Notification.query.filter_by(user_id=session['user_id'], is_read=False).count()
+
+    return jsonify({'count': unread_count})
+
+@student_bp.route('/api/notifications/all')
+def get_all_notifications():
+    """API endpoint to get all notifications for a student."""
+    if not is_student():
+        return jsonify([]), 401
+
+    notifications = Notification.query.filter_by(user_id=session['user_id']).order_by(Notification.created_at.desc()).all()
+    
+    notifications_data = [{
+        'id': n.id,
+        'message': n.message,
+        'is_read': n.is_read,
+        'timestamp': n.created_at.isoformat()
+    } for n in notifications]
+    
+    return jsonify(notifications_data)
+
+@student_bp.route('/notifications')
+def notifications():
+    if not is_student():
+        return redirect(url_for('auth.login'))
+    # This will render a new template to display all notifications
+    return render_template('student_notifications.html')
+
+@student_bp.route('/api/progress')
+def get_student_progress():
+    if not is_student():
+        return jsonify({})
+
+    student = User.query.get(session.get('user_id'))
+    if not student:
+        return jsonify({})
+
+    progress_data = {}
+    
+    # Get all subjects the student is enrolled in
+    enrolled_subjects = [e.subject for e in student.enrolled_subjects]
+
+    for subject in enrolled_subjects:
+        total_assignments = Assignment.query.filter_by(subject_id=subject.id).count()
+        
+        # Count assignments completed by the student for this subject
+        completed_assignments = CompletedAssignment.query.filter(
+            CompletedAssignment.student_id == student.id,
+            CompletedAssignment.assignment_id.in_(
+                db.session.query(Assignment.id).filter(Assignment.subject_id == subject.id)
+            )
+        ).count()
+
+        completion_percentage = 0
+        if total_assignments > 0:
+            completion_percentage = (completed_assignments / total_assignments) * 100
+
+        progress_data[subject.id] = {
+            'subject_name': subject.name,
+            'completed': completed_assignments,
+            'total': total_assignments,
+            'percentage': round(completion_percentage, 2)
+        }
+    
+    return jsonify(progress_data)

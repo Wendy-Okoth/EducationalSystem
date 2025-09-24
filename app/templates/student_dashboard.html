@@ -4,20 +4,32 @@
 
 {% block content %}
 <section id="contact-form" class="form-container">
-<h1> Welcome, {{ student.name if student else 'Student' }}👋</h1>
+    <h1> Welcome, {{ student.name if student else 'Student' }}👋</h1>
 </section>
+
 <section id="contact-form" class="form-container">
-<div class="search-section my-4">
-    <h3>Find Your Subjects</h3>
-    <div class="input-group mb-3">
-        <input type="text" id="subject-search" class="form-control" placeholder="Search for a subject..." aria-label="Search for a subject">
+    <div class="search-section my-4">
+        <h3>Find Your Subjects</h3>
+        <div class="input-group mb-3">
+            <input type="text" id="subject-search" class="form-control" placeholder="Search for a subject..." aria-label="Search for a subject">
+        </div>
+        <div id="search-results" class="list-group">
+        </div>
+        <div id="add-subject-message" class="mt-2"></div>
     </div>
-    <div id="search-results" class="list-group">
-    </div>
-    <div id="add-subject-message" class="mt-2"></div>
-</div>
 </section>
-  <div class="modal fade" id="enrollmentKeyModal" tabindex="-1" aria-labelledby="enrollmentKeyModalLabel" aria-hidden="true">
+
+<section class="form-container">
+    <div class="card">
+        <div class="card-header">
+            <h4>Subject Progress</h4>
+        </div>
+        <ul id="progress-list" class="list-group list-group-flush">
+            </ul>
+    </div>
+</section>
+
+<div class="modal fade" id="enrollmentKeyModal" tabindex="-1" aria-labelledby="enrollmentKeyModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -37,22 +49,22 @@
         </div>
     </div>
 </div>
- <div id="edubot-container">
-        <div id="chat-window">
-            <div id="chat-header">
-                <h3>EduBot</h3>
-                <button id="close-chat-btn">&times;</button>
-            </div>
-            <div id="chat-log">
-                <div class="chat-message bot-message">Hello there! I'm EduBot. I can provide tips for your assignments in various subjects. Just ask me and I'll answer straight away'.</div>
-            </div>
-            <div id="chat-input-container">
-                <input type="text" id="chat-input" placeholder="Type a message...">
-                <button id="send-chat-btn">Send</button>
-            </div>
+<div id="edubot-container">
+    <div id="chat-window">
+        <div id="chat-header">
+            <h3>EduBot</h3>
+            <button id="close-chat-btn">&times;</button>
         </div>
-        <button id="open-chat-btn">Chat with EduBot</button>
+        <div id="chat-log">
+            <div class="chat-message bot-message">Hello there! I'm EduBot. I can provide tips for your assignments in various subjects. Just ask me and I'll answer straight away'.</div>
+        </div>
+        <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button id="send-chat-btn">Send</button>
+        </div>
     </div>
+    <button id="open-chat-btn">Chat with EduBot</button>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -99,11 +111,9 @@
             }, 300);
         });
 
-        // Event listener to handle clicks on search results
         searchResultsDiv.addEventListener('click', function(event) {
             const clickedElement = event.target;
             
-            // If the user clicked the 'Add' button
             if (clickedElement.classList.contains('add-subject-btn')) {
                 const subjectId = clickedElement.getAttribute('data-subject-id');
                 const subjectName = clickedElement.getAttribute('data-subject-name');
@@ -114,7 +124,6 @@
             }
         });
 
-        // Handle the 'Enroll' button click inside the modal
         document.getElementById('enroll-button').addEventListener('click', function() {
             const enrollmentKey = document.getElementById('enrollment-key-input').value.trim();
 
@@ -138,13 +147,12 @@
                 messageDiv.textContent = data.message;
                 messageDiv.className = data.success ? 'mt-2 text-success' : 'mt-2 text-danger';
                 if (data.success) {
-                    // Optionally, redirect or reload the page to show enrolled subjects
-                    // window.location.reload(); 
+                    window.location.reload(); 
                 }
                 enrollmentKeyModal.hide();
-                document.getElementById('enrollment-key-input').value = ''; // Clear input
-                searchInput.value = ''; // Clear search field
-                searchResultsDiv.innerHTML = ''; // Clear results
+                document.getElementById('enrollment-key-input').value = '';
+                searchInput.value = '';
+                searchResultsDiv.innerHTML = '';
             })
             .catch(error => {
                 console.error('Error adding subject:', error);
@@ -154,7 +162,7 @@
             });
         });
 
-        // --- EduBot Chatbot Logic (No changes needed) ---
+        // --- EduBot Chatbot Logic ---
         const chatContainer = document.getElementById("edubot-container");
         const openBtn = document.getElementById("open-chat-btn");
         const closeBtn = document.getElementById("close-chat-btn");
@@ -215,6 +223,47 @@
                 sendMessage();
             }
         });
+
+        // --- New Progress Bar Logic ---
+        const progressList = document.getElementById('progress-list');
+
+        fetch('/student/api/progress')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (Object.keys(data).length === 0) {
+                    progressList.innerHTML = '<li class="list-group-item text-muted">No subjects to track progress.</li>';
+                    return;
+                }
+
+                for (const subjectId in data) {
+                    const progress = data[subjectId];
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item';
+                    listItem.innerHTML = `
+                        <h5 class="mb-1">${progress.subject_name}</h5>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" 
+                                style="width: ${progress.percentage}%;" 
+                                aria-valuenow="${progress.percentage}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                                ${progress.completed} / ${progress.total}
+                            </div>
+                        </div>
+                        <small class="text-muted">${progress.percentage}% completed</small>
+                    `;
+                    progressList.appendChild(listItem);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching progress data:', error);
+                progressList.innerHTML = '<li class="list-group-item text-danger">Error loading progress data.</li>';
+            });
     });
 </script>
 {% endblock %}

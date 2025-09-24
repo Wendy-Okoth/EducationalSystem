@@ -1,0 +1,32 @@
+{% extends "base_student.html" %}
+{% block title %}My Notifications{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">My Notifications</h1>
+    <ul id="notification-list" class="list-group">
+        </ul>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/student/api/notifications/all')
+            .then(response => response.json())
+            .then(data => {
+                const notificationList = document.getElementById('notification-list');
+                if (data.length === 0) {
+                    notificationList.innerHTML = '<li class="list-group-item text-muted">No notifications.</li>';
+                } else {
+                    data.forEach(notification => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = notification.message;
+                        if (notification.is_read) {
+                            li.classList.add('read'); // Add a class for styling read notifications
+                        }
+                        notificationList.appendChild(li);
+                    });
+                }
+            });
+    });
+</script>
+{% endblock %}
