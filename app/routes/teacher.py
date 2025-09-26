@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , flash
-from app.models import User , db , Subject , SubjectContent , Assignment
+from app.models import User , db , Subject , SubjectContent , Assignment , Quiz, Question, Option
 from datetime import datetime
 
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
@@ -141,3 +141,58 @@ def get_teacher_assignments():
     } for a in assignments]
     
     return jsonify(assignments_data)
+
+@teacher_bp.route('/quizzes/create', methods=['GET', 'POST'])
+def create_quiz():
+    # Authentication and role checking (assuming 'is_teacher' is implemented)
+    if 'user_id' not in session or session.get('role') != 'TEACHER':
+        return redirect(url_for('auth.login'))
+
+    teacher_id = session['user_id']
+    teacher_subjects = Subject.query.filter_by(teacher_id=teacher_id).all()
+
+    if request.method == 'POST':
+        try:
+            data = request.json
+            
+            # 1. Create the Quiz object
+            new_quiz = Quiz(
+                subject_id=data['subject_id'],
+                title=data['title'],
+                description=data.get('description', ''),
+                duration_minutes=data.get('duration_minutes', 30),
+                is_published=data.get('is_published', False)
+            )
+            db.session.add(new_quiz)
+            db.session.flush() # Get the new_quiz.id before committing
+
+            # 2. Add Questions and Options
+            for q_data in data.get('questions', []):
+                new_question = Question(
+                    quiz_id=new_quiz.id,
+                    text=q_data['text'],
+                    type=q_data.get('type', 'MCQ'),
+                    points=q_data.get('points', 1)
+                )
+                db.session.add(new_question)
+                db.session.flush()
+
+                # Add options only for MCQ type
+                if new_question.type == 'MCQ':
+                    for opt_data in q_data.get('options', []):
+                        new_option = Option(
+                            question_id=new_question.id,
+                            text=opt_data['text'],
+                            is_correct=opt_data.get('is_correct', False)
+                        )
+                        db.session.add(new_option)
+
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Quiz created successfully!', 'quiz_id': new_quiz.id})
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': f'Error creating quiz: {str(e)}'}), 500
+
+    # GET request: render the creation form
+    return render_template('create_quiz.html', subjects=teacher_subjects)

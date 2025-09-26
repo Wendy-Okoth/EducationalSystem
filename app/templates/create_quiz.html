@@ -1,0 +1,215 @@
+{% extends "base_teacher.html" %}
+{% block title %}Create Quiz{% endblock %}
+
+{% block content %}
+<section class="form-container">
+    <h2>Create New Quiz</h2>
+    <form id="quiz-form">
+        <div class="mb-3">
+            <label for="quiz-title" class="form-label">Quiz Title</label>
+            <input type="text" class="form-control" id="quiz-title" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="quiz-subject" class="form-label">Subject</label>
+            <select class="form-select" id="quiz-subject" required>
+                {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="quiz-duration" class="form-label">Duration (minutes)</label>
+            <input type="number" class="form-control" id="quiz-duration" value="30" min="5" required>
+        </div>
+
+        <hr>
+        
+        <h3>Questions</h3>
+        <div id="questions-container">
+            </div>
+
+        <button type="button" class="btn btn-secondary mt-3" id="add-mcq-btn">Add Multiple Choice Question</button>
+        <button type="button" class="btn btn-secondary mt-3" id="add-sa-btn">Add Short Answer Question</button>
+        
+        <hr>
+        
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="is-published">
+            <label class="form-check-label" for="is-published">Publish Immediately</label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Save Quiz</button>
+        <div id="message" class="mt-3"></div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let questionCounter = 0;
+
+    function addQuestion(type) {
+        questionCounter++;
+        const container = document.getElementById('questions-container');
+        const questionHtml = document.createElement('div');
+        questionHtml.className = 'card mb-3 question-card';
+        questionHtml.setAttribute('data-question-id', questionCounter);
+        questionHtml.setAttribute('data-question-type', type);
+
+        let optionsHtml = '';
+        if (type === 'MCQ') {
+            optionsHtml = `
+                <div class="options-container" data-question-id="${questionCounter}">
+                    </div>
+                <button type="button" class="btn btn-sm btn-outline-info mt-2" onclick="addOption(${questionCounter})">Add Option</button>
+            `;
+        } else {
+             optionsHtml = `<p class="text-muted">Expected Answer: The correct answer for a Short Answer question will be graded manually.</p>`;
+        }
+        
+        questionHtml.innerHTML = `
+            <div class="card-header d-flex justify-content-between">
+                Question #${questionCounter} (${type})
+                <button type="button" class="btn-close" aria-label="Close" onclick="removeQuestion(this)"></button>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Question Text</label>
+                    <textarea class="form-control question-text" rows="2" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Points</label>
+                    <input type="number" class="form-control question-points" value="1" min="1" required>
+                </div>
+                ${optionsHtml}
+            </div>
+        `;
+        container.appendChild(questionHtml);
+
+        // Add two default options for new MCQs
+        if (type === 'MCQ') {
+            addOption(questionCounter);
+            addOption(questionCounter);
+        }
+    }
+
+    function addOption(questionId) {
+        const optionsContainer = document.querySelector(`.options-container[data-question-id="${questionId}"]`);
+        const optionIndex = optionsContainer.children.length;
+        const optionHtml = document.createElement('div');
+        optionHtml.className = 'input-group mb-2';
+        optionHtml.innerHTML = `
+            <div class="input-group-text">
+                <input class="form-check-input mt-0 is-correct-option" type="radio" name="correct-option-${questionId}" aria-label="Radio button for following text input">
+            </div>
+            <input type="text" class="form-control option-text" placeholder="Option text" required>
+            <button type="button" class="btn btn-outline-danger" onclick="removeOption(this)">X</button>
+        `;
+        optionsContainer.appendChild(optionHtml);
+    }
+
+    function removeQuestion(button) {
+        button.closest('.question-card').remove();
+    }
+
+    function removeOption(button) {
+        button.closest('.input-group').remove();
+    }
+
+    document.getElementById('add-mcq-btn').addEventListener('click', () => addQuestion('MCQ'));
+    document.getElementById('add-sa-btn').addEventListener('click', () => addQuestion('Short Answer'));
+    
+    // --- Submission Logic ---
+    document.getElementById('quiz-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const questionsData = [];
+        let isValid = true;
+        
+        document.querySelectorAll('.question-card').forEach(qCard => {
+            const type = qCard.getAttribute('data-question-type');
+            const questionText = qCard.querySelector('.question-text').value;
+            const points = parseInt(qCard.querySelector('.question-points').value);
+            
+            if (!questionText) {
+                isValid = false;
+                alert('All question text fields must be filled.');
+                return;
+            }
+
+            const question = {
+                text: questionText,
+                type: type,
+                points: points,
+                options: []
+            };
+
+            if (type === 'MCQ') {
+                let correctCount = 0;
+                qCard.querySelectorAll('.options-container .input-group').forEach(optGroup => {
+                    const text = optGroup.querySelector('.option-text').value;
+                    const isCorrect = optGroup.querySelector('.is-correct-option').checked;
+                    
+                    if (!text) {
+                        isValid = false;
+                        alert('All option text fields must be filled.');
+                        return;
+                    }
+
+                    question.options.push({ text: text, is_correct: isCorrect });
+                    if (isCorrect) correctCount++;
+                });
+
+                if (correctCount !== 1) {
+                    isValid = false;
+                    alert('Each Multiple Choice Question must have exactly one correct answer selected.');
+                }
+            }
+
+            if (isValid) questionsData.push(question);
+        });
+
+        if (!isValid || questionsData.length === 0) {
+            if (questionsData.length === 0 && isValid) alert('Please add at least one question.');
+            return;
+        }
+
+        const quizData = {
+            title: document.getElementById('quiz-title').value,
+            subject_id: parseInt(document.getElementById('quiz-subject').value),
+            duration_minutes: parseInt(document.getElementById('quiz-duration').value),
+            is_published: document.getElementById('is-published').checked,
+            questions: questionsData
+        };
+
+        const messageDiv = document.getElementById('message');
+        messageDiv.textContent = 'Saving quiz...';
+        messageDiv.className = 'mt-3 text-info';
+
+        // Send data to the Flask API
+        fetch('/teacher/quizzes/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(quizData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                messageDiv.textContent = data.message;
+                messageDiv.className = 'mt-3 text-success';
+                // Optionally redirect
+                // window.location.href = `/teacher/quizzes/${data.quiz_id}`;
+            } else {
+                messageDiv.textContent = `Failed: ${data.message}`;
+                messageDiv.className = 'mt-3 text-danger';
+            }
+        })
+        .catch(error => {
+            console.error('Error during quiz submission:', error);
+            messageDiv.textContent = 'An unexpected error occurred.';
+            messageDiv.className = 'mt-3 text-danger';
+        });
+    });
+</script>
+{% endblock %}

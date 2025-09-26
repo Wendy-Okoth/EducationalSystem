@@ -161,3 +161,36 @@ class CompletedAssignment(db.Model):
 
     student = db.relationship('User', backref='completed_assignments', lazy=True)
     assignment = db.relationship('Assignment', backref='completions', lazy=True)
+
+class Quiz(db.Model):
+    __tablename__ = 'quizzes'
+    id = db.Column(db.Integer, primary_key=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text)
+    duration_minutes = db.Column(db.Integer, default=30)  # Time limit for the quiz
+    release_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_published = db.Column(db.Boolean, default=False)
+    
+    subject = db.relationship('Subject', backref=db.backref('quizzes', lazy=True))
+    questions = db.relationship('Question', backref='quiz', lazy=True, cascade='all, delete-orphan')
+
+class Question(db.Model):
+    __tablename__ = 'questions'
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(20), default='MCQ')  # e.g., 'MCQ', 'Short Answer'
+    points = db.Column(db.Integer, default=1)
+    
+    options = db.relationship('Option', backref='question', lazy=True, cascade='all, delete-orphan')
+
+class Option(db.Model):
+    __tablename__ = 'options'
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    text = db.Column(db.String(255), nullable=False)
+    is_correct = db.Column(db.Boolean, default=False)
+    
+    # Note: For Short Answer questions, the 'options' table is typically not used. 
+    # Grading for short answers requires a separate submission model and teacher review.
