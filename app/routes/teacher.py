@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , flash , current_app
-from app.models import User , db , Subject , SubjectContent , Assignment , Quiz, Question, Option
+from app.models import User , db , Subject , SubjectContent , Assignment , Quiz, Question, Option , Submission
 from datetime import datetime
 import os
 from flask import current_app
@@ -328,20 +328,23 @@ def subject_detail(subject_id):
         return redirect(url_for("auth.login"))
     
     subject = Subject.query.get_or_404(subject_id)
-    
-    # 1. Get all students enrolled
-    students = []
-    if hasattr(subject, 'students'):
-        students = subject.students
+    students = subject.students if hasattr(subject, 'students') else []
 
-    # 2. Get all uploaded content (The fix for your missing visibility)
-    from app.models import SubjectContent  # Ensure it is imported
-    contents = SubjectContent.query.filter_by(subject_id=subject_id).order_by(SubjectContent.created_at.desc()).all()
+    # 1. Fetch Lessons/Resources
+    contents = SubjectContent.query.filter_by(subject_id=subject_id)\
+               .order_by(SubjectContent.created_at.desc()).all()
+
+    # 2. Fetch all submissions for assignments belonging to THIS subject
+    # We join with Assignment to filter by subject_id
+    from app.models import Submission, Assignment
+    submissions = Submission.query.join(Assignment).filter(Assignment.subject_id == subject_id)\
+                  .order_by(Submission.submitted_at.desc()).all()
 
     return render_template('teacher_subject_detail.html', 
                            subject=subject, 
                            students=students,
-                           contents=contents)
+                           contents=contents,
+                           submissions=submissions)
 
 @teacher_bp.route('/edit_content/<int:content_id>', methods=['GET', 'POST'])
 def edit_content(content_id):
@@ -422,3 +425,21 @@ def remove_profile_image():
         session.pop('profile_image', None)
         flash('Profile image removed.', 'success')
     return redirect(url_for('teacher.profile'))
+
+@teacher_bp.route('/grade-submission/<int:submission_id>', methods=['POST'])
+def grade_submission(submission_id):
+    if not is_teacher():
+        return redirect(url_for("auth.login"))
+
+    submission = Submission.query.get_or_404(submission_id)
+    grade = request.form.get('grade')
+
+    if grade:
+        try:
+            submission.grade = float(grade)
+            db.session.commit()
+            flash(f"Successfully graded {submission.student.name}'s work.", "success")
+        except ValueError:
+            flash("Please enter a valid number for the grade.", "danger")
+    
+    return redirect(url_for('teacher.subject_detail', subject_id=submission.assignment.subject_id))

@@ -5,108 +5,71 @@
 {% block extra_css %}
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
 <style>
-    /* Theme Colors */
     :root {
         --kas-green: #2E5B27;
         --kas-brown: #D4A76A;
     }
 
-    /* Calendar Header Styling */
+    /* Standard Calendar Styling to match Teacher view */
     .fc .fc-toolbar-title {
         font-size: 1.5rem !important;
         font-weight: 800 !important;
         color: var(--kas-green);
-    }
-    
-    /* Hide default buttons because we use custom ones */
-    .fc-header-toolbar {
-        display: none !important;
+        text-transform: uppercase;
     }
 
-    /* Table & Border Styling */
     .fc-theme-standard td, .fc-theme-standard th {
         border-color: #f1f5f9 !important;
     }
 
-    .fc-col-header-cell {
-        background-color: #f8fafc;
-        padding: 12px 0 !important;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        color: #64748b;
+    /* Red Bracketed Deadline Styling */
+    .deadline-event {
+        background-color: transparent !important;
+        border: none !important;
+        color: #ef4444 !important; /* Red-500 */
+        font-weight: 800 !important;
+        font-size: 0.8rem !important;
     }
 
-    /* Event Styling */
-    .fc-event {
+    .deadline-bracket {
+        color: #ef4444;
+        font-weight: 900;
+        margin: 0 1px;
+    }
+
+    /* Regular Event Styling */
+    .fc-event:not(.deadline-event) {
         border-radius: 6px !important;
         padding: 2px 5px !important;
-        font-size: 0.85rem !important;
-        border: none !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: transform 0.2s;
-    }
-
-    .fc-event:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.1);
-    }
-
-    .fc-day-today {
-        background-color: rgba(212, 167, 106, 0.05) !important;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-    <section class="mb-8">
-        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 class="text-3xl font-black text-kas-dark-green mb-2 flex items-center">
-                        <i class="fas fa-calendar-alt mr-3 text-kas-light-brown"></i>
-                        Academic Calendar
-                    </h1>
-                    <p class="text-slate-600" id="current-date-label">Month Year</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="prev-month" class="p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition text-kas-dark-green">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button id="today-btn" class="px-6 py-2 rounded-xl bg-kas-dark-green text-white hover:bg-opacity-90 transition font-bold">
-                        Today
-                    </button>
-                    <button id="next-month" class="p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition text-kas-dark-green">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100 mb-8">
+        <h2 class="text-3xl font-black text-kas-dark-green mb-6 flex items-center">
+            <i class="fas fa-calendar-alt mr-3 text-kas-light-brown"></i> 
+            My Academic Schedule
+        </h2>
+        <div id="calendar"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-lg p-6 border border-slate-100">
+        <h2 class="text-xl font-bold text-kas-dark-green mb-6 flex items-center">
+            <span class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center mr-3">
+                <i class="fas fa-clock text-red-500 text-sm"></i>
+            </span>
+            Deadlines This Week
+        </h2>
+        
+        <div id="upcoming-events" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="col-span-full text-center py-4">
+                <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-kas-light-brown rounded-full"></div>
             </div>
         </div>
-    </section>
-
-    <section class="mb-8">
-        <div class="bg-white rounded-2xl shadow-xl p-6 border border-slate-100">
-            <div id="calendar"></div>
-        </div>
-    </section>
-
-    <section class="mb-12">
-        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
-            <h2 class="text-xl font-bold text-kas-dark-green mb-6 flex items-center">
-                <span class="w-8 h-8 rounded-lg bg-kas-light-brown/10 flex items-center justify-center mr-3">
-                    <i class="fas fa-bolt text-kas-light-brown text-sm"></i>
-                </span>
-                Due This Week
-            </h2>
-            
-            <div id="upcoming-events" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-full text-center py-8">
-                    <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-kas-light-brown rounded-full" role="status"></div>
-                </div>
-            </div>
-        </div>
-    </section>
+    </div>
 </div>
 {% endblock %}
 
@@ -115,65 +78,70 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
-        const dateLabel = document.getElementById('current-date-label');
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            dayMaxEvents: true,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek'
+            },
             height: 'auto',
             events: '/student/api/calendar_events',
             
-            // Sync custom title
-            datesSet: function(info) {
-                dateLabel.innerText = info.view.title;
+            // Custom Content Logic for Brackets
+            eventContent: function(arg) {
+                // Check if the event is a deadline (Assignments/Quizzes)
+                const isDeadline = arg.event.extendedProps.type === 'assignment' || arg.event.title.toLowerCase().includes('due');
+                
+                if (isDeadline) {
+                    let title = arg.event.title.replace('Due:', '').trim();
+                    return {
+                        html: `<div class="deadline-event">
+                                <span class="deadline-bracket">[</span>${title}<span class="deadline-bracket">]</span>
+                               </div>`
+                    };
+                }
+                // Default rendering for other events (like classes)
+                return { 
+                    html: `<div class="p-1 font-bold">${arg.event.title}</div>` 
+                };
             },
 
-            eventContent: function(arg) {
-                return {
-                    html: `<div class="p-1 overflow-hidden text-ellipsis font-semibold">${arg.event.title}</div>`
-                };
+            eventClick: function(info) {
+                if(info.event.extendedProps.description) {
+                    alert(info.event.title + "\n\n" + info.event.extendedProps.description);
+                }
             }
         });
 
         calendar.render();
 
-        // Custom Navigation Logic
-        document.getElementById('prev-month').addEventListener('click', () => calendar.prev());
-        document.getElementById('next-month').addEventListener('click', () => calendar.next());
-        document.getElementById('today-btn').addEventListener('click', () => calendar.today());
-
-        // Load Upcoming Data
+        // Load "Due This Week" list
         fetch('/student/api/upcoming_events')
             .then(res => res.json())
             .then(events => {
                 const container = document.getElementById('upcoming-events');
                 if (events.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-span-full bg-slate-50 rounded-xl p-8 text-center text-slate-500 border border-dashed border-slate-300">
-                            <i class="fas fa-check-circle text-2xl mb-2 opacity-20"></i>
-                            <p>No assignments due in the next 7 days.</p>
-                        </div>`;
+                    container.innerHTML = `<p class="col-span-full text-center text-slate-400 py-4 font-medium">No urgent deadlines this week!</p>`;
                     return;
                 }
 
                 container.innerHTML = events.map(event => `
-                    <div class="group p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown hover:bg-white transition-all duration-300">
-                        <div class="flex items-center justify-between gap-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-kas-light-brown shadow-sm group-hover:bg-kas-light-brown group-hover:text-white transition-colors">
-                                    <i class="fas fa-${event.icon}"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-kas-dark-green">${event.title}</h4>
-                                    <p class="text-xs text-slate-500">${event.description}</p>
-                                </div>
+                    <div class="p-4 bg-red-50/50 rounded-2xl border border-red-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-red-500 shadow-sm">
+                                <i class="fas fa-exclamation-circle"></i>
                             </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold text-kas-dark-green">${event.time}</p>
-                                <p class="text-[10px] uppercase tracking-wider font-bold text-kas-light-brown">
-                                    ${new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                                </p>
+                            <div>
+                                <h4 class="font-bold text-kas-dark-green text-sm">${event.title}</h4>
+                                <p class="text-[10px] uppercase font-bold text-slate-400">${event.time}</p>
                             </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-black text-red-600 uppercase">
+                                [${new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}]
+                            </p>
                         </div>
                     </div>
                 `).join('');

@@ -143,9 +143,12 @@ class Submission(db.Model):
     feedback = db.Column(db.Text, nullable=True)
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # ADD THESE RELATIONSHIPS: Makes it easier to access student name and assignment title
-    assignment = db.relationship('Assignment', backref='submissions_list', lazy=True)
-    student = db.relationship('User', backref='student_submissions', lazy=True)
+    assignment = db.relationship('Assignment', backref=db.backref('submissions', lazy=True))
+    student = db.relationship('User', backref=db.backref('submissions', lazy=True))
+
+    @property
+    def is_graded(self):
+        return self.grade is not None
 
 
 class Enrollment(db.Model):

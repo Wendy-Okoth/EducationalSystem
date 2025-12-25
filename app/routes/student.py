@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify
+from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , current_app
 from app.models import User, Role , Subject , db ,  Assignment , Notification , CompletedAssignment , Submission , SubjectContent
 from app import db
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, session, jsonify, flash
 from datetime import datetime, timedelta
+import os
+from werkzeug.utils import secure_filename
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
 
@@ -43,7 +45,6 @@ def edit_profile():
         return redirect(url_for("student.profile"))
     return render_template("edit_profile.html") 
 
-
 @student_bp.route("/subject/<int:subject_id>")
 def subject_detail(subject_id):
     if not is_student():
@@ -58,18 +59,18 @@ def subject_detail(subject_id):
         flash("You are not enrolled in this subject.", "danger")
         return redirect(url_for('student.dashboard'))
 
-    # Fetch materials using the correct model name: SubjectContent
     contents_query = SubjectContent.query.filter_by(subject_id=subject.id).all()
-
-    # Fetch assignments
     assignments_query = Assignment.query.filter_by(subject_id=subject.id).order_by(Assignment.due_date.asc()).all()
     
     formatted_assignments = []
+    completed_count = 0  # <--- Added for progress
+    
     for a in assignments_query:
         submission = Submission.query.filter_by(assignment_id=a.id, student_id=student_id).first()
         status = 'pending'
         if submission:
             status = 'completed'
+            completed_count += 1 # <--- Increment count
         elif a.due_date < datetime.utcnow():
             status = 'overdue'
             
@@ -79,23 +80,26 @@ def subject_detail(subject_id):
             'description': a.description,
             'due_date': a.due_date.strftime('%d %b, %Y %H:%M'),
             'status': status,
-            'weight': getattr(a, 'weight', 0),
             'submitted_date': submission.submitted_at.strftime('%d %b, %H:%M') if submission else None
         })
 
-    subject_info = {
-        'id': subject.id,
-        'name': subject.name,
-        'code': subject.code,
-        'description': subject.description,
-        'teacher_name': subject.teacher.name if subject.teacher else "Not Assigned",
-        'enrolled_date': "Active" 
+    # --- ADD THIS PROGRESS DICTIONARY ---
+    total_tasks = len(formatted_assignments)
+    progress = {
+        'percentage': int((completed_count / total_tasks * 100)) if total_tasks > 0 else 0,
+        'completed': completed_count,
+        'total': total_tasks
     }
 
+    # Fetch all submissions for the "My Submissions" tab
+    submissions = Submission.query.filter_by(student_id=student_id).join(Assignment).filter(Assignment.subject_id == subject_id).all()
+
     return render_template('subject_detail.html', 
-                           subject=subject_info, 
+                           subject=subject, # Pass the whole object so .teacher works
                            assignments=formatted_assignments,
-                           contents=contents_query)
+                           contents=contents_query,
+                           submissions=submissions,
+                           progress=progress) # <--- Now the template will find 'progress'
 
 @student_bp.route("/calendar")
 def calendar():
@@ -422,3 +426,79 @@ def get_available_subjects():
     } for s in available_subjects]
     
     return jsonify({'success': True, 'subjects': results, 'form': student_form})
+
+@student_bp.route('/assignment/submit', methods=['POST'])
+def submit_assignment():
+    if 'submission_file' not in request.files:
+        flash('No file part', 'danger')
+        return redirect(request.referrer)
+    
+    file = request.files['submission_file']
+    assignment_id = request.form.get('assignment_id')
+    
+    # Using current_user.id is safer if you are using Flask-Login, 
+    # otherwise session.get('user_id') works if that's how you set it up.
+    student_id = session.get('user_id') 
+
+    if file and file.filename != '':
+        filename = secure_filename(f"sub_{student_id}_{assignment_id}_{file.filename}")
+        upload_path = os.path.join(current_app.static_folder, 'uploads/submissions')
+        
+        if not os.path.exists(upload_path):
+            os.makedirs(upload_path)
+            
+        file.save(os.path.join(upload_path, filename))
+
+        # --- THE FIX IS HERE ---
+        new_submission = Submission(
+            assignment_id=assignment_id,
+            student_id=student_id,
+            filename=filename  # Changed from file_path to filename to match your Model
+        )
+        # -----------------------
+        
+        db.session.add(new_submission)
+        db.session.commit()
+
+        flash('Assignment submitted successfully!', 'success')
+        
+    return redirect(request.referrer)
+
+@student_bp.route('/course-work/<int:subject_id>')
+def subject_learning_view(subject_id):
+    # 1. Access Control
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+
+    student = User.query.get(user_id)
+    subject = Subject.query.get_or_404(subject_id)
+    
+    # 2. Re-using your enrollment check logic
+    if subject not in student.enrolled_subjects:
+        flash("Please enroll to view materials.", "warning")
+        return redirect(url_for('student.dashboard'))
+
+    # 3. Specific Data for the Learning UI
+    materials = SubjectContent.query.filter_by(subject_id=subject_id).all()
+    assignments = Assignment.query.filter_by(subject_id=subject_id).all()
+    
+    # Get submissions to calculate progress
+    subs = Submission.query.join(Assignment).filter(
+        Submission.student_id == user_id,
+        Assignment.subject_id == subject_id
+    ).all()
+
+    # Progress Logic
+    total = len(assignments)
+    completed = len(subs)
+    progress_pct = (completed / total * 100) if total > 0 else 0
+
+    return render_template(
+        'subject_detail.html', # This uses the new UI you shared earlier
+        subject=subject,
+        contents=materials,
+        assignments=assignments,
+        submissions=subs,
+        progress={'percentage': int(progress_pct), 'completed': completed, 'total': total}
+    )
