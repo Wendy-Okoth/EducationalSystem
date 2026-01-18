@@ -1,0 +1,102 @@
+{% extends "base_student.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="sticky top-4 z-50 bg-white shadow-xl rounded-2xl p-6 border-2 border-kas-dark-green mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black text-kas-dark-green">{{ quiz.title }}</h1>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">{{ quiz.questions|length }} Questions Total</p>
+        </div>
+        <div class="text-right">
+            <div id="timer" class="text-3xl font-mono font-black text-red-600">--:--</div>
+            <p class="text-[10px] uppercase font-bold text-slate-400">Time Remaining</p>
+        </div>
+    </div>
+
+    <form id="quizForm" action="{{ url_for('student.submit_quiz', quiz_id=quiz.id) }}" method="POST">
+        {% for q in quiz.questions %}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-6 transition-all hover:border-slate-200">
+            <div class="flex gap-4 mb-6">
+                <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-kas-dark-green text-white flex items-center justify-center font-bold text-sm">
+                    {{ loop.index }}
+                </span>
+                <p class="text-lg font-bold text-slate-800">{{ q.text }}</p>
+            </div>
+            
+            <div class="space-y-3 ml-12">
+                {% for opt in q.options %}
+                <label class="flex items-center p-4 rounded-xl border-2 border-slate-50 hover:border-kas-light-brown cursor-pointer transition-all group relative">
+                    <input type="radio" 
+                           name="question_{{ q.id }}" 
+                           value="{{ opt.id }}" 
+                           class="w-5 h-5 text-kas-dark-green focus:ring-kas-light-brown border-slate-300">
+                    <span class="ml-4 font-medium text-slate-700 group-hover:text-kas-dark-green">{{ opt.text }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="mt-12 mb-20">
+            <button type="submit" 
+                    id="submitBtn"
+                    onclick="return confirmSubmission()"
+                    class="w-full py-5 bg-kas-dark-green text-white rounded-2xl font-black text-xl hover:bg-kas-light-brown hover:scale-[1.01] active:scale-[0.98] transition-all shadow-lg shadow-kas-dark-green/20">
+                Finish & Submit Quiz
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Highlight the label when the radio inside it is checked */
+    label:has(input:checked) {
+        border-color: #1e3a34; /* kas-dark-green */
+        background-color: #f0fdf4; /* Very light green */
+    }
+</style>
+
+<script>
+    // Timer Logic
+    let timeLeft = {{ quiz.duration_minutes * 60 }};
+    const timerDisplay = document.getElementById('timer');
+    const quizForm = document.getElementById('quizForm');
+    let isSubmitting = false;
+
+    const countdown = setInterval(() => {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        
+        timerDisplay.innerHTML = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        
+        // Change timer color to red when under 1 minute
+        if (timeLeft < 60) {
+            timerDisplay.classList.add('animate-pulse');
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            isSubmitting = true;
+            alert("Time is up! Your quiz will be submitted automatically.");
+            quizForm.submit();
+        }
+        timeLeft--;
+    }, 1000);
+
+    // Confirmation before manual submission
+    function confirmSubmission() {
+        return confirm("Are you sure you want to submit? You cannot change your answers after this.");
+    }
+
+    // Prevent accidental page leave/refresh
+    quizForm.addEventListener('submit', () => {
+        isSubmitting = true;
+    });
+
+    window.onbeforeunload = function() {
+        if (!isSubmitting) {
+            return "You have an active quiz. If you leave, your progress will be lost!";
+        }
+    };
+</script>
+{% endblock %}

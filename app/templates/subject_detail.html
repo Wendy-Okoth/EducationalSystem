@@ -112,7 +112,7 @@
                                     <p class="text-slate-600 mb-3">{{ assignment.description }}</p>
                                 </div>
                                 {% if assignment.status %}
-                                <span class="px-3 py-1 rounded-full text-xs font-bold 
+                                <span class="px-3 py-1 rounded-full text-xs font-bold
                                     {% if assignment.status == 'completed' %}bg-green-100 text-green-700
                                     {% elif assignment.status == 'overdue' %}bg-red-100 text-red-700
                                     {% else %}bg-blue-100 text-blue-700{% endif %}">
@@ -139,37 +139,60 @@
                     {% endif %}
                 </div>
 
-                <div id="quizzes-tab" class="tab-content hidden">
-                    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Available Quizzes</h2>
-                    {% if quizzes %}
-                    <div class="grid md:grid-cols-2 gap-4">
-                        {% for quiz in quizzes %}
-                        <div class="p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-kas-light-brown transition-all group">
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="bg-kas-light-brown/10 p-3 rounded-xl">
-                                    <i class="fas fa-stopwatch text-kas-light-brown"></i>
-                                </div>
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">{{ quiz.time_limit }} Mins</span>
-                            </div>
-                            <h3 class="font-bold text-lg text-kas-dark-green mb-2">{{ quiz.title }}</h3>
-                            <p class="text-sm text-slate-500 mb-6">{{ quiz.description or 'Test your knowledge on this subject.' }}</p>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-slate-600">{{ quiz.questions_count }} Questions</span>
-                                <a href="{{ url_for('student.take_quiz', quiz_id=quiz.id) }}" class="px-4 py-2 bg-kas-dark-green text-white rounded-lg font-bold text-sm hover:bg-kas-light-brown transition shadow-md">
-                                    Start Quiz
-                                </a>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
+        <div id="quizzes-tab" class="tab-content hidden">
+    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Available Quizzes</h2>
+    {% if quizzes %}
+    <div class="grid md:grid-cols-2 gap-4">
+        {% for quiz in quizzes %}
+        <div class="p-5 bg-white rounded-2xl border-2 {% if quiz.is_completed %}border-green-100 bg-green-50/30{% else %}border-slate-100{% endif %} hover:border-kas-light-brown transition-all group">
+            <div class="flex justify-between items-center mb-4">
+                <div class="{% if quiz.is_completed %}bg-green-100{% else %}bg-kas-light-brown/10{% endif %} p-3 rounded-xl transition-colors">
+                    <i class="fas {% if quiz.is_completed %}fa-check-double text-green-600{% else %}fa-stopwatch text-kas-light-brown{% endif %}"></i>
+                </div>
+                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">{{ quiz.duration }} Mins</span>
+            </div>
+            
+            <h3 class="font-bold text-lg text-kas-dark-green mb-2">{{ quiz.title }}</h3>
+            <p class="text-sm text-slate-500 mb-6">{{ quiz.description or 'No description provided.' }}</p>
+            
+            <div class="flex items-center justify-between">
+                <div class="text-xs font-bold text-slate-600">
+                    <p>{{ quiz.questions_count }} Questions</p>
+                    {% if not quiz.is_completed %}
+                        <p class="text-red-400">Ends: {{ quiz.end_time }}</p>
                     {% else %}
-                    <div class="text-center py-12 text-slate-500 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-                        <i class="fas fa-question-circle text-4xl mb-3 opacity-30"></i>
-                        <p class="text-lg font-medium">No quizzes available for this subject yet.</p>
-                    </div>
+                        <p class="text-green-600">Score: {{ quiz.score|int }}/{{ quiz.total_possible|int }}</p>
                     {% endif %}
                 </div>
+
+                {% if quiz.is_completed %}
+    <div class="flex gap-2">
+        <a href="{{ url_for('student.review_quiz', quiz_id=quiz.id) }}" 
+           class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition">
+            Review
+        </a>
+        <span class="px-4 py-2 bg-green-600 text-white rounded-lg font-bold text-sm flex items-center shadow-sm">
+            <i class="fas fa-check mr-2"></i> Done
+        </span>
+    </div>
+{% else %}
+    <a href="{{ url_for('student.take_quiz', quiz_id=quiz.id) }}" 
+       class="px-4 py-2 bg-kas-dark-green text-white rounded-lg font-bold text-sm hover:bg-kas-light-brown transition shadow-md">
+        Start Quiz
+    </a>
+{% endif %}
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-slate-500 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+        <i class="fas fa-question-circle text-4xl mb-3 opacity-30"></i>
+        <p class="text-lg font-medium">No published quizzes available for this subject.</p>
+    </div>
+    {% endif %}
+</div>
 
                 <div id="submissions-tab" class="tab-content hidden">
                     <h2 class="text-2xl font-bold text-kas-dark-green mb-4">My Submitted Work</h2>

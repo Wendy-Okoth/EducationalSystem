@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , current_app
-from app.models import User, Role , Subject , db ,  Assignment , Notification , CompletedAssignment , Submission , SubjectContent
+from app.models import User, Quiz , Role , Subject , db ,  Assignment , Notification ,Question, Option, QuizAttempt, CompletedAssignment , Submission , SubjectContent
 from app import db
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, session, jsonify, flash
@@ -59,31 +59,53 @@ def subject_detail(subject_id):
         flash("You are not enrolled in this subject.", "danger")
         return redirect(url_for('student.dashboard'))
 
+    # 1. FETCH CONTENT & ASSIGNMENTS
     contents_query = SubjectContent.query.filter_by(subject_id=subject.id).all()
     assignments_query = Assignment.query.filter_by(subject_id=subject.id).order_by(Assignment.due_date.asc()).all()
     
-    formatted_assignments = []
-    completed_count = 0  # <--- Added for progress
+    # 2. FETCH QUIZZES (With Completion Check)
+    quizzes_query = Quiz.query.filter_by(subject_id=subject.id, is_published=True).all()
     
+    formatted_quizzes = []
+    for q in quizzes_query:
+        # Check if this student has already attempted this quiz
+        attempt = QuizAttempt.query.filter_by(quiz_id=q.id, student_id=student_id).first()
+        
+        formatted_quizzes.append({
+            'id': q.id,
+            'title': q.title,
+            'description': q.description,
+            'duration': q.duration_minutes,
+            'questions_count': len(q.questions),
+            'end_time': q.end_time.strftime('%d %b, %H:%M') if q.end_time else "No Deadline",
+            'is_completed': True if attempt else False,
+            'score': attempt.score if attempt else 0,
+            'total_possible': attempt.total_possible if attempt else 0
+        })
+
+    # 3. FORMAT ASSIGNMENTS
+    formatted_assignments = []
+    completed_count = 0
     for a in assignments_query:
         submission = Submission.query.filter_by(assignment_id=a.id, student_id=student_id).first()
         status = 'pending'
+        
         if submission:
             status = 'completed'
-            completed_count += 1 # <--- Increment count
-        elif a.due_date < datetime.utcnow():
+            completed_count += 1
+        elif a.due_date and a.due_date < datetime.utcnow():
             status = 'overdue'
             
         formatted_assignments.append({
             'id': a.id,
             'title': a.title,
             'description': a.description,
-            'due_date': a.due_date.strftime('%d %b, %Y %H:%M'),
+            'due_date': a.due_date.strftime('%d %b, %Y %H:%M') if a.due_date else "No Deadline",
             'status': status,
             'submitted_date': submission.submitted_at.strftime('%d %b, %H:%M') if submission else None
         })
 
-    # --- ADD THIS PROGRESS DICTIONARY ---
+    # 4. PROGRESS CALCULATION
     total_tasks = len(formatted_assignments)
     progress = {
         'percentage': int((completed_count / total_tasks * 100)) if total_tasks > 0 else 0,
@@ -91,21 +113,23 @@ def subject_detail(subject_id):
         'total': total_tasks
     }
 
-    # Fetch all submissions for the "My Submissions" tab
+    # 5. SUBMISSIONS
     submissions = Submission.query.filter_by(student_id=student_id).join(Assignment).filter(Assignment.subject_id == subject_id).all()
 
-    return render_template('subject_detail.html', 
-                           subject=subject, # Pass the whole object so .teacher works
+    return render_template('subject_detail.html',
+                           subject=subject,
                            assignments=formatted_assignments,
                            contents=contents_query,
                            submissions=submissions,
-                           progress=progress) # <--- Now the template will find 'progress'
+                           progress=progress,
+                           quizzes=formatted_quizzes)
 
 @student_bp.route("/calendar")
 def calendar():
     if not is_student():
         return redirect(url_for("auth.login"))
     return render_template("student_calendar.html")
+
 
 @student_bp.route('/api/calendar_events')
 def calendar_events():
@@ -117,22 +141,47 @@ def calendar_events():
     events = []
     
     for subject in student.enrolled_subjects:
+        # 1. Fetch Assignments
         assignments = Assignment.query.filter_by(subject_id=subject.id).all()
         for a in assignments:
             events.append({
-                'id': a.id,
-                'title': f"[{subject.code}] {a.title}",
+                'id': f'assignment_{a.id}',
+                'title': f"📝 Assignment: {a.title}",
                 'start': a.due_date.isoformat(),
-                'backgroundColor': '#2E5B27', 
+                'backgroundColor': '#2E5B27', # Dark Green
                 'borderColor': '#2E5B27',
-                'textColor': '#ffffff',
                 'url': url_for('student.subject_detail', subject_id=subject.id)
             })
+            
+        # 2. Fetch Quizzes (Posted/Start Date and Deadline)
+        quizzes = Quiz.query.filter_by(subject_id=subject.id, is_published=True).all()
+        for q in quizzes:
+            # Event for the Quiz Deadline
+            events.append({
+                'id': f'quiz_due_{q.id}',
+                'title': f"🚩 QUIZ DUE: {q.title}",
+                'start': q.end_time.isoformat(),
+                'backgroundColor': '#DC2626', # Red
+                'borderColor': '#DC2626',
+                'url': url_for('student.subject_detail', subject_id=subject.id)
+            })
+            # Event for when the Quiz opens/was posted
+            if q.start_time:
+                events.append({
+                    'id': f'quiz_start_{q.id}',
+                    'title': f"🚀 Quiz Opens: {q.title}",
+                    'start': q.start_time.isoformat(),
+                    'backgroundColor': '#8B5E3C', # Light Brown (matching your theme)
+                    'borderColor': '#8B5E3C',
+                    'url': url_for('student.subject_detail', subject_id=subject.id)
+                })
+
     return jsonify(events)
+
 
 @student_bp.route('/api/upcoming_events')
 def upcoming_events():
-    """Returns assignments due in the next 7 days"""
+    """Returns assignments and quizzes due in the next 7 days"""
     if not is_student():
         return jsonify([])
 
@@ -143,6 +192,7 @@ def upcoming_events():
     
     upcoming = []
     for subject in student.enrolled_subjects:
+        # Get Assignments
         assignments = Assignment.query.filter(
             Assignment.subject_id == subject.id,
             Assignment.due_date >= now,
@@ -158,10 +208,28 @@ def upcoming_events():
                 'icon': 'tasks',
                 'description': f"Subject: {subject.name}"
             })
+
+        # Get Quizzes
+        quizzes = Quiz.query.filter(
+            Quiz.subject_id == subject.id,
+            Quiz.is_published == True,
+            Quiz.end_time >= now,
+            Quiz.end_time <= one_week_later
+        ).all()
+
+        for q in quizzes:
+            upcoming.append({
+                'title': q.title,
+                'date': q.end_time.isoformat(),
+                'time': q.end_time.strftime('%I:%M %p'),
+                'type': 'quiz',
+                'icon': 'stopwatch',
+                'description': f"Subject: {subject.name} - {q.duration_minutes} mins"
+            })
             
-    # Sort by date
     upcoming.sort(key=lambda x: x['date'])
-    return jsonify(upcoming)
+    return jsonify(upcoming) 
+
 
 @student_bp.route("/subjects")
 def subjects():
@@ -502,3 +570,68 @@ def subject_learning_view(subject_id):
         submissions=subs,
         progress={'percentage': int(progress_pct), 'completed': completed, 'total': total}
     )
+
+@student_bp.route('/quiz/take/<int:quiz_id>')
+def take_quiz(quiz_id):
+    # Security check: Ensure user is logged in
+    student_id = session.get('user_id')
+    if not student_id:
+        return redirect(url_for('auth.login'))
+
+    quiz = Quiz.query.get_or_404(quiz_id)
+    
+    # Check if already taken
+    if QuizAttempt.query.filter_by(quiz_id=quiz_id, student_id=student_id).first():
+        flash("Quiz already completed.", "info")
+        return redirect(url_for('student.subject_detail', subject_id=quiz.subject_id))
+        
+    return render_template('take_quiz.html', quiz=quiz)
+
+@student_bp.route('/quiz/submit/<int:quiz_id>', methods=['POST'])
+def submit_quiz(quiz_id):
+    student_id = session.get('user_id')
+    if not student_id:
+        return redirect(url_for('auth.login'))
+
+    quiz = Quiz.query.get_or_404(quiz_id)
+    score = 0
+    total_points = sum(q.points for q in quiz.questions)
+
+    for q in quiz.questions:
+        selected_option_id = request.form.get(f'question_{q.id}')
+        if selected_option_id:
+            # FIX: Convert selected_option_id to int because request.form returns strings
+            opt = Option.query.get(int(selected_option_id))
+            if opt and opt.is_correct:
+                score += q.points
+
+    new_attempt = QuizAttempt(
+        quiz_id=quiz.id,
+        student_id=student_id,
+        score=float(score),
+        total_possible=total_points,
+        status='completed',
+        end_time=datetime.utcnow()
+    )
+    
+    db.session.add(new_attempt)
+    db.session.commit()
+
+    flash(f"Quiz Submitted! Score: {int(score)}/{total_points}", "success")
+    return redirect(url_for('student.subject_detail', subject_id=quiz.subject_id))
+
+@student_bp.route("/quiz/review/<int:quiz_id>")
+def review_quiz(quiz_id):
+    student_id = session.get('user_id')
+    if not student_id:
+        return redirect(url_for("auth.login"))
+
+    quiz = Quiz.query.get_or_404(quiz_id)
+    attempt = QuizAttempt.query.filter_by(quiz_id=quiz_id, student_id=student_id).first()
+
+    if not attempt:
+        flash("You haven't completed this quiz yet.", "warning")
+        return redirect(url_for('student.subject_detail', subject_id=quiz.subject_id))
+
+    # We pass the quiz and attempt to the template
+    return render_template('quiz_review.html', quiz=quiz, attempt=attempt)
