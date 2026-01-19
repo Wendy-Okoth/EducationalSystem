@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , flash
 from app.models import User , db , Subject , SubjectContent , Assignment , Quiz, Question, Option
 from datetime import datetime
+import os
+from flask import current_app
 
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
 
@@ -13,9 +15,30 @@ def dashboard():
     if not is_teacher():
         return redirect(url_for('auth.login'))
 
-    teacher = User.query.get(session['user_id'])
+    teacher_id = session.get('user_id')
+    teacher = User.query.get(teacher_id)
     
-    return render_template('teacher_dashboard.html', teacher=teacher)
+    # Fetch data specifically for this teacher
+    my_subjects = Subject.query.filter_by(teacher_id=teacher_id).all()
+    my_assignments = Assignment.query.filter_by(teacher_id=teacher_id).all()
+    
+    return render_template('teacher_dashboard.html', 
+                           teacher=teacher,
+                           subjects=my_subjects,
+                           subjects_count=len(my_subjects),
+                           assignments_count=len(my_assignments),
+                           now=datetime.utcnow())
+
+@teacher_bp.route('/subjects')
+def subjects():
+    if not is_teacher():
+        return redirect(url_for("auth.login"))
+    
+    # Fetch the subjects assigned to this teacher
+    teacher_id = session.get("user_id")
+    my_subjects = Subject.query.filter_by(teacher_id=teacher_id).all()
+    
+    return render_template('manage_subjects.html', subjects=my_subjects)
 
 
 @teacher_bp.route('/profile')
@@ -41,44 +64,55 @@ def calendar():
         return redirect(url_for("auth.login"))
     return render_template("calendar.html")
 
+import os
+from werkzeug.utils import secure_filename
 
-@teacher_bp.route('/subjects')
-def subjects():
-    if not is_teacher():
-        return redirect(url_for("auth.login"))
-    return render_template("subjects.html")
-
-
-# New route to add subject content
 @teacher_bp.route('/add_content', methods=['GET', 'POST'])
 def add_content():
     if not is_teacher():
         return redirect(url_for('auth.login'))
 
-    subjects = Subject.query.all()
+    teacher_id = session.get('user_id')
+    my_subjects = Subject.query.filter_by(teacher_id=teacher_id).all()
 
     if request.method == 'POST':
         subject_id = request.form.get('subject_id')
         title = request.form.get('title')
         content_body = request.form.get('content_body')
+        
+        # 1. Handle File Upload
+        file = request.files.get('resource_file')
+        filename = None
+        
+        if file and file.filename != '':
+            filename = secure_filename(file.filename)
+            
+            # FIX: Point exactly to app/static/uploads (no resources folder)
+            # This uses the absolute path of your project
+            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
+            
+            # Ensure folder exists
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+                
+            upload_path = os.path.join(upload_folder, filename)
+            file.save(upload_path)
 
-        if not subject_id or not title or not content_body:
-            return "Missing form data!", 400
-
-        # Create a new SubjectContent object
+        # 2. Save to Database
         new_content = SubjectContent(
             title=title,
             content_body=content_body,
-            subject_id=subject_id
+            subject_id=subject_id,
+            file_path=filename 
         )
         
         db.session.add(new_content)
         db.session.commit()
         
-        # Redirect to prevent form resubmission
-        return redirect(url_for('teacher.add_content'))
+        flash("Content & Resource published successfully!", "success")
+        return redirect(url_for('teacher.subject_detail', subject_id=subject_id))
     
-    return render_template('add_content.html', subjects=subjects)
+    return render_template('add_content.html', subjects=my_subjects)
 
 @teacher_bp.route('/assignments')
 def assignments():
@@ -208,3 +242,61 @@ def list_quizzes():
     quizzes = Quiz.query.join(Subject).filter(Subject.teacher_id == teacher_id).all()
     
     return render_template('list_quizzes.html', quizzes=quizzes)
+
+@teacher_bp.route('/subject/<int:subject_id>')
+def subject_detail(subject_id):
+    if not is_teacher():
+        return redirect(url_for("auth.login"))
+    
+    subject = Subject.query.get_or_404(subject_id)
+    
+    # 1. Get all students enrolled
+    students = []
+    if hasattr(subject, 'students'):
+        students = subject.students
+
+    # 2. Get all uploaded content (The fix for your missing visibility)
+    from app.models import SubjectContent  # Ensure it is imported
+    contents = SubjectContent.query.filter_by(subject_id=subject_id).order_by(SubjectContent.created_at.desc()).all()
+
+    return render_template('teacher_subject_detail.html', 
+                           subject=subject, 
+                           students=students,
+                           contents=contents)
+
+@teacher_bp.route('/edit_content/<int:content_id>', methods=['GET', 'POST'])
+def edit_content(content_id):
+    if not is_teacher():
+        return redirect(url_for("auth.login"))
+    
+    content = SubjectContent.query.get_or_404(content_id)
+    # Get the subject so the template can show "Back to Math" etc.
+    subject = Subject.query.get(content.subject_id)
+    
+    if request.method == 'POST':
+        content.title = request.form.get('title')
+        content.content_body = request.form.get('content_body')
+        
+        db.session.commit()
+        flash('Content updated successfully!', 'success')
+        return redirect(url_for('teacher.subject_detail', subject_id=content.subject_id))
+    
+    return render_template('edit_content.html', content=content, subject=subject)
+
+@teacher_bp.route('/delete_content/<int:content_id>', methods=['POST'])
+def delete_content(content_id):
+    if not is_teacher():
+        return redirect(url_for("auth.login"))
+    
+    content = SubjectContent.query.get_or_404(content_id)
+    subject_id = content.subject_id
+    
+    if content.file_path:
+        file_path = os.path.join(current_app.root_path, 'static/uploads', content.file_path)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            
+    db.session.delete(content)
+    db.session.commit()
+    flash('Resource deleted permanently.', 'success')
+    return redirect(url_for('teacher.subject_detail', subject_id=subject_id))

@@ -1,0 +1,53 @@
+{% extends "base_teacher.html" %}
+
+{% block title %}{{ subject.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">{{ subject.name }}</h2>
+            <p class="text-muted">Form {{ subject.form }} | Code: {{ subject.code }}</p>
+        </div>
+        <a href="{{ url_for('teacher.add_content', subject_id=subject.id) }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Content
+        </a>
+    </div>
+
+    <hr>
+
+    {% if contents %}
+        <div class="row">
+            {% for item in contents %}
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light d-flex justify-content-between">
+                        <h5 class="mb-0">{{ item.title }}</h5>
+                        <small class="text-muted">{{ item.created_at.strftime('%d %b, %Y') }}</small>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ item.content_body | truncate(200) }}</p>
+                        
+                        {% if item.file_path %}
+                        <div class="mt-3 p-2 bg-light border rounded">
+                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                            <strong>Attached Resource:</strong> {{ item.file_path }}
+                            <a href="{{ url_for('static', filename='uploads/' + item.file_path) }}" 
+                               class="btn btn-sm btn-outline-primary ms-3" target="_blank">
+                               View File
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+            <p class="lead">No content has been uploaded for this subject yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

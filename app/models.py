@@ -100,8 +100,12 @@ class SubjectContent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
     content_body = db.Column(db.Text, nullable=False)
+    file_path = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<SubjectContent {self.title}>'
 
 class Material(db.Model):
     __tablename__ = "materials"
@@ -201,5 +205,3 @@ class Option(db.Model):
     text = db.Column(db.String(255), nullable=False)
     is_correct = db.Column(db.Boolean, default=False)
     
-    # Note: For Short Answer questions, the 'options' table is typically not used. 
-    # Grading for short answers requires a separate submission model and teacher review.

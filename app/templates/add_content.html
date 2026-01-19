@@ -1,41 +1,64 @@
-{% extends "base_teacher.html" %} 
-{% block title %}Content{% endblock %} 
-{% block content %} 
-<!DOCTYPE html> 
-<html lang="en"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Add Subject Content</title> 
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> 
-</head> 
-<body> 
-    <section id="contact-form" class="form-container">
-        <div class="container mt-5"> 
-            <h1 class="mb-4">Add Subject Content</h1> 
-            <form method="POST" action="{{ url_for('teacher.add_content') }}"> 
-                <div class="mb-3"> 
-                    <h5><label for="subject_id" class="form-label">Select Subject</label></h5> 
-                    <select class="form-control" id="subject_id" name="subject_id" required> 
-                        {% for subject in subjects %} 
-                        <option value="{{ subject.id }}">{{ subject.name }}</option> 
-                        {% endfor %} 
-                    </select> 
-                </div> 
-                <div class="mb-3"> 
-                    <h5><label for="title" class="form-label">Content Title</label></h5> 
-                    <input type="text" class="form-control" id="title" name="title" required> 
-                </div> 
-                <div class="mb-3"> 
-                    <h5><label for="content_body" class="form-label">Content Body</label></h5> 
-                    <textarea class="form-control" id="content_body" name="content_body" rows="10" required></textarea> 
-                </div> 
-                <button type="submit" class="btn btn-primary">Add Content</button> 
-            </form> 
-            <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-primary">Back to Dashboard</a> 
-        </div> 
-    </section>  
-</body> 
-</html> 
+{% extends "base_teacher.html" %}
+
+{% block title %}Add Subject Content{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="mb-0 fs-4"><i class="fas fa-file-upload me-2"></i>Add Subject Content</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('teacher.add_content') }}" enctype="multipart/form-data">
+                        
+                        <div class="mb-4">
+                            <label for="subject_id" class="form-label fw-bold">Select Subject</label>
+                            <select class="form-select shadow-sm" id="subject_id" name="subject_id" required>
+                                <option value="" selected disabled>Choose a subject...</option>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.name }} - Form {{ subject.form }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">Content Title</label>
+                            <input type="text" class="form-control shadow-sm" id="title" name="title" 
+                                   placeholder="e.g. Introduction to Algebra" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="resource_file" class="form-label fw-bold">Upload Resource (Optional)</label>
+                            <div class="input-group shadow-sm">
+                                <input type="file" class="form-control" id="resource_file" name="resource_file" 
+                                       accept=".pdf,.doc,.docx">
+                                <label class="input-group-text" for="resource_file"><i class="fas fa-paperclip"></i></label>
+                            </div>
+                            <div class="form-text text-muted">
+                                Accepted formats: <strong>PDF, DOC, DOCX</strong> (Max size: 10MB)
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="content_body" class="form-label fw-bold">Content Body / Lesson Notes</label>
+                            <textarea class="form-control shadow-sm" id="content_body" name="content_body" rows="8" 
+                                      placeholder="Write your lesson summary or notes here..." required></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3 border-top">
+                            <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-light border px-4 me-md-2">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 fw-bold">
+                                <i class="fas fa-paper-plane me-1"></i> Publish Content
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

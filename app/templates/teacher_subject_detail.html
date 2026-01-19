@@ -1,0 +1,131 @@
+{% extends "base_teacher.html" %}
+{% block title %}{{ subject.name }} - Details{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-kas-dark-green">{{ subject.name }}</h1>
+            <p class="text-slate-600">Subject Code: {{ subject.code or 'N/A' }} | Form: {{ subject.form }}</p>
+        </div>
+        <a href="{{ url_for('teacher.dashboard') }}" class="px-4 py-2 bg-slate-100 rounded-lg font-bold hover:bg-slate-200 transition">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="md:col-span-2 space-y-8">
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-slate-50">
+                    <h2 class="text-xl font-bold text-kas-dark-green">Enrolled Students</h2>
+                </div>
+                <div class="p-6">
+                    {% if students %}
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-400 text-sm uppercase">
+                                <th class="pb-4">Student Name</th>
+                                <th class="pb-4">Admission No.</th>
+                                <th class="pb-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for student in students %}
+                            <tr>
+                                <td class="py-4 font-bold text-kas-dark-green">{{ student.name }}</td>
+                                <td class="py-4 text-slate-600">{{ student.admission_no }}</td>
+                                <td class="py-4 text-right">
+                                    <button class="text-kas-light-brown hover:underline font-bold">View Grades</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-user-slash text-4xl text-slate-200 mb-3"></i>
+                        <p class="text-slate-500">No students enrolled yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-kas-dark-green">Lessons & Resources</h2>
+                    <span class="bg-kas-dark-green text-white px-3 py-1 rounded-full text-xs font-bold">{{ contents|length }} items</span>
+                </div>
+                <div class="p-6">
+                    {% if contents %}
+                        <div class="space-y-6">
+                            {% for item in contents %}
+                            <div class="p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition relative group">
+                                <div class="absolute top-4 right-4 flex gap-2">
+                                    <a href="{{ url_for('teacher.edit_content', content_id=item.id) }}" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition shadow-sm" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ url_for('teacher.delete_content', content_id=item.id) }}" method="POST" onsubmit="return confirm('Delete this lesson permanently?');">
+                                        <button type="submit" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition shadow-sm" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <h4 class="font-bold text-kas-dark-green pr-20">{{ item.title }}</h4>
+                                <p class="text-sm text-slate-600 mb-3">{{ item.content_body }}</p>
+                                
+                                {% if item.file_path %}
+                                <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200">
+                                    <div class="flex items-center text-sm text-slate-700">
+                                        <i class="fas fa-file-download text-kas-light-brown mr-3 text-lg"></i>
+                                        <span class="truncate max-w-[200px] font-medium">{{ item.file_path }}</span>
+                                    </div>
+                                    <a href="{{ url_for('static', filename='uploads/' + item.file_path) }}" target="_blank" class="text-xs font-black uppercase text-kas-light-brown hover:text-kas-dark-green tracking-wider" download>
+                                        Download
+                                    </a>
+                                </div>
+                                {% endif %}
+                                <div class="mt-2 text-[10px] text-slate-400 uppercase font-bold tracking-widest">
+                                    Uploaded: {{ item.created_at.strftime('%d %b, %Y') if item.created_at else 'Recently' }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-12">
+                            <i class="fas fa-folder-open text-4xl text-slate-200 mb-3"></i>
+                            <p class="text-slate-500">No materials uploaded yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100 sticky top-8">
+                <h3 class="font-bold text-kas-dark-green mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{{ url_for('teacher.add_content', subject_id=subject.id) }}" class="block w-full text-center py-3 bg-kas-dark-green text-white rounded-xl font-bold hover:bg-kas-light-brown transition shadow-md">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i> Upload Material
+                    </a>
+                    <a href="#" class="block w-full text-center py-3 border-2 border-kas-dark-green text-kas-dark-green rounded-xl font-bold hover:bg-kas-dark-green hover:text-white transition">
+                        <i class="fas fa-tasks mr-2"></i> Create Assignment
+                    </a>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Subject Stats</h4>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-slate-500 font-medium">Students</span>
+                        <span class="font-black text-kas-dark-green">{{ students|length }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500 font-medium">Total Resources</span>
+                        <span class="font-black text-kas-dark-green">{{ contents|length }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
