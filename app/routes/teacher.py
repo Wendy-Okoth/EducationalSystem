@@ -196,3 +196,15 @@ def create_quiz():
 
     # GET request: render the creation form
     return render_template('create_quiz.html', subjects=teacher_subjects)
+
+@teacher_bp.route('/quizzes')
+def list_quizzes():
+    # Authentication check...
+    if 'user_id' not in session or session.get('role') != 'TEACHER':
+        return redirect(url_for('auth.login'))
+
+    # Fetch all quizzes created by the current teacher
+    teacher_id = session['user_id']
+    quizzes = Quiz.query.join(Subject).filter(Subject.teacher_id == teacher_id).all()
+    
+    return render_template('list_quizzes.html', quizzes=quizzes)

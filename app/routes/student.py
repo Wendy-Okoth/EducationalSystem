@@ -16,7 +16,18 @@ def dashboard():
     
     student = User.query.get(session['user_id'])
     
-    return render_template('student_dashboard.html', student=student)
+    # Get subjects for student's form
+    student_form = getattr(student, 'form', None)
+    if student_form:
+        # Get subjects for the student's form that they're enrolled in
+        enrolled_subjects = [s for s in student.enrolled_subjects if s.form == student_form]
+    else:
+        enrolled_subjects = student.enrolled_subjects
+    
+    return render_template('student_dashboard.html', 
+                         student=student, 
+                         subjects=enrolled_subjects,
+                         student_form=student_form)
 
 @student_bp.route("/edit-profile", methods=["GET", "POST"])
 def edit_profile():
@@ -36,21 +47,34 @@ def calendar():
         return redirect(url_for("auth.login"))
     return render_template("student_calendar.html") 
 
-# Subject page
+# In student.py - Update the subject route
 @student_bp.route("/subject/<int:subject_id>")
 def subject(subject_id):
     if not is_student():
         return redirect(url_for("auth.login"))
-
-    # For now, just dummy data until you connect DB
-    subjects = {
-        1: "Mathematics",
-        2: "English",
-        3: "Science"
-    }
-    subject_name = subjects.get(subject_id, "Unknown Subject")
-
-    return render_template("student_subject.html", subject_name=subject_name, subject_id=subject_id)
+    
+    # Get the specific subject from database
+    subject = Subject.query.get_or_404(subject_id)
+    
+    # Check if student is enrolled in this subject
+    student_id = session.get('user_id')
+    student = User.query.get(student_id)
+    
+    if subject not in student.enrolled_subjects:
+        return redirect(url_for('student.dashboard'))
+    
+    # Get subject content
+    subject_contents = subject.contents.all()
+    
+    # Get assignments for this subject
+    assignments = Assignment.query.filter_by(subject_id=subject_id).all()
+    
+    return render_template(
+        "student_subject.html", 
+        subject=subject,
+        contents=subject_contents,
+        assignments=assignments
+    )
 
 @student_bp.route("/subjects")
 def subjects():
@@ -79,13 +103,29 @@ def profile():
 
 @student_bp.route('/search_subjects')
 def search_subjects():
-    """Route to search for subjects in the database."""
     if not is_student():
         return jsonify({'success': False, 'message': 'Authentication required.'}), 401
     
     query = request.args.get('query', '')
-    subjects = Subject.query.filter(Subject.name.ilike(f'%{query}%')).all()
-    results = [{'id': s.id, 'name': s.name} for s in subjects]
+    student_id = session.get('user_id')
+    student = User.query.get(student_id)
+    
+    # Filter by student's form
+    student_form = getattr(student, 'form', None)
+    
+    base_query = Subject.query.filter(Subject.name.ilike(f'%{query}%'))
+    
+    if student_form:
+        base_query = base_query.filter_by(form=student_form)
+    
+    subjects = base_query.all()
+    results = [{
+        'id': s.id, 
+        'name': f"{s.name} Form {s.form}",  # Show form in name
+        'code': s.code,
+        'form': s.form
+    } for s in subjects]
+    
     return jsonify(results)
 
 @student_bp.route('/add_subject', methods=['POST'])
@@ -220,3 +260,35 @@ def get_student_progress():
         }
     
     return jsonify(progress_data)
+
+@student_bp.route('/api/available_subjects')
+def get_available_subjects():
+    """Get subjects available for enrollment based on student's form"""
+    if not is_student():
+        return jsonify({'success': False, 'message': 'Authentication required.'}), 401
+    
+    student_id = session.get('user_id')
+    student = User.query.get(student_id)
+    
+    # Get student's form
+    student_form = getattr(student, 'form', None)
+    if not student_form:
+        return jsonify({'success': False, 'message': 'Student form not set. Please contact admin.'})
+    
+    # Get subjects for student's form that they're NOT enrolled in
+    enrolled_subject_ids = [s.id for s in student.enrolled_subjects]
+    
+    available_subjects = Subject.query.filter(
+        Subject.form == student_form,
+        ~Subject.id.in_(enrolled_subject_ids)
+    ).order_by(Subject.name).all()
+    
+    results = [{
+        'id': s.id,
+        'name': s.full_name,
+        'code': s.code,
+        'enrollment_key': s.enrollment_key,
+        'description': s.description
+    } for s in available_subjects]
+    
+    return jsonify({'success': True, 'subjects': results, 'form': student_form})

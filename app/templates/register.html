@@ -1,76 +1,220 @@
 {% extends "base.html" %}
-{% block title %}Register{% endblock %}
-{% block content %}
-<section id="contact-form" class="form-container">
-  <h1>Register</h1>
-<img src="{{ url_for('static', filename='images/edulogo.png') }}" alt="EduSystem Logo" class="form-logo"><br>
-<form method="POST">
-  <input type="text" name="firstname" placeholder="First Name" required><br>
-  <input type="text" name="lastname" placeholder="Last Name" required><br>
-  <input type="email" name="email" placeholder="Email" required><br>
-  <div class="password-field">
-    <input type="password" name="password" id="password-input" placeholder="Password" required>
-    <i class="fas fa-eye toggle-password" data-target="password-input"></i>
-</div>
+{% block title %}Register - Kasarani Academy LMS{% endblock %}
+{% block landing_content %}
+<section class="py-20 bg-gradient-to-b from-kas-slate to-kas-white">
+    <div class="max-w-2xl mx-auto px-6">
+        <!-- Registration Card -->
+        <div class="bg-kas-white rounded-2xl shadow-xl p-8 md:p-12 border border-slate-100">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <img src="{{ url_for('static', filename='images/kasalogo.png') }}" 
+                         alt="Kasarani Academy Logo" 
+                         class="h-16 w-auto">
+                </div>
+                <h1 class="text-3xl font-black text-kas-dark-green mb-3">
+                    Create Your <span class="text-kas-light-brown">Account</span>
+                </h1>
+                <p class="text-slate-600">
+                    Join Kasarani Academy's Learning Management System
+                </p>
+            </div>
 
-<div class="password-field">
-    <input type="password" name="confirm_password" id="confirm-password-input" placeholder="Confirm Password" required>
-    <i class="fas fa-eye toggle-password" data-target="confirm-password-input"></i>
-</div>
-  <select name="role">
-    <option value="STUDENT">Student</option>
-    <option value="TEACHER">Teacher</option>
-  </select><br>
-  <button type="submit">Register</button>
-</form>
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg mb-2 {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif category == 'success' %}bg-green-100 text-green-700 border border-green-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Registration Form -->
+            <form method="POST" class="space-y-6">
+                <!-- Name Fields -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="firstname" class="block text-sm font-bold text-kas-dark-green mb-2">First Name *</label>
+                        <input type="text" 
+                               id="firstname" 
+                               name="firstname" 
+                               placeholder="Enter your first name"
+                               class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                               required>
+                    </div>
+                    <div>
+                        <label for="lastname" class="block text-sm font-bold text-kas-dark-green mb-2">Last Name *</label>
+                        <input type="text" 
+                               id="lastname" 
+                               name="lastname" 
+                               placeholder="Enter your last name"
+                               class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-bold text-kas-dark-green mb-2">Email Address *</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           placeholder="student@kasaraniacademy.ac.ke"
+                           class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                           required>
+                    <p class="text-xs text-slate-500 mt-2">Use your school email if available</p>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password-input" class="block text-sm font-bold text-kas-dark-green mb-2">Password *</label>
+                    <div class="password-field relative">
+                        <input type="password" 
+                               id="password-input" 
+                               name="password" 
+                               placeholder="Create a strong password"
+                               class="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                               required>
+                        <i class="fas fa-eye toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-kas-light-brown"></i>
+                    </div>
+                    <div class="mt-2 text-xs text-slate-600">
+                        <p class="mb-1">Password must contain:</p>
+                        <ul class="grid grid-cols-2 gap-1">
+                            <li class="flex items-center"><i class="fas fa-check text-xs mr-1"></i> At least 8 characters</li>
+                            <li class="flex items-center"><i class="fas fa-check text-xs mr-1"></i> One uppercase letter</li>
+                            <li class="flex items-center"><i class="fas fa-check text-xs mr-1"></i> One lowercase letter</li>
+                            <li class="flex items-center"><i class="fas fa-check text-xs mr-1"></i> One number</li>
+                            <li class="flex items-center"><i class="fas fa-check text-xs mr-1"></i> One special character</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label for="confirm-password-input" class="block text-sm font-bold text-kas-dark-green mb-2">Confirm Password *</label>
+                    <div class="password-field relative">
+                        <input type="password" 
+                               id="confirm-password-input" 
+                               name="confirm_password" 
+                               placeholder="Re-enter your password"
+                               class="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                               required>
+                        <i class="fas fa-eye toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-kas-light-brown"></i>
+                    </div>
+                </div>
+
+                <!-- Role Selection -->
+                <div>
+                    <label for="role" class="block text-sm font-bold text-kas-dark-green mb-2">Select Your Role *</label>
+                    <select id="role" 
+                            name="role" 
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all bg-white"
+                            required>
+                        <option value="">-- Select Role --</option>
+                        <option value="STUDENT">Student</option>
+                        <option value="TEACHER">Teacher</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full bg-kas-dark-green text-kas-white px-6 py-4 rounded-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold text-lg hover:bg-kas-light-brown hover:text-kas-dark-green">
+                    Create Account
+                    <i class="fas fa-user-plus ml-3"></i>
+                </button>
+
+                <!-- Terms Agreement -->
+                <div class="text-center">
+                    <p class="text-xs text-slate-500">
+                        By registering, you agree to our 
+                        <a href="#" class="text-kas-light-brown hover:underline font-bold">Terms of Service</a> and 
+                        <a href="#" class="text-kas-light-brown hover:underline font-bold">Privacy Policy</a>
+                    </p>
+                </div>
+            </form>
+
+            <!-- Login Link -->
+            <div class="mt-8 pt-8 border-t border-slate-100 text-center">
+                <p class="text-slate-600">
+                    Already have an account?
+                    <a href="{{ url_for('auth.login') }}" class="text-kas-light-brown hover:text-kas-dark-green font-bold ml-2">
+                        Login here
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="mt-8 grid md:grid-cols-3 gap-6">
+            <div class="text-center p-4 bg-kas-light-brown/10 rounded-xl">
+                <i class="fas fa-shield-alt text-2xl text-kas-light-brown mb-3"></i>
+                <h3 class="font-bold text-kas-dark-green mb-2">Secure Platform</h3>
+                <p class="text-sm text-slate-600">Your data is protected with enterprise-grade security</p>
+            </div>
+            <div class="text-center p-4 bg-kas-dark-green/10 rounded-xl">
+                <i class="fas fa-clock text-2xl text-kas-dark-green mb-3"></i>
+                <h3 class="font-bold text-kas-dark-green mb-2">24/7 Access</h3>
+                <p class="text-sm text-slate-600">Access learning materials anytime, anywhere</p>
+            </div>
+            <div class="text-center p-4 bg-kas-light-brown/10 rounded-xl">
+                <i class="fas fa-headset text-2xl text-kas-light-brown mb-3"></i>
+                <h3 class="font-bold text-kas-dark-green mb-2">Support</h3>
+                <p class="text-sm text-slate-600">Technical support available during school hours</p>
+            </div>
+        </div>
+    </div>
 </section>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const toggleIcons = document.querySelectorAll('.toggle-password');
-        
-        toggleIcons.forEach(icon => {
-            icon.addEventListener('click', () => {
-                const targetId = icon.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
 
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            });
-        });
-    });
-</script>
 <style>
 .password-field {
     position: relative;
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
 }
 
 .password-field input {
     width: 100%;
-    padding-right: 40px; /* This creates space for the icon */
-    box-sizing: border-box; /* Ensures padding is included in the total width */
+    padding-right: 48px;
+    box-sizing: border-box;
 }
 
 .toggle-password {
     position: absolute;
-    right: 10px; /* Positions the icon from the right edge */
+    right: 16px;
     cursor: pointer;
-    color: #888;
+    transition: color 0.3s;
 }
-.form-logo {
-    max-width: 120px; /* Change this value to your preferred size */
-    height: auto;
-    display: block;
-    margin: 0 auto 20px auto;
+
+.toggle-password:hover {
+    color: #D4A76A;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleIcons = document.querySelectorAll('.toggle-password');
+    
+    toggleIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const targetId = icon.classList.contains('toggle-password') ? 
+                (icon.previousElementSibling.id || 'password-input') : 'password-input';
+            const passwordInput = document.getElementById(targetId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

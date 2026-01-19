@@ -1,28 +1,207 @@
 {% extends "base_teacher.html" %}
+{% block title %}Teacher Profile{% endblock %}
 
 {% block content %}
-<section id="contact-form" class="form-container">
-<div class="profile-container">
-  <h2>👩‍🏫 Teacher Profile</h2>
+<div class="max-w-6xl mx-auto">
+    <!-- Profile Header -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-slate-100 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-chalkboard-teacher text-3xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black text-kas-dark-green">Mwalimu {{ teacher.name }}</h1>
+                    <p class="text-slate-600">Teacher Profile</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <span class="px-4 py-2 rounded-full text-sm font-bold {% if teacher.authorized %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                    <i class="fas {% if teacher.authorized %}fa-check-circle{% else %}fa-user-clock{% endif %} mr-1"></i>
+                    {% if teacher.authorized %}Authorized{% else %}Pending Authorization{% endif %}
+                </span>
+                <span class="px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-700">
+                    <i class="fas fa-graduation-cap mr-1"></i>
+                    Teacher
+                </span>
+            </div>
+        </div>
+    </div>
 
-  <p><strong>Name:</strong> {{ teacher.name }}</p>
-  <p><strong>Email:</strong> {{ teacher.email }}</p>
-  <h3>Subjects:</h3>
-<ul>
-  {% for subject in subjects %}
-    <li>{{ subject.name }}</li>
-  {% else %}
-    <li>No subjects assigned</li>
-  {% endfor %}
-</ul>
+    <div class="grid md:grid-cols-3 gap-8">
+        <!-- Personal Information -->
+        <div class="md:col-span-2 space-y-8">
+            <!-- Contact Information -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+                <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
+                    <i class="fas fa-id-card mr-3 text-kas-light-brown"></i>
+                    Contact Information
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="p-4 bg-slate-50 rounded-xl">
+                        <p class="text-sm text-slate-500 mb-1">Full Name</p>
+                        <p class="text-lg font-bold text-kas-dark-green">{{ teacher.name }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-slate-50 rounded-xl">
+                        <p class="text-sm text-slate-500 mb-1">Email Address</p>
+                        <p class="text-lg font-bold text-kas-dark-green">{{ teacher.email }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-slate-50 rounded-xl">
+                        <p class="text-sm text-slate-500 mb-1">Teacher ID</p>
+                        <p class="text-lg font-bold text-kas-dark-green">#{{ teacher.id }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-slate-50 rounded-xl">
+                        <p class="text-sm text-slate-500 mb-1">Account Created</p>
+                        <p class="text-lg font-bold text-kas-dark-green">
+                            {{ teacher.created_at.strftime('%B %d, %Y') if teacher.created_at else 'Not available' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-<h3>Classes Assigned:</h3>
-<ul>
-  {% for course in courses %}
-    <li>{{ course.name }}</li>
-  {% else %}
-    <li>No classes assigned</li>
-  {% endfor %}
-</ul>
-</section>
+            <!-- Subjects Assigned -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-kas-dark-green flex items-center">
+                        <i class="fas fa-book mr-3 text-kas-light-brown"></i>
+                        Subjects Assigned
+                    </h2>
+                    <span class="px-4 py-2 bg-kas-light-brown/10 text-kas-dark-green font-bold rounded-full">
+                        {{ subjects|length if subjects else 0 }} subjects
+                    </span>
+                </div>
+                
+                {% if subjects and subjects|length > 0 %}
+                <div class="grid md:grid-cols-2 gap-4">
+                    {% for subject in subjects %}
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-kas-dark-green to-kas-light-brown rounded-lg flex items-center justify-center">
+                                <i class="fas fa-book-open text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-kas-dark-green">{{ subject.name }}</h3>
+                                <p class="text-xs text-slate-500">{{ subject.code or 'No code' }}</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-3 line-clamp-2">{{ subject.description or 'No description available' }}</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500">
+                                <i class="fas fa-users mr-1"></i>
+                                {{ subject.student_count or 0 }} students
+                            </span>
+                            <a href="#" class="text-kas-light-brown font-bold hover:text-kas-dark-green">
+                                View <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-slate-500">
+                    <i class="fas fa-book text-4xl mb-3 opacity-50"></i>
+                    <p>No subjects assigned</p>
+                    <p class="text-sm mt-1">Contact administrator to get subjects assigned</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar - Stats & Actions -->
+        <div class="space-y-8">
+            <!-- Account Statistics -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">Account Statistics</h3>
+                
+                <div class="space-y-4">
+                    <div class="p-4 bg-gradient-to-r from-kas-dark-green to-kas-light-brown rounded-xl text-white">
+                        <p class="text-sm opacity-90 mb-1">Subjects Teaching</p>
+                        <p class="text-3xl font-black">{{ subjects|length if subjects else 0 }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-slate-50 rounded-xl">
+                        <p class="text-sm text-slate-500 mb-1">Total Students</p>
+                        <p class="text-2xl font-bold text-kas-dark-green">{{ total_students or 0 }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-slate-50 rounded-xl">
+                        <p class="text-sm text-slate-500 mb-1">Active Assignments</p>
+                        <p class="text-2xl font-bold text-kas-light-brown">{{ active_assignments or 0 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">Quick Actions</h3>
+                
+                <div class="space-y-3">
+                    <a href="{{ url_for('teacher.add_content') }}" 
+                       class="flex items-center gap-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-upload text-blue-600"></i>
+                        </div>
+                        <span class="font-medium text-kas-dark-green">Add Teaching Content</span>
+                    </a>
+                    
+                    <a href="{{ url_for('teacher.create_quiz') }}" 
+                       class="flex items-center gap-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-edit text-green-600"></i>
+                        </div>
+                        <span class="font-medium text-kas-dark-green">Create New Quiz</span>
+                    </a>
+                    
+                    <a href="{{ url_for('teacher.assignments') }}" 
+                       class="flex items-center gap-3 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tasks text-purple-600"></i>
+                        </div>
+                        <span class="font-medium text-kas-dark-green">Manage Assignments</span>
+                    </a>
+                    
+                    <a href="{{ url_for('main.contact') }}" 
+                       class="flex items-center gap-3 p-3 bg-red-50 hover:bg-red-100 rounded-lg transition">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-headset text-red-600"></i>
+                        </div>
+                        <span class="font-medium text-kas-dark-green">Contact Support</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Account Status -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">Account Status</h3>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <span class="font-medium text-slate-700">Authorization</span>
+                        <span class="px-3 py-1 text-xs font-bold rounded-full {% if teacher.authorized %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                            {% if teacher.authorized %}Approved{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <span class="font-medium text-slate-700">Account Active</span>
+                        <span class="px-3 py-1 text-xs font-bold rounded-full {% if teacher.is_active %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                            {% if teacher.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <span class="font-medium text-slate-700">Member Since</span>
+                        <span class="text-sm text-slate-600">
+                            {{ teacher.created_at.strftime('%Y') if teacher.created_at else 'N/A' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,61 +1,247 @@
 {% extends "base.html" %}
 
-{% block title %}Testimonials - EduSystem{% endblock %}
+{% block title %}Testimonials - Kasarani Academy{% endblock %}
 
-{% block content %}
+{% block landing_content %}
+<div class="max-w-7xl mx-auto px-6 py-20 space-y-12">
 
-<div class="container my-5">
-    <h1 class="text-center mb-4">What Our Community Says</h1>
-    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
-            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="3" aria-label="Slide 4"></button>
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+        <div class="max-w-2xl">
+            <h1 class="text-6xl md:text-8xl font-black text-kas-dark-green tracking-tighter leading-none">
+                What they <span class="text-kas-light-brown">say.</span>
+            </h1>
+            <p class="text-xl text-slate-500 mt-6 font-medium">
+                Real stories from students, parents, and teachers using Kasarani Academy's Learning Management System.
+            </p>
         </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="{{ url_for('static', filename='images/slide1.jpg') }}" class="d-block w-200" alt="Student studying with books">
-                <div class="carousel-caption d-none d-md-block">
-                    <h5>"I'm thankful for the all the resources in the system."</h5>
-                    <p>Mark Munene</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="{{ url_for('static', filename='images/slide2.jpg') }}" class="d-block w-200" alt="Students in a classroom">
-                <div class="carousel-caption d-none d-md-block">
-                    <h5>"I love how easily I was able to use this system"</h5>
-                    <p>Olivia Nduku</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="{{ url_for('static', filename='images/slide3.jpg') }}" class="d-block w-200" alt="Person looking at a laptop screen">
-                <div class="carousel-caption d-none d-md-block">
-                    <h5>"Nobody can take learning away from you."</h5>
-                    <p>Pactricia Wanjiru</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="{{ url_for('static', filename='images/slide4.jpg') }}" class="d-block w-200" alt="Group of students working together">
-                <div class="carousel-caption d-none d-md-block">
-                    <h5>"Education is life itself."</h5>
-                    <p>Johnson Mwamba</p>
-                </div>
-            </div>
+        <div class="flex gap-4 mb-2">
+            <button onclick="document.getElementById('testimonial-slider').scrollBy({left: -400, behavior: 'smooth'})"
+                    class="w-14 h-14 rounded-full border-2 border-slate-200 flex items-center justify-center hover:bg-kas-dark-green hover:text-kas-white transition-all">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button onclick="document.getElementById('testimonial-slider').scrollBy({left: 400, behavior: 'smooth'})"
+                    class="w-14 h-14 rounded-full bg-kas-dark-green text-kas-white flex items-center justify-center hover:bg-kas-light-brown hover:shadow-lg transition-all">
+                <i class="fas fa-arrow-right"></i>
+            </button>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
     </div>
+
+    <!-- Testimonial Slider -->
+    <div id="testimonial-slider" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-8 py-10">
+
+        <!-- Testimonial 1 -->
+        <div class="min-w-[320px] md:min-w-[450px] snap-center">
+            <div class="bg-kas-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50 h-full flex flex-col justify-between hover:border-kas-light-brown transition-colors">
+                <p class="text-xl text-kas-dark-green font-bold leading-relaxed italic">
+                    "The LMS has made studying so much easier! I can access all my class materials anytime, submit assignments online, and even get instant feedback from teachers. It's really helping me prepare for KCSE."
+                </p>
+                <div class="flex items-center gap-4 mt-10">
+                    <div class="w-14 h-14 rounded-2xl overflow-hidden">
+                        <img src="{{ url_for('static', filename='images/testimony1.jpg') }}" 
+                             class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" 
+                             alt="Brian Kamau">
+                    </div>
+                    <div>
+                        <h4 class="font-black text-kas-dark-green">Brian Kamau</h4>
+                        <p class="text-kas-light-brown text-[10px] font-bold uppercase tracking-widest">Form 4 Student</p>
+                        <div class="flex text-yellow-400 mt-1">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="min-w-[320px] md:min-w-[450px] snap-center">
+            <div class="bg-kas-dark-green p-10 rounded-[3rem] shadow-2xl h-full flex flex-col justify-between text-kas-white relative overflow-hidden">
+                <p class="text-xl font-bold leading-relaxed italic relative z-10">
+                    "As a teacher, the LMS has transformed how I interact with students. I can share resources, track assignments, and provide personalized feedback. It saves time and makes teaching more effective!"
+                </p>
+                <div class="flex items-center gap-4 mt-10 relative z-10">
+                    <div class="w-14 h-14 rounded-2xl overflow-hidden border-2 border-kas-light-brown">
+                        <img src="{{ url_for('static', filename='images/testimony2.jpg') }}" 
+                             class="w-full h-full object-cover" 
+                             alt="Mr. James Omondi">
+                    </div>
+                    <div>
+                        <h4 class="font-black">Mr. James Omondi</h4>
+                        <p class="text-kas-light-brown text-[10px] font-bold uppercase tracking-widest">Mathematics Teacher</p>
+                        <div class="flex text-yellow-400 mt-1">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-kas-light-brown/10 rounded-full blur-3xl"></div>
+            </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="min-w-[320px] md:min-w-[450px] snap-center">
+            <div class="bg-kas-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50 h-full flex flex-col justify-between hover:border-kas-light-brown transition-colors">
+                <p class="text-xl text-kas-dark-green font-bold leading-relaxed italic">
+                    "I love how organized everything is! All my assignments, notes, and class schedules are in one place. The discussion forums are great for group projects and getting help from classmates."
+                </p>
+                <div class="flex items-center gap-4 mt-10">
+                    <div class="w-14 h-14 rounded-2xl overflow-hidden">
+                        <img src="{{ url_for('static', filename='images/testimony3.jpg') }}" 
+                             class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" 
+                             alt="Sarah Mwangi">
+                    </div>
+                    <div>
+                        <h4 class="font-black text-kas-dark-green">Sarah Mwangi</h4>
+                        <p class="text-kas-light-brown text-[10px] font-bold uppercase tracking-widest">Form 3 Student</p>
+                        <div class="flex text-yellow-400 mt-1">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonial 4 -->
+        <div class="min-w-[320px] md:min-w-[450px] snap-center">
+            <div class="bg-kas-light-brown p-10 rounded-[3rem] shadow-2xl h-full flex flex-col justify-between text-kas-dark-green">
+                <p class="text-xl font-bold leading-relaxed italic">
+                    "As a working parent, the LMS keeps me connected to my child's education. I can see their progress, assignments, and communicate with teachers easily. It's been a game-changer for our family."
+                </p>
+                <div class="flex items-center gap-4 mt-10">
+                    <div class="w-14 h-14 rounded-2xl overflow-hidden">
+                        <img src="{{ url_for('static', filename='images/testimony4.jpg') }}" 
+                             class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" 
+                             alt="Mrs. Wangari">
+                    </div>
+                    <div>
+                        <h4 class="font-black">Mrs. Wangari</h4>
+                        <p class="text-kas-dark-green text-[10px] font-bold uppercase tracking-widest">Parent of Form 2 Student</p>
+                        <div class="flex text-yellow-400 mt-1">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Swipe instruction -->
+    <div class="text-center pt-8">
+        <p class="text-slate-400 font-bold text-xs uppercase tracking-[0.3em]">Swipe or use arrows to explore</p>
+    </div>
+
+    <!-- Additional Testimonials Grid -->
+    <div class="grid md:grid-cols-3 gap-8 mb-16 pt-12">
+        <div class="bg-kas-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-full bg-kas-light-brown/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-kas-light-brown"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-kas-dark-green">David Ochieng</h4>
+                    <p class="text-sm text-slate-500">Alumni - Class of 2022</p>
+                </div>
+            </div>
+            <p class="text-slate-600 italic mb-4">
+                "The digital skills I gained from using the LMS at Kasarani Academy helped me immensely in university. I was already comfortable with online learning platforms!"
+            </p>
+            <div class="flex text-yellow-400">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+            </div>
+        </div>
+        
+        <div class="bg-kas-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-full bg-kas-dark-green/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-kas-dark-green"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-kas-dark-green">Ms. Akinyi</h4>
+                    <p class="text-sm text-slate-500">Chemistry Teacher</p>
+                </div>
+            </div>
+            <p class="text-slate-600 italic mb-4">
+                "The ability to share video demonstrations and interactive content has made Chemistry more engaging for students. They can review complex concepts anytime."
+            </p>
+            <div class="flex text-yellow-400">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+        </div>
+        
+        <div class="bg-kas-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-full bg-kas-light-brown/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-kas-light-brown"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-kas-dark-green">Grace Wambui</h4>
+                    <p class="text-sm text-slate-500">Form 1 Student</p>
+                </div>
+            </div>
+            <p class="text-slate-600 italic mb-4">
+                "Starting high school was easier because the LMS helped me stay organized. I can see all my subjects, assignments, and deadlines in one place!"
+            </p>
+            <div class="flex text-yellow-400">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="text-center">
+        <div class="bg-gradient-to-r from-kas-dark-green to-kas-light-brown rounded-2xl p-8 md:p-12">
+            <h2 class="text-3xl font-black text-kas-white mb-6">Ready to Experience Our LMS?</h2>
+            <p class="text-xl text-kas-white/90 mb-8 max-w-2xl mx-auto">
+                Join hundreds of students and teachers already benefiting from our modern learning platform.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('auth.register') }}" 
+                   class="inline-flex items-center bg-kas-white text-kas-dark-green px-8 py-4 rounded-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold text-lg">
+                    <i class="fas fa-user-plus mr-3"></i>
+                    Create Your Account
+                </a>
+                <a href="{{ url_for('main.contact') }}" 
+                   class="inline-flex items-center border-2 border-kas-white text-kas-white px-8 py-4 rounded-full hover:bg-kas-white/10 transition-all duration-300 font-bold text-lg">
+                    <i class="fas fa-question-circle mr-3"></i>
+                    Get More Information
+                </a>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+    /* Hide scrollbar but keep functionality */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
 {% endblock %}

@@ -1,3 +1,4 @@
+# Updated add_content.py
 from app import create_app, db
 from app.models import Subject, SubjectContent
 
@@ -17,10 +18,21 @@ def add_sample_content():
         for subject in subjects:
             # Check if the subject already has content
             if not subject.contents.first():
-                # Add 3 pieces of dummy content for each subject
+                # Add content specific to form
                 for i in range(1, 4):
-                    title = f"{subject.name} - Lesson {i}"
-                    body = f"This is the content for {subject.name}, covering the basics of Lesson {i}."
+                    title = f"{subject.name} Form {subject.form} - Lesson {i}"
+                    body = f"""
+                    This is content for {subject.name} Form {subject.form}, Lesson {i}.
+                    
+                    Topics covered:
+                    - Introduction to Form {subject.form} level concepts
+                    - Key principles and theories
+                    - Practical applications
+                    - Form-specific examples
+                    
+                    This material is specifically designed for Form {subject.form} students
+                    and builds upon knowledge from previous forms.
+                    """
                     
                     new_content = SubjectContent(
                         title=title,
@@ -28,9 +40,9 @@ def add_sample_content():
                         subject_id=subject.id
                     )
                     db.session.add(new_content)
-                    print(f"Adding content '{title}' to {subject.name}")
+                    print(f"Adding content to {subject.name} Form {subject.form}")
             else:
-                print(f"{subject.name} already has content. Skipping.")
+                print(f"{subject.name} Form {subject.form} already has content. Skipping.")
         
         db.session.commit()
         print("All sample content added to the database.")

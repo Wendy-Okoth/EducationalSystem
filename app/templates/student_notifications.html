@@ -1,32 +1,225 @@
 {% extends "base_student.html" %}
-{% block title %}My Notifications{% endblock %}
-{% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">My Notifications</h1>
-    <ul id="notification-list" class="list-group">
-        </ul>
-</div>
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
 
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Notifications Header -->
+    <section class="mb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black text-kas-dark-green mb-2 flex items-center">
+                        <i class="fas fa-bell mr-3 text-kas-light-brown"></i>
+                        My Notifications
+                    </h1>
+                    <p class="text-slate-600">Stay updated with important announcements and alerts</p>
+                </div>
+                <div class="flex gap-2">
+                    <button id="mark-all-read" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 transition font-medium">
+                        Mark All as Read
+                    </button>
+                    <button id="refresh-notifications" class="px-4 py-2 rounded-xl bg-kas-dark-green text-white hover:bg-kas-light-brown transition font-bold">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notifications List -->
+    <section>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-kas-dark-green">Recent Notifications</h2>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-slate-500">Filter:</span>
+                    <select id="notification-filter" class="px-3 py-1 rounded-lg border border-slate-300 focus:outline-none focus:border-kas-light-brown">
+                        <option value="all">All Notifications</option>
+                        <option value="unread">Unread Only</option>
+                        <option value="read">Read Only</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="notification-list" class="space-y-3">
+                <div class="text-center py-12 text-slate-500">
+                    <i class="fas fa-bell-slash text-4xl mb-3 opacity-50"></i>
+                    <p class="text-lg font-medium">Loading notifications...</p>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="text-center py-12 hidden">
+                <i class="fas fa-bell text-4xl text-slate-300 mb-3"></i>
+                <p class="text-lg font-medium text-slate-500">No notifications yet</p>
+                <p class="text-slate-400 mt-1">You're all caught up! Check back later for updates.</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        fetch('/student/api/notifications/all')
+        const notificationList = document.getElementById('notification-list');
+        const emptyState = document.getElementById('empty-state');
+        const filterSelect = document.getElementById('notification-filter');
+        const markAllReadBtn = document.getElementById('mark-all-read');
+        const refreshBtn = document.getElementById('refresh-notifications');
+        
+        let allNotifications = [];
+        
+        function loadNotifications(filter = 'all') {
+            fetch('/student/api/notifications/all')
+                .then(response => response.json())
+                .then(data => {
+                    allNotifications = data;
+                    displayNotifications(filter);
+                    updateNotificationCount();
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    notificationList.innerHTML = `
+                        <div class="text-center py-8 text-red-500">
+                            <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
+                            <p>Error loading notifications</p>
+                        </div>`;
+                });
+        }
+        
+        function displayNotifications(filter) {
+            let filteredNotifications = allNotifications;
+            
+            if (filter === 'unread') {
+                filteredNotifications = allNotifications.filter(n => !n.is_read);
+            } else if (filter === 'read') {
+                filteredNotifications = allNotifications.filter(n => n.is_read);
+            }
+            
+            if (filteredNotifications.length === 0) {
+                notificationList.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            notificationList.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            notificationList.innerHTML = '';
+            filteredNotifications.forEach(notification => {
+                const notificationDate = new Date(notification.created_at);
+                const notificationItem = document.createElement('div');
+                notificationItem.className = `p-4 rounded-xl border transition-all ${notification.is_read ? 'bg-slate-50 border-slate-200' : 'bg-blue-50 border-blue-200'}`;
+                notificationItem.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 ${notification.is_read ? 'bg-slate-200' : 'bg-blue-100'} rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-${getNotificationIcon(notification.type)} ${notification.is_read ? 'text-slate-500' : 'text-blue-500'}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold ${notification.is_read ? 'text-slate-700' : 'text-kas-dark-green'}">${notification.title || 'Notification'}</h3>
+                                <span class="text-xs text-slate-500">${formatTimeAgo(notificationDate)}</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mt-1">${notification.message}</p>
+                            ${notification.action_url ? `
+                                <a href="${notification.action_url}" class="inline-block mt-2 text-sm font-bold text-kas-light-brown hover:text-kas-dark-green transition">
+                                    View Details <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                        ${!notification.is_read ? `
+                            <button class="mark-read-btn text-xs font-bold text-blue-600 hover:text-blue-800 transition" data-id="${notification.id}">
+                                Mark as Read
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                notificationList.appendChild(notificationItem);
+            });
+            
+            // Add event listeners to mark as read buttons
+            document.querySelectorAll('.mark-read-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const notificationId = this.getAttribute('data-id');
+                    markAsRead(notificationId);
+                });
+            });
+        }
+        
+        function markAsRead(notificationId) {
+            fetch(`/student/api/notifications/${notificationId}/read`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
             .then(response => response.json())
             .then(data => {
-                const notificationList = document.getElementById('notification-list');
-                if (data.length === 0) {
-                    notificationList.innerHTML = '<li class="list-group-item text-muted">No notifications.</li>';
-                } else {
-                    data.forEach(notification => {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item';
-                        li.textContent = notification.message;
-                        if (notification.is_read) {
-                            li.classList.add('read'); // Add a class for styling read notifications
-                        }
-                        notificationList.appendChild(li);
-                    });
+                if (data.success) {
+                    loadNotifications(filterSelect.value);
                 }
+            })
+            .catch(error => console.error('Error marking as read:', error));
+        }
+        
+        function markAllAsRead() {
+            fetch('/student/api/notifications/mark_all_read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications(filterSelect.value);
+                }
+            })
+            .catch(error => console.error('Error marking all as read:', error));
+        }
+        
+        function updateNotificationCount() {
+            const unreadCount = allNotifications.filter(n => !n.is_read).length;
+            fetch('/student/api/notifications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ count: unreadCount })
             });
+        }
+        
+        function getNotificationIcon(type) {
+            const icons = {
+                'assignment': 'file-alt',
+                'exam': 'exam',
+                'announcement': 'bullhorn',
+                'system': 'cog',
+                'reminder': 'clock'
+            };
+            return icons[type] || 'bell';
+        }
+        
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString();
+        }
+        
+        // Event Listeners
+        filterSelect.addEventListener('change', function() {
+            displayNotifications(this.value);
+        });
+        
+        markAllReadBtn.addEventListener('click', markAllAsRead);
+        refreshBtn.addEventListener('click', () => loadNotifications(filterSelect.value));
+        
+        // Load initial notifications
+        loadNotifications();
     });
 </script>
 {% endblock %}

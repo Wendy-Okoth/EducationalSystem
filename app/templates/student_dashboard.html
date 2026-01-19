@@ -1,34 +1,95 @@
-
 {% extends "base_student.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-<section id="contact-form" class="form-container">
-    <h1> Welcome, {{ student.name if student else 'Student' }}👋</h1>
-</section>
-
-<section id="contact-form" class="form-container">
-    <div class="search-section my-4">
-        <h3>Find Your Subjects</h3>
-        <div class="input-group mb-3">
-            <input type="text" id="subject-search" class="form-control" placeholder="Search for a subject..." aria-label="Search for a subject">
+<div class="bg-white rounded-lg shadow p-6">
+    <h1 class="text-3xl font-bold text-kas-dark-green mb-2">Welcome, {{ session.get('user_name', 'Student') }}! 👋</h1>
+    <p class="text-gray-600 mb-6">Kasarani Academy Student Dashboard</p>
+    
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-kas-light-brown/10 p-4 rounded-lg">
+            <h3 class="font-bold text-kas-dark-green mb-1">Enrolled Subjects</h3>
+            <p class="text-2xl font-bold text-kas-light-brown">
+                {% if subjects %}{{ subjects|length }}{% else %}0{% endif %}
+            </p>
         </div>
-        <div id="search-results" class="list-group">
+        <div class="bg-kas-dark-green/10 p-4 rounded-lg">
+            <h3 class="font-bold text-kas-dark-green mb-1">Assignments</h3>
+            <p class="text-2xl font-bold text-kas-dark-green">0</p>
         </div>
-        <div id="add-subject-message" class="mt-2"></div>
+        <div class="bg-kas-light-brown/10 p-4 rounded-lg">
+            <h3 class="font-bold text-kas-dark-green mb-1">Notifications</h3>
+            <p class="text-2xl font-bold text-kas-light-brown">0</p>
+        </div>
     </div>
-</section>
-
-<section class="form-container">
-    <div class="card">
-        <div class="card-header">
-            <h4>Subject Progress</h4>
+    
+    <!-- Simple Search -->
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-kas-dark-green mb-3">Find Subjects</h2>
+        <div class="relative">
+            <input type="text" 
+                   id="subject-search" 
+                   class="w-full p-3 border rounded-lg focus:border-kas-light-brown focus:ring focus:ring-kas-light-brown/20"
+                   placeholder="Search for subjects...">
+            <div id="search-results" class="mt-2"></div>
+            <div id="search-message" class="mt-2 text-sm"></div>
         </div>
-        <ul id="progress-list" class="list-group list-group-flush">
-            </ul>
     </div>
-</section>
+    
+    <!-- Subjects List -->
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-kas-dark-green mb-3">Your Subjects</h2>
+        {% if subjects and subjects|length > 0 %}
+        <!-- In student_dashboard.html - update the subjects loop -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for subject in subjects %}
+    <div class="border rounded-lg p-4 hover:shadow-md transition">
+        <h3 class="font-bold text-kas-dark-green">{{ subject.name }} Form {{ subject.form }}</h3>
+        <p class="text-gray-600 text-sm mt-1">Code: {{ subject.code }}</p>
+        <!-- This should use the subject.id to link to the specific subject -->
+        <a href="{{ url_for('student.subject', subject_id=subject.id) }}" 
+           class="inline-block mt-3 px-4 py-2 bg-kas-dark-green text-white rounded hover:bg-kas-light-brown transition">
+            Enter Subject
+        </a>
+    </div>
+    {% endfor %}
+</div>
+        {% else %}
+        <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-book-open text-4xl mb-3"></i>
+            <p>No subjects enrolled yet</p>
+            <p class="text-sm mt-1">Search and enroll in subjects above</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Quick Links -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="{{ url_for('student.subjects') }}" 
+           class="bg-white border rounded-lg p-4 text-center hover:border-kas-light-brown transition">
+            <i class="fas fa-book text-2xl text-kas-light-brown mb-2"></i>
+            <p class="font-bold text-kas-dark-green">All Subjects</p>
+        </a>
+        <a href="{{ url_for('student.calendar') }}" 
+           class="bg-white border rounded-lg p-4 text-center hover:border-kas-light-brown transition">
+            <i class="fas fa-calendar-alt text-2xl text-kas-light-brown mb-2"></i>
+            <p class="font-bold text-kas-dark-green">Calendar</p>
+        </a>
+        <a href="{{ url_for('student.profile') }}" 
+           class="bg-white border rounded-lg p-4 text-center hover:border-kas-light-brown transition">
+            <i class="fas fa-user text-2xl text-kas-light-brown mb-2"></i>
+            <p class="font-bold text-kas-dark-green">Profile</p>
+        </a>
+        <a href="{{ url_for('student.notifications') }}" 
+           class="bg-white border rounded-lg p-4 text-center hover:border-kas-light-brown transition">
+            <i class="fas fa-bell text-2xl text-kas-light-brown mb-2"></i>
+            <p class="font-bold text-kas-dark-green">Notifications</p>
+        </a>
+    </div>
+</div>
 
+<!-- Enrollment Key Modal -->
 <div class="modal fade" id="enrollmentKeyModal" tabindex="-1" aria-labelledby="enrollmentKeyModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -49,221 +110,136 @@
         </div>
     </div>
 </div>
-<div id="edubot-container">
-    <div id="chat-window">
-        <div id="chat-header">
-            <h3>EduBot</h3>
-            <button id="close-chat-btn">&times;</button>
-        </div>
-        <div id="chat-log">
-            <div class="chat-message bot-message">Hello there! I'm EduBot. I can provide tips for your assignments in various subjects. Just ask me and I'll answer straight away'.</div>
-        </div>
-        <div id="chat-input-container">
-            <input type="text" id="chat-input" placeholder="Type a message...">
-            <button id="send-chat-btn">Send</button>
-        </div>
-    </div>
-    <button id="open-chat-btn">Chat with EduBot</button>
-</div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // --- Subject Search and Add Logic ---
-        const searchInput = document.getElementById('subject-search');
-        const searchResultsDiv = document.getElementById('search-results');
-        const messageDiv = document.getElementById('add-subject-message');
-        const enrollmentKeyModal = new bootstrap.Modal(document.getElementById('enrollmentKeyModal'));
-        let selectedSubjectId = null;
+document.addEventListener("DOMContentLoaded", function() {
+    // --- Subject Search Logic ---
+    const searchInput = document.getElementById('subject-search');
+    const searchResultsDiv = document.getElementById('search-results');
+    const messageDiv = document.getElementById('search-message');
+    const enrollmentKeyModal = new bootstrap.Modal(document.getElementById('enrollmentKeyModal'));
+    let selectedSubjectId = null;
 
-        let debounceTimeout;
+    let debounceTimeout;
 
-        searchInput.addEventListener('input', function() {
-            clearTimeout(debounceTimeout);
-            const query = this.value.trim();
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimeout);
+        const query = this.value.trim();
 
-            if (query.length === 0) {
-                searchResultsDiv.innerHTML = '';
-                return;
-            }
+        if (query.length === 0) {
+            searchResultsDiv.innerHTML = '';
+            messageDiv.innerHTML = '';
+            return;
+        }
 
-            debounceTimeout = setTimeout(() => {
-                fetch(`/student/search_subjects?query=${encodeURIComponent(query)}`)
-                    .then(response => response.json())
-                    .then(subjects => {
-                        searchResultsDiv.innerHTML = '';
-                        if (subjects.length > 0) {
-                            subjects.forEach(subject => {
-                                const resultItem = document.createElement('div');
-                                resultItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-                                resultItem.innerHTML = `
-                                    <span class="subject-name">${subject.name}</span>
-                                    <button class="btn btn-primary btn-sm add-subject-btn" data-subject-id="${subject.id}" data-subject-name="${subject.name}">Add</button>
-                                `;
-                                searchResultsDiv.appendChild(resultItem);
-                            });
-                        } else {
-                            searchResultsDiv.innerHTML = '<div class="list-group-item text-muted">No subjects found.</div>';
-                        }
-                    })
-                    .catch(error => console.error('Error fetching search results:', error));
-            }, 300);
-        });
-
-        searchResultsDiv.addEventListener('click', function(event) {
-            const clickedElement = event.target;
+        debounceTimeout = setTimeout(() => {
+            messageDiv.innerHTML = '<div class="text-blue-500"><i class="fas fa-spinner fa-spin mr-2"></i>Searching...</div>';
             
-            if (clickedElement.classList.contains('add-subject-btn')) {
-                const subjectId = clickedElement.getAttribute('data-subject-id');
-                const subjectName = clickedElement.getAttribute('data-subject-name');
-                
-                selectedSubjectId = subjectId;
-                document.getElementById('modal-subject-name').textContent = subjectName;
-                enrollmentKeyModal.show();
-            }
-        });
-
-        document.getElementById('enroll-button').addEventListener('click', function() {
-            const enrollmentKey = document.getElementById('enrollment-key-input').value.trim();
-
-            if (!enrollmentKey) {
-                alert('Please enter an enrollment key.');
-                return;
-            }
-
-            fetch('/student/add_subject', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    subject_id: parseInt(selectedSubjectId),
-                    enrollment_key: enrollmentKey
+            fetch(`/student/search_subjects?query=${encodeURIComponent(query)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
                 })
+                .then(subjects => {
+                    searchResultsDiv.innerHTML = '';
+                    messageDiv.innerHTML = '';
+                    
+                    if (subjects.length > 0) {
+                        messageDiv.innerHTML = `<div class="text-green-600">Found ${subjects.length} subject(s)</div>`;
+                        
+                        subjects.forEach(subject => {
+                            const resultItem = document.createElement('div');
+                            resultItem.className = 'border rounded-lg p-4 mb-2 bg-gray-50 hover:bg-gray-100 transition';
+                            resultItem.innerHTML = `
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="font-bold text-kas-dark-green">${subject.name}</span>
+                                    </div>
+                                    <button class="enroll-btn px-4 py-2 bg-kas-light-brown text-kas-dark-green rounded hover:bg-kas-dark-green hover:text-white transition"
+                                            data-subject-id="${subject.id}" 
+                                            data-subject-name="${subject.name}">
+                                        Enroll
+                                    </button>
+                                </div>
+                            `;
+                            searchResultsDiv.appendChild(resultItem);
+                        });
+                    } else {
+                        messageDiv.innerHTML = '<div class="text-yellow-600">No subjects found. Try a different search term.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching search results:', error);
+                    messageDiv.innerHTML = '<div class="text-red-600">Error searching for subjects. Please try again.</div>';
+                });
+        }, 500); // Increased debounce time to 500ms
+    });
+
+    // Handle enroll button clicks
+    searchResultsDiv.addEventListener('click', function(event) {
+        const clickedElement = event.target;
+        
+        if (clickedElement.classList.contains('enroll-btn')) {
+            const subjectId = clickedElement.getAttribute('data-subject-id');
+            const subjectName = clickedElement.getAttribute('data-subject-name');
+            
+            selectedSubjectId = subjectId;
+            document.getElementById('modal-subject-name').textContent = subjectName;
+            enrollmentKeyModal.show();
+        }
+    });
+
+    // Handle enrollment submission
+    document.getElementById('enroll-button').addEventListener('click', function() {
+        const enrollmentKey = document.getElementById('enrollment-key-input').value.trim();
+
+        if (!enrollmentKey) {
+            alert('Please enter an enrollment key.');
+            return;
+        }
+
+        fetch('/student/add_subject', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                subject_id: parseInt(selectedSubjectId),
+                enrollment_key: enrollmentKey
             })
-            .then(response => response.json())
-            .then(data => {
-                messageDiv.textContent = data.message;
-                messageDiv.className = data.success ? 'mt-2 text-success' : 'mt-2 text-danger';
-                if (data.success) {
-                    window.location.reload(); 
-                }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Successfully enrolled!');
                 enrollmentKeyModal.hide();
                 document.getElementById('enrollment-key-input').value = '';
                 searchInput.value = '';
                 searchResultsDiv.innerHTML = '';
-            })
-            .catch(error => {
-                console.error('Error adding subject:', error);
-                messageDiv.textContent = 'Failed to enroll in subject.';
-                messageDiv.className = 'mt-2 text-danger';
-                enrollmentKeyModal.hide();
-            });
-        });
-
-        // --- EduBot Chatbot Logic ---
-        const chatContainer = document.getElementById("edubot-container");
-        const openBtn = document.getElementById("open-chat-btn");
-        const closeBtn = document.getElementById("close-chat-btn");
-        const chatInput = document.getElementById("chat-input");
-        const sendBtn = document.getElementById("send-chat-btn");
-        const chatLog = document.getElementById("chat-log");
-
-        openBtn.addEventListener("click", () => {
-            chatContainer.classList.add("open");
-        });
-
-        closeBtn.addEventListener("click", () => {
-            chatContainer.classList.remove("open");
-        });
-
-        function sendMessage() {
-            const userMessage = chatInput.value.trim();
-            if (userMessage === "") return;
-
-            const userMessageDiv = document.createElement("div");
-            userMessageDiv.className = "chat-message user-message";
-            userMessageDiv.textContent = userMessage;
-            chatLog.appendChild(userMessageDiv);
-
-            chatInput.value = "";
-            chatLog.scrollTop = chatLog.scrollHeight;
-
-            fetch('/edubot_chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: userMessage
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const botMessageDiv = document.createElement("div");
-                botMessageDiv.className = "chat-message bot-message";
-                botMessageDiv.textContent = data.message;
-                chatLog.appendChild(botMessageDiv);
-                chatLog.scrollTop = chatLog.scrollHeight;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const errorMessageDiv = document.createElement("div");
-                errorMessageDiv.className = "chat-message bot-message";
-                errorMessageDiv.textContent = "Oops! Something went wrong. Please try again.";
-                chatLog.appendChild(errorMessageDiv);
-                chatLog.scrollTop = chatLog.scrollHeight;
-            });
-        }
-
-        sendBtn.addEventListener("click", sendMessage);
-        chatInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                sendMessage();
+                messageDiv.innerHTML = '<div class="text-green-600">Enrollment successful! Page will refresh...</div>';
+                
+                // Refresh the page after 2 seconds to show new subject
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                alert('Error: ' + data.message);
             }
+        })
+        .catch(error => {
+            console.error('Error adding subject:', error);
+            alert('Failed to enroll in subject. Please try again.');
         });
-
-        // --- New Progress Bar Logic ---
-        const progressList = document.getElementById('progress-list');
-
-        fetch('/student/api/progress')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (Object.keys(data).length === 0) {
-                    progressList.innerHTML = '<li class="list-group-item text-muted">No subjects to track progress.</li>';
-                    return;
-                }
-
-                for (const subjectId in data) {
-                    const progress = data[subjectId];
-                    const listItem = document.createElement('li');
-                    listItem.className = 'list-group-item';
-                    listItem.innerHTML = `
-                        <h5 class="mb-1">${progress.subject_name}</h5>
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar" role="progressbar" 
-                                style="width: ${progress.percentage}%;" 
-                                aria-valuenow="${progress.percentage}" 
-                                aria-valuemin="0" 
-                                aria-valuemax="100">
-                                ${progress.completed} / ${progress.total}
-                            </div>
-                        </div>
-                        <small class="text-muted">${progress.percentage}% completed</small>
-                    `;
-                    progressList.appendChild(listItem);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching progress data:', error);
-                progressList.innerHTML = '<li class="list-group-item text-danger">Error loading progress data.</li>';
-            });
     });
+
+    console.log("Dashboard loaded successfully");
+});
 </script>
 {% endblock %}

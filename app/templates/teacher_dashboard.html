@@ -1,25 +1,220 @@
 {% extends "base_teacher.html" %}
-
 {% block title %}Teacher Dashboard{% endblock %}
 
-{% block navbar %}
-<nav class="navbar">
-    <ul class="nav-links">
-        <li><a href="{{ url_for('teacher.dashboard') }}">Dashboard</a></li>
-        <li><a href="{{ url_for('teacher.profile') }}">Profile</a></li>
-        <li><a href="{{ url_for('teacher.calendar') }}">Calendar</a></li>
-        <li><a href="{{ url_for('teacher.add_content') }}">Content</a></li>
-        <li><a href="{{ url_for('teacher.assignments') }}">Assignments</a></li>
-        <li><a href="{{ url_for('teacher.subjects') }}">Subjects</a></li>
-        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-    </ul>
-</nav>
-{% endblock %}
-
 {% block content %}
-<section id="contact-form" class="form-container">
-<div class="container">
-    <h1>Welcome, Mwalimu {{ teacher.name if teacher else 'teacher' }}📚</h1>
+<div class="max-w-7xl mx-auto">
+    <!-- Welcome Section -->
+    <div class="bg-gradient-to-r from-kas-dark-green to-kas-light-brown rounded-2xl p-6 md:p-8 text-white mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-black mb-2">Karibu, Mwalimu {{ session.get('user_name', 'Teacher') }}! 📚</h1>
+                <p class="text-white/90">Empowering minds, shaping futures at Kasarani Academy</p>
+            </div>
+            <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
+                <p class="text-sm">Teacher ID: #{{ session.get('user_id', '0000') }}</p>
+                <p class="text-lg font-bold">Today: {{ now.strftime('%A, %B %d, %Y') if now else 'Today' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-book text-xl text-blue-600"></i>
+                </div>
+                <span class="text-3xl font-bold text-kas-dark-green">{{ subjects_count or 0 }}</span>
+            </div>
+            <h3 class="font-bold text-kas-dark-green mb-1">Subjects Assigned</h3>
+            <p class="text-sm text-slate-600">Teaching responsibilities</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-xl text-green-600"></i>
+                </div>
+                <span class="text-3xl font-bold text-kas-dark-green">{{ students_count or 0 }}</span>
+            </div>
+            <h3 class="font-bold text-kas-dark-green mb-1">Total Students</h3>
+            <p class="text-sm text-slate-600">Across all subjects</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-tasks text-xl text-purple-600"></i>
+                </div>
+                <span class="text-3xl font-bold text-kas-dark-green">{{ assignments_count or 0 }}</span>
+            </div>
+            <h3 class="font-bold text-kas-dark-green mb-1">Active Assignments</h3>
+            <p class="text-sm text-slate-600">Pending grading</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-bell text-xl text-yellow-600"></i>
+                </div>
+                <span class="text-3xl font-bold text-kas-dark-green">{{ notifications_count or 0 }}</span>
+            </div>
+            <h3 class="font-bold text-kas-dark-green mb-1">Notifications</h3>
+            <p class="text-sm text-slate-600">Unread messages</p>
+        </div>
+    </div>
+
+    <!-- Quiz Management Section -->
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <!-- Quiz Card -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-edit text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-kas-dark-green">Quiz & Exam Management 📝</h2>
+                    <p class="text-slate-600">Assess your students with online quizzes and exams</p>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <p class="text-slate-700">Ready to assess your students? Create new online quizzes and exams or manage existing ones.</p>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{{ url_for('teacher.create_quiz') }}" 
+                       class="px-6 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 transition font-bold flex items-center justify-center">
+                        <i class="fas fa-plus mr-2"></i> Create New Quiz
+                    </a>
+                    <a href="{{ url_for('teacher.list_quizzes') }}" 
+                       class="px-6 py-3 rounded-xl border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transition font-bold flex items-center justify-center">
+                        <i class="fas fa-list mr-2"></i> View/Edit Quizzes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
+                <i class="fas fa-bolt mr-3 text-kas-light-brown"></i>
+                Quick Actions
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <a href="{{ url_for('teacher.add_content') }}" 
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-file-upload text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green">Upload Content</p>
+                </a>
+                
+                <a href="{{ url_for('teacher.assignments') }}" 
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-tasks text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green">Create Assignment</p>
+                </a>
+                
+                <a href="{{ url_for('teacher.subjects') }}" 
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-book text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green">Manage Subjects</p>
+                </a>
+                
+                <a href="{{ url_for('teacher.calendar') }}" 
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-calendar text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green">Academic Calendar</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity / Subjects -->
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Recent Subjects -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
+                <i class="fas fa-chalkboard-teacher mr-3 text-kas-light-brown"></i>
+                Your Subjects
+            </h2>
+            
+            {% if subjects and subjects|length > 0 %}
+            <div class="space-y-4">
+                {% for subject in subjects[:5] %}
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-kas-dark-green">{{ subject.name }}</h3>
+                        <span class="px-3 py-1 text-xs font-bold bg-kas-light-brown/20 text-kas-dark-green rounded-full">
+                            {{ subject.student_count or 0 }} students
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-3">{{ subject.description or 'No description' }}</p>
+                    <a href="{{ url_for('teacher.subject_detail', subject_id=subject.id) }}" 
+                       class="text-sm font-bold text-kas-light-brown hover:text-kas-dark-green transition">
+                        <i class="fas fa-eye mr-1"></i> View Details
+                    </a>
+                </div>
+                {% endfor %}
+                
+                {% if subjects|length > 5 %}
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('teacher.subjects') }}" 
+                       class="text-kas-light-brown font-bold hover:text-kas-dark-green transition">
+                        View all {{ subjects|length }} subjects <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-slate-500">
+                <i class="fas fa-chalkboard text-4xl mb-3 opacity-50"></i>
+                <p>No subjects assigned yet</p>
+                <p class="text-sm mt-1">Contact admin to get subjects assigned</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
+                <i class="fas fa-clock mr-3 text-kas-light-brown"></i>
+                Upcoming Deadlines
+            </h2>
+            
+            {% if deadlines and deadlines|length > 0 %}
+            <div class="space-y-4">
+                {% for deadline in deadlines[:5] %}
+                <div class="p-4 bg-red-50 rounded-xl border border-red-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-red-700">{{ deadline.title }}</h3>
+                        <span class="px-3 py-1 text-xs font-bold bg-red-100 text-red-700 rounded-full">
+                            {{ deadline.days_left }} days
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-700 mb-2">{{ deadline.subject }}</p>
+                    <div class="flex items-center text-sm text-slate-600">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        <span>Due: {{ deadline.due_date }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-slate-500">
+                <i class="fas fa-check-circle text-4xl mb-3 opacity-50"></i>
+                <p>No upcoming deadlines</p>
+                <p class="text-sm mt-1">You're all caught up!</p>
+            </div>
+            {% endif %}
+            
+            <div class="mt-6 pt-6 border-t border-slate-200">
+                <a href="{{ url_for('teacher.calendar') }}" 
+                   class="flex items-center justify-center px-4 py-3 rounded-xl border border-slate-300 hover:bg-slate-50 transition">
+                    <i class="fas fa-calendar-plus mr-2"></i>
+                    View Full Calendar
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-</section>
 {% endblock %}

@@ -1,15 +1,213 @@
-{% extends "base.html" %}
+
+{% extends "base_student.html" %}
+{% block title %}{{ subject.name }} Form {{ subject.form }} - Subject{% endblock %}
+{% block page_title %}{{ subject.name }} Form {{ subject.form }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>📘 {{ subject_name }}</h2>
-    <p>Welcome to {{ subject_name }}! Assignments and resources will appear here.</p>
+<div class="max-w-7xl mx-auto">
+    <!-- Subject Header -->
+    <section class="mb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-kas-dark-green to-kas-light-brown rounded-xl flex items-center justify-center">
+                        <i class="fas fa-book text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black text-kas-dark-green">{{ subject.name }} Form {{ subject.form }}</h1>
+                        <p class="text-slate-600">{{ subject.code }} • Teacher: {{ subject.teacher.name if subject.teacher else 'Not assigned' }}</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('student.subjects') }}"
+                   class="px-6 py-3 rounded-xl border-2 border-kas-dark-green text-kas-dark-green hover:bg-kas-dark-green hover:text-white transition font-bold flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Subjects
+                </a>
+            </div>
+            
+            {% if subject.description %}
+            <div class="p-4 bg-kas-light-brown/5 rounded-xl">
+                <h3 class="font-bold text-kas-dark-green mb-2">Subject Description</h3>
+                <p class="text-slate-700">{{ subject.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
 
-    <ul>
-        <li>Assignment 1 - Due Date: 2025-09-15</li>
-        <li>Assignment 2 - Due Date: 2025-09-22</li>
-    </ul>
+    <!-- Subject Content Tabs -->
+    <section class="mb-8">
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+            <!-- Tab Navigation -->
+            <div class="border-b border-slate-200">
+                <nav class="flex overflow-x-auto">
+                    <button class="tab-btn active px-6 py-4 font-bold text-kas-dark-green border-b-2 border-kas-light-brown whitespace-nowrap"
+                            data-tab="materials">
+                        <i class="fas fa-file-alt mr-2"></i> Learning Materials
+                    </button>
+                    <button class="tab-btn px-6 py-4 font-bold text-slate-600 hover:text-kas-dark-green whitespace-nowrap"
+                            data-tab="assignments">
+                        <i class="fas fa-tasks mr-2"></i> Assignments
+                    </button>
+                    <button class="tab-btn px-6 py-4 font-bold text-slate-600 hover:text-kas-dark-green whitespace-nowrap"
+                            data-tab="resources">
+                        <i class="fas fa-download mr-2"></i> Resources
+                    </button>
+                    <button class="tab-btn px-6 py-4 font-bold text-slate-600 hover:text-kas-dark-green whitespace-nowrap"
+                            data-tab="quizzes">
+                        <i class="fas fa-question-circle mr-2"></i> Quizzes
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="p-6">
+                <!-- Materials Tab -->
+                <div id="materials-tab" class="tab-content active">
+                    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Learning Materials</h2>
+                    {% if contents %}
+                    <div class="space-y-4">
+                        {% for content in contents %}
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition-colors">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 bg-white rounded-lg border border-slate-300 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-file text-kas-light-brown"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-kas-dark-green mb-1">{{ content.title }}</h3>
+                                    <p class="text-slate-600 mb-2">{{ content.content_body[:150] }}{% if content.content_body|length > 150 %}...{% endif %}</p>
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-slate-500">{{ content.created_at.strftime('%B %d, %Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12 text-slate-500">
+                        <i class="fas fa-file-alt text-4xl mb-3 opacity-50"></i>
+                        <p class="text-lg font-medium">No learning materials available yet</p>
+                        <p class="text-slate-400 mt-1">Your teacher will upload materials soon.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Assignments Tab -->
+                <div id="assignments-tab" class="tab-content hidden">
+                    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Assignments</h2>
+                    {% if assignments %}
+                    <div class="space-y-4">
+                        {% for assignment in assignments %}
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-kas-dark-green">{{ assignment.title }}</h3>
+                                <span class="px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700">
+                                    Due: {{ assignment.due_date.strftime('%B %d, %Y') }}
+                                </span>
+                            </div>
+                            {% if assignment.description %}
+                            <p class="text-slate-600 mb-3">{{ assignment.description }}</p>
+                            {% endif %}
+                            <div class="flex flex-wrap gap-4 text-sm text-slate-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar-alt mr-2"></i>
+                                    Created: {{ assignment.created_at.strftime('%B %d, %Y') }}
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-tie mr-2"></i>
+                                    Teacher: {{ assignment.teacher.name }}
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button class="px-4 py-2 rounded-lg bg-kas-dark-green text-white hover:bg-kas-light-brown transition font-bold">
+                                    View Assignment
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12 text-slate-500">
+                        <i class="fas fa-tasks text-4xl mb-3 opacity-50"></i>
+                        <p class="text-lg font-medium">No assignments yet</p>
+                        <p class="text-slate-400 mt-1">Your teacher will assign work soon.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Resources Tab -->
+                <div id="resources-tab" class="tab-content hidden">
+                    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Resources & Downloads</h2>
+                    <div class="text-center py-12 text-slate-500">
+                        <i class="fas fa-download text-4xl mb-3 opacity-50"></i>
+                        <p class="text-lg font-medium">No resources available</p>
+                        <p class="text-slate-400 mt-1">Check back later for downloadable resources.</p>
+                    </div>
+                </div>
+                
+                <!-- Quizzes Tab -->
+                <div id="quizzes-tab" class="tab-content hidden">
+                    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Quizzes</h2>
+                    <div class="text-center py-12 text-slate-500">
+                        <i class="fas fa-question-circle text-4xl mb-3 opacity-50"></i>
+                        <p class="text-lg font-medium">No quizzes available</p>
+                        <p class="text-slate-400 mt-1">Your teacher will create quizzes soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <a href="{{ url_for('student.dashboard') }}" class="btn">⬅ Back to Dashboard</a>
+    <!-- Quick Actions -->
+    <section>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Quick Actions</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <a href="#" class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition-colors text-center">
+                    <i class="fas fa-upload text-2xl text-kas-light-brown mb-2"></i>
+                    <p class="font-bold text-kas-dark-green">Submit Work</p>
+                </a>
+                <a href="#" class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition-colors text-center">
+                    <i class="fas fa-question-circle text-2xl text-kas-light-brown mb-2"></i>
+                    <p class="font-bold text-kas-dark-green">Ask Question</p>
+                </a>
+                <a href="#" class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition-colors text-center">
+                    <i class="fas fa-chart-line text-2xl text-kas-light-brown mb-2"></i>
+                    <p class="font-bold text-kas-dark-green">View Progress</p>
+                </a>
+            </div>
+        </div>
+    </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabBtns.forEach(b => {
+                    b.classList.remove('active', 'text-kas-dark-green', 'border-kas-light-brown');
+                    b.classList.add('text-slate-600');
+                });
+                this.classList.add('active', 'text-kas-dark-green', 'border-kas-light-brown');
+                this.classList.remove('text-slate-600');
+                
+                // Show active tab content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+            });
+        });
+    });
+</script>
 {% endblock %}

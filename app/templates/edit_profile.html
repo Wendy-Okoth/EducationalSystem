@@ -1,0 +1,117 @@
+{% extends "base_student.html" %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Edit Profile Header -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-slate-100 mb-8">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-kas-dark-green to-kas-light-brown rounded-2xl flex items-center justify-center">
+                <i class="fas fa-user-edit text-2xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-kas-dark-green">Edit Profile</h1>
+                <p class="text-slate-600">Update your personal information</p>
+            </div>
+        </div>
+        
+        <a href="{{ url_for('student.profile') }}" 
+           class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-slate-700">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Profile
+        </a>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-slate-100">
+        <form method="POST" action="{{ url_for('student.edit_profile') }}" class="space-y-6">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg mb-2 {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif category == 'success' %}bg-green-100 text-green-700 border border-green-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Name Field -->
+            <div>
+                <label for="name" class="block text-sm font-bold text-kas-dark-green mb-2">
+                    <i class="fas fa-user mr-2"></i>Full Name
+                </label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       value="{{ student.name }}"
+                       class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                       placeholder="Enter your full name"
+                       required>
+            </div>
+
+            <!-- Email Field -->
+            <div>
+                <label for="email" class="block text-sm font-bold text-kas-dark-green mb-2">
+                    <i class="fas fa-envelope mr-2"></i>Email Address
+                </label>
+                <input type="email" 
+                       id="email" 
+                       name="email" 
+                       value="{{ student.email }}"
+                       class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                       placeholder="your.email@example.com"
+                       required>
+                <p class="text-xs text-slate-500 mt-2">Use your school email if available</p>
+            </div>
+
+            <!-- Read-only Fields -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Student ID</p>
+                    <p class="font-bold text-kas-dark-green">#{{ student.id }}</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Account Type</p>
+                    <p class="font-bold text-kas-dark-green">Student</p>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex gap-4 pt-6 border-t border-slate-200">
+                <a href="{{ url_for('student.profile') }}" 
+                   class="px-6 py-3 rounded-xl border-2 border-slate-300 text-slate-700 hover:bg-slate-50 transition font-bold">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 rounded-xl bg-kas-dark-green text-white hover:bg-kas-light-brown hover:text-kas-dark-green transition font-bold">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Additional Information -->
+    <div class="mt-8 bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+        <h3 class="text-xl font-bold text-kas-dark-green mb-4 flex items-center">
+            <i class="fas fa-info-circle mr-3 text-kas-light-brown"></i>
+            Important Information
+        </h3>
+        <ul class="space-y-2 text-slate-600">
+            <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                <span>Email changes may require verification</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                <span>Profile updates are reviewed by administrators</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                <span>Contact support for urgent changes</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

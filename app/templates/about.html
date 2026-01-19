@@ -1,32 +1,170 @@
 {% extends "base.html" %}
-{% block title %}About Us - EduSystem{% endblock %}
+{% block title %}About Us - Kasarani Academy{% endblock %}
 
-{% block content %}
-<section id="contact">
-    <h2>Our Motto</h2>
-    <p>Inspiring Minds, Shaping Futures.</p>
-</section>
-<section id="contact">
-    <h2>Our Vision</h2>
-    <p>To cultivate a nurturing and innovative learning environment where every
-     student is empowered to discover their potential, embrace lifelong learning, and become compassionate leaders in a changing world</p>
-</section>
-<section id="contact">
-    <h2>Our Mission</h2>
-    <p>The mission of our EduSystem is to empower learners with the knowledge, 
-    skills, and values needed to thrive in a dynamic world.</p>
-    <p> It strives to cultivate critical thinking, creativity, and a lifelong love of learning. By fostering inclusivity and equity, 
-    it ensures that every student has access to quality education regardless of background.</p>
-    <p> The system aims to prepare individuals not only for academic success but also for responsible 
-    citizenship and meaningful contribution to society.</p>
-   <p> Through collaboration with families, communities, and educators, it builds a supportive environment that nurtures personal growth.</p>
-    <p>Ultimately, the mission is to shape informed, compassionate, and capable individuals who can lead and innovate for a 
-     better future.</p>
-</section>
-<section id="contact">
-    <h2>Contact Us</h2>
-    <p>Email: support@edusystem.com</p>
-    <p>Phone: +2547 456 7890</p>
-</section>
+{% block landing_content %}
+<section class="py-20 bg-gradient-to-b from-kas-slate to-kas-white">
+    <div class="max-w-7xl mx-auto px-6">
+        <!-- Page Header -->
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center space-x-2 bg-kas-light-brown/10 text-kas-dark-green px-4 py-2 rounded-full mb-6">
+                <i class="fas fa-school"></i>
+                <span class="text-sm font-bold uppercase tracking-widest">Our Institution</span>
+            </div>
+            
+            <h1 class="text-5xl font-black text-kas-dark-green mb-6">
+                About <span class="text-kas-light-brown">Kasarani Academy</span>
+            </h1>
+            <p class="text-xl text-slate-600 max-w-3xl mx-auto">
+                A premier high school in Nairobi, Kenya dedicated to academic excellence, character development, and holistic education.
+            </p>
+        </div>
 
+        <!-- Motto Section -->
+        <div class="bg-kas-white rounded-2xl shadow-lg p-8 md:p-12 mb-12 border border-kas-light-brown/20">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/4 flex justify-center">
+                    <div class="w-24 h-24 rounded-full bg-kas-light-brown/10 flex items-center justify-center">
+                        <i class="fas fa-quote-right text-4xl text-kas-light-brown"></i>
+                    </div>
+                </div>
+                <div class="md:w-3/4">
+                    <h2 class="text-3xl font-black text-kas-dark-green mb-4">Our Motto</h2>
+                    <div class="text-2xl font-bold text-kas-light-brown italic mb-4">"Strive for Excellence"</div>
+                    <p class="text-lg text-slate-600">
+                        This motto embodies our commitment to pushing beyond limits, setting high standards, and encouraging every student to reach their fullest potential in academics, character, and personal development.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vision & Mission Grid -->
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <!-- Vision -->
+            <div class="bg-kas-white rounded-2xl shadow-lg p-8 border border-slate-100 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 rounded-xl bg-kas-dark-green/10 flex items-center justify-center mb-6">
+                    <i class="fas fa-eye text-2xl text-kas-dark-green"></i>
+                </div>
+                <h2 class="text-2xl font-black text-kas-dark-green mb-4">Our Vision</h2>
+                <p class="text-slate-600 mb-4">
+                    To be the leading high school in Kenya that produces globally competitive, ethically grounded, and socially responsible citizens through innovative education and holistic development.
+                </p>
+                <div class="bg-kas-dark-green/5 p-4 rounded-lg">
+                    <p class="text-kas-dark-green font-bold italic">
+                        "Shaping future leaders who excel academically and contribute positively to society."
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mission -->
+            <div class="bg-kas-white rounded-2xl shadow-lg p-8 border border-slate-100 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 rounded-xl bg-kas-light-brown/10 flex items-center justify-center mb-6">
+                    <i class="fas fa-bullseye text-2xl text-kas-light-brown"></i>
+                </div>
+                <h2 class="text-2xl font-black text-kas-dark-green mb-4">Our Mission</h2>
+                <p class="text-slate-600 mb-4">
+                    To provide quality education that nurtures intellectual growth, moral values, and practical skills, preparing students for higher education and successful careers while fostering patriotism and social responsibility.
+                </p>
+                <ul class="text-slate-600 space-y-2">
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Academic Excellence</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Character Development</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Digital Literacy</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Core Values -->
+        <div class="bg-kas-dark-green rounded-2xl shadow-lg p-8 md:p-12 mb-12">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black text-kas-white mb-4">Our Core Values</h2>
+                <p class="text-kas-white/80 max-w-2xl mx-auto">Principles that guide our educational philosophy and daily operations</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-kas-white/10 backdrop-blur-sm rounded-xl p-6 border border-kas-white/20">
+                    <div class="w-12 h-12 rounded-lg bg-kas-light-brown flex items-center justify-center mb-4">
+                        <i class="fas fa-graduation-cap text-kas-dark-green"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-kas-white mb-2">Excellence</h3>
+                    <p class="text-kas-white/80 text-sm">Pursuing the highest standards in academics and conduct</p>
+                </div>
+                
+                <div class="bg-kas-white/10 backdrop-blur-sm rounded-xl p-6 border border-kas-white/20">
+                    <div class="w-12 h-12 rounded-lg bg-kas-light-brown flex items-center justify-center mb-4">
+                        <i class="fas fa-hands-helping text-kas-dark-green"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-kas-white mb-2">Integrity</h3>
+                    <p class="text-kas-white/80 text-sm">Upholding honesty and ethical behavior in all actions</p>
+                </div>
+                
+                <div class="bg-kas-white/10 backdrop-blur-sm rounded-xl p-6 border border-kas-white/20">
+                    <div class="w-12 h-12 rounded-lg bg-kas-light-brown flex items-center justify-center mb-4">
+                        <i class="fas fa-users text-kas-dark-green"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-kas-white mb-2">Respect</h3>
+                    <p class="text-kas-white/80 text-sm">Valuing diversity and treating all with dignity</p>
+                </div>
+                
+                <div class="bg-kas-white/10 backdrop-blur-sm rounded-xl p-6 border border-kas-white/20">
+                    <div class="w-12 h-12 rounded-lg bg-kas-light-brown flex items-center justify-center mb-4">
+                        <i class="fas fa-lightbulb text-kas-dark-green"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-kas-white mb-2">Innovation</h3>
+                    <p class="text-kas-white/80 text-sm">Embracing new ideas and technological advancement</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- School History -->
+        <div class="bg-kas-white rounded-2xl shadow-lg p-8 md:p-12 mb-12">
+            <h2 class="text-3xl font-black text-kas-dark-green mb-8 text-center">Our History</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="text-5xl font-black text-kas-light-brown mb-2">2005</div>
+                    <h3 class="text-xl font-bold text-kas-dark-green mb-2">Founded</h3>
+                    <p class="text-slate-600">Kasarani Academy was established with 50 students and 5 teachers</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-black text-kas-light-brown mb-2">2012</div>
+                    <h3 class="text-xl font-bold text-kas-dark-green mb-2">Expansion</h3>
+                    <p class="text-slate-600">New science labs and computer center were added</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-black text-kas-light-brown mb-2">2020</div>
+                    <h3 class="text-xl font-bold text-kas-dark-green mb-2">Digital Transformation</h3>
+                    <p class="text-slate-600">LMS launched to enhance digital learning</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="bg-gradient-to-r from-kas-dark-green to-kas-light-brown rounded-2xl shadow-lg p-8 md:p-12 text-center">
+            <h2 class="text-3xl font-black text-kas-white mb-6">Contact Information</h2>
+            <div class="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full bg-kas-white/20 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-map-marker-alt text-2xl text-kas-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-kas-white mb-2">Location</h3>
+                    <p class="text-kas-white/90">Kasarani Road, Nairobi<br>P.O. Box 12345-00100</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full bg-kas-white/20 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-phone-alt text-2xl text-kas-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-kas-white mb-2">Contact</h3>
+                    <p class="text-kas-white/90">+254 720 123 456<br>info@kasaraniacademy.ac.ke</p>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                <a href="{{ url_for('main.contact') }}" 
+                   class="inline-flex items-center bg-kas-white text-kas-dark-green px-8 py-3 rounded-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold">
+                    <i class="fas fa-envelope mr-3"></i>
+                    Send Us a Message
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

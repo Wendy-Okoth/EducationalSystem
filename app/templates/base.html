@@ -3,57 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}EduSystem{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="theme-color" content="#2E5B27">
+    <title>{% block title %}Kasarani Academy | Learning Management System{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kas: {
+                            'dark-green': '#2E5B27',
+                            'light-brown': '#D4A76A',
+                            white: '#FFFFFF',
+                            slate: '#F8FAFC',
+                            navy: '#1A2B3C',
+                            blue: '#2C5AA0',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/faviconn.png') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/kasalogo.png') }}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <header class="header">
-        <div class="header-container">
-            <a href="{{ url_for('main.home') }}">
-                <img src="{{ url_for('static', filename='images/edulogo.png') }}" alt="EduSystem Logo" class="logo">
-            </a>
-            <nav class="navbar">
-                <ul class="nav-links">
-                    <li><a href="{{ url_for('main.about') }}">About Us</a></li>
-                    <li><a href="{{ url_for('main.contact') }}">Contact Us</a></li>
-                    <li><a href="{{ url_for('main.testimonials') }}">Testimonials</a></li>
-                    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
-                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-                </ul>
+<body class="bg-kas-white font-sans antialiased text-kas-navy">
+
+{% if current_user and current_user.is_authenticated %}
+    {# Dashboard Layout for Authenticated Users #}
+    <div class="flex min-h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="hidden md:flex md:w-64 flex-col bg-kas-dark-green text-kas-white">
+            <div class="p-8">
+                <a href="{{ url_for('main.home') }}" class="flex items-center space-x-3">
+                    <img src="{{ url_for('static', filename='images/kasalogo.png') }}" alt="Kasarani Academy Logo" class="h-8 w-auto">
+                    <span class="text-2xl font-black tracking-tighter">
+                        Kasarani<span class="text-kas-light-brown"> Academy</span>
+                    </span>
+                </a>
+                <p class="text-xs text-kas-white/70 mt-2">Learning Management System</p>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-1 font-medium overflow-y-auto">
+                <!-- Dashboard link will be different based on role -->
+                {% if session.role == 'STUDENT' %}
+                <a href="{{ url_for('student.dashboard') }}"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-th-large w-5 text-kas-light-brown group-hover:scale-110 transition"></i>
+                    <span>Student Dashboard</span>
+                </a>
+                {% elif session.role == 'TEACHER' %}
+                <a href="{{ url_for('teacher.dashboard') }}"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-th-large w-5 text-kas-light-brown group-hover:scale-110 transition"></i>
+                    <span>Teacher Dashboard</span>
+                </a>
+                {% elif session.role == 'ADMIN' %}
+                <a href="{{ url_for('admin.dashboard') }}"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-th-large w-5 text-kas-light-brown group-hover:scale-110 transition"></i>
+                    <span>Admin Dashboard</span>
+                </a>
+                {% endif %}
+
+                <!-- Profile Settings -->
+                <a href="#"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-user-cog w-5 text-kas-blue group-hover:scale-110 transition"></i>
+                    <span>Profile Settings</span>
+                </a>
+
+                <!-- Assignments -->
+                <a href="#"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-tasks w-5 text-kas-light-brown group-hover:scale-110 transition"></i>
+                    <span>Assignments</span>
+                </a>
+
+                <!-- Class Resources -->
+                <a href="#"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-book-open w-5 text-kas-blue group-hover:scale-110 transition"></i>
+                    <span>Class Resources</span>
+                </a>
+
+                <!-- Calendar -->
+                <a href="#"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-calendar-alt w-5 text-kas-light-brown group-hover:scale-110 transition"></i>
+                    <span>Academic Calendar</span>
+                </a>
+
+                <!-- Contact Support -->
+                <a href="{{ url_for('main.contact') }}"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group">
+                    <i class="fas fa-headset w-5 text-kas-blue group-hover:scale-110 transition"></i>
+                    <span>Contact Support</span>
+                </a>
+
+                <!-- EduBot Assistant (Only for authenticated users) -->
+                <a href="#"
+                   class="flex items-center space-x-3 p-3 rounded-xl hover:bg-kas-white/5 transition group mt-4 border-t border-kas-white/10 pt-4">
+                    <i class="fas fa-robot w-5 text-kas-light-brown group-hover:scale-110 transition"></i>
+                    <span>EduBot Assistant</span>
+                </a>
             </nav>
+
+            <div class="p-4 border-t border-kas-white/10 bg-black/10">
+                <div class="flex items-center space-x-3 p-2 mb-2">
+                    <div class="w-10 h-10 rounded-xl bg-kas-light-brown flex items-center justify-center font-black text-kas-dark-green overflow-hidden border border-kas-white/20">
+                        {% if current_user.profile_image %}
+                            <img src="{{ current_user.profile_image }}" class="w-full h-full object-cover">
+                        {% else %}
+                            {% if current_user.name %}
+                                {{ current_user.name[0]|upper }}
+                            {% else %}
+                                {{ current_user.email[0]|upper if current_user.email else 'U' }}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold truncate">
+                            {{ current_user.name if current_user.name else current_user.email }}
+                        </p>
+                        <p class="text-[10px] text-kas-white/50 truncate">{{ current_user.email }}</p>
+                        <p class="text-[10px] text-kas-white/50 truncate capitalize">{{ session.role if session.role else '' }}</p>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('auth.logout') }}"
+                   class="flex items-center space-x-3 p-3 rounded-xl text-red-400 hover:bg-red-500/10 transition group">
+                    <i class="fas fa-power-off group-hover:rotate-90 transition"></i>
+                    <span class="font-bold text-xs uppercase tracking-widest">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col h-screen overflow-y-auto bg-kas-slate">
+            <header class="bg-kas-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-30">
+                <h2 class="font-bold text-kas-dark-green uppercase text-xs tracking-widest">{% block page_title %}
+                    Dashboard{% endblock %}</h2>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-bold text-slate-500">Welcome, {{ current_user.name if current_user.name else "User" }}</span>
+                    <div class="w-10 h-10 rounded-full bg-kas-dark-green flex items-center justify-center text-kas-white font-bold border-2 border-kas-light-brown overflow-hidden">
+                        {% if current_user.profile_image %}
+                            <img src="{{ current_user.profile_image }}" class="w-full h-full object-cover">
+                        {% else %}
+                            {% if current_user.name %}
+                                {{ current_user.name[0]|upper }}
+                            {% else %}
+                                {{ current_user.email[0]|upper if current_user.email else 'U' }}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6 md:p-10">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    <div class="mb-6">
+                    {% for category, message in messages %}
+                      <div class="p-4 rounded-lg mb-2 {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif category == 'success' %}bg-green-100 text-green-700 border border-green-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                        {{ message }}
+                      </div>
+                    {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+                
+                {% block dashboard_content %}{% endblock %}
+            </main>
         </div>
-    </header>
+    </div>
 
-    <main>
-         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flashes">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
-    </main>
+    <!-- Floating Action Button for EduBot (Only for authenticated users) -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="#"
+           class="relative group flex items-center justify-center w-16 h-16 bg-kas-dark-green text-kas-white rounded-2xl shadow-2xl shadow-kas-dark-green/40 hover:scale-110 hover:-translate-y-1 transition-all duration-300">
+            <span class="absolute inline-flex h-full w-full rounded-2xl bg-kas-light-brown opacity-75 animate-ping group-hover:hidden"></span>
+            <i class="fas fa-robot text-2xl relative z-10"></i>
 
-    <footer class="footer">
-        <div class="footer-container">
-            <p>&copy; 2025 EduSystem. All rights reserved.</p>
-            <div class="social-icons">
-                <a href="#"><img src="{{ url_for('static', filename='images/instagram.png') }}" alt="Instagram"></a>
-                <a href="#"><img src="{{ url_for('static', filename='images/linkedin.png') }}" alt="TikTok"></a>
-                <a href="#"><img src="{{ url_for('static', filename='images/youtube.png') }}" alt="Twitter"></a>
-                <a href="#"><img src="{{ url_for('static', filename='images/facebook.png') }}" alt="Facebook"></a>
+            <span class="absolute right-20 bg-kas-dark-green text-kas-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-kas-white/10 shadow-xl">
+                EduBot Assistant
+            </span>
+        </a>
+    </div>
+
+{% else %}
+    {# Public Website Layout for Non-Authenticated Users #}
+    <nav class="bg-kas-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="{{ url_for('main.home') }}" class="flex items-center space-x-3">
+                <img src="{{ url_for('static', filename='images/kasalogo.png') }}" alt="Kasarani Academy Logo" class="h-10 w-auto">
+                <span class="text-3xl font-black text-kas-dark-green tracking-tighter">
+                    Kasarani<span class="text-kas-light-brown"> Academy</span>
+                </span>
+            </a>
+
+            <div class="hidden md:flex items-center space-x-10 font-bold text-kas-dark-green">
+                <a href="{{ url_for('main.about') }}" class="hover:text-kas-light-brown transition">About Us</a>
+                <a href="{{ url_for('main.testimonials') }}" class="hover:text-kas-light-brown transition">Testimonials</a>
+                <a href="{{ url_for('main.contact') }}" class="hover:text-kas-light-brown transition">Contact</a>
+                <a href="{{ url_for('auth.login') }}" class="hover:text-kas-light-brown transition">Login</a>
+                <a href="{{ url_for('auth.register') }}"
+                   class="hover:text-kas-light-brown transition">
+                    Register
+                </a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-kas-dark-green text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-kas-white shadow-lg absolute top-20 left-0 right-0 z-40">
+            <div class="flex flex-col space-y-4 p-6">
+                <a href="{{ url_for('main.about') }}" class="hover:text-kas-light-brown transition font-bold">About Us</a>
+                <a href="{{ url_for('main.testimonials') }}" class="hover:text-kas-light-brown transition font-bold">Testimonials</a>
+                <a href="{{ url_for('main.contact') }}" class="hover:text-kas-light-brown transition font-bold">Contact</a>
+                <a href="{{ url_for('auth.login') }}" class="hover:text-kas-light-brown transition font-bold">Login</a>
+                <a href="{{ url_for('auth.register') }}" class="hover:text-kas-light-brown transition font-bold">
+                    Register
+                </a>
             </div>
         </div>
+    </nav>
+
+    <main>
+        {% block landing_content %}{% endblock %}
+        
+        <!-- Flash Messages for non-authenticated pages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="max-w-7xl mx-auto px-6 mt-6">
+            {% for category, message in messages %}
+              <div class="p-4 rounded-lg mb-2 {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif category == 'success' %}bg-green-100 text-green-700 border border-green-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+    </main>
+
+    <footer class="bg-kas-dark-green pt-16 pb-10 text-kas-white px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 justify-between items-center gap-12 border-b border-kas-white/10 pb-12">
+            <div>
+                <div class="mb-4">
+                    <p class="text-3xl font-black">Kasarani Academy</p>
+                    <p class="text-lg text-kas-light-brown italic">"Strive for Excellence"</p>
+                </div>
+                <p class="text-slate-300 max-w-xs">A premier high school in Nairobi, Kenya, dedicated to academic excellence, character development, and holistic education for our students.</p>
+            </div>
+            <div class="flex md:justify-end space-x-6 text-2xl">
+                <a href="#" class="hover:scale-110 transition-transform duration-300" style="color: #1877F2;"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:scale-110 transition-transform duration-300" style="color: #E4405F;"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:scale-110 transition-transform duration-300" style="color: #1DA1F2;"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="hover:scale-110 transition-transform duration-300" style="color: #FF0000;"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="hover:scale-110 transition-transform duration-300" style="color: #0077B5;"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-10 flex flex-col md:flex-row justify-between text-slate-400 text-xs font-bold uppercase tracking-widest">
+            <p>© 2026 Kasarani Academy. All rights reserved.</p>
+            <p>Ministry of Education, Kenya Registered</p>
+        </div>
     </footer>
-    
-    {% block extra_js %}{% endblock %}
+{% endif %}
+
+{% block extra_js %}{% endblock %}
+
+<!-- Mobile Menu Toggle Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+                
+                // Toggle menu icon
+                const icon = mobileMenuBtn.querySelector('i');
+                if (mobileMenu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                    const icon = mobileMenuBtn.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
-

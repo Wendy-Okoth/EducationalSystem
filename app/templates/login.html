@@ -1,72 +1,171 @@
-
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
-{% block content %}
-<section id="contact-form" class="form-container">
-    <h1>Login</h1>
-    <img src="{{ url_for('static', filename='images/edulogo.png') }}" alt="EduSystem Logo" class="form-logo"><br>
-    <form method="POST" action="{{ url_for('auth.login') }}">
-        <input type="email" name="email" placeholder="Email" required><br>
+{% block title %}Login - Kasarani Academy LMS{% endblock %}
+{% block landing_content %}
+<section class="py-20 bg-gradient-to-b from-kas-slate to-kas-white">
+    <div class="max-w-lg mx-auto px-6">
+        <!-- Login Card -->
+        <div class="bg-kas-white rounded-2xl shadow-xl p-8 md:p-12 border border-slate-100">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <img src="{{ url_for('static', filename='images/kasalogo.png') }}" 
+                         alt="Kasarani Academy Logo" 
+                         class="h-16 w-auto">
+                </div>
+                <h1 class="text-3xl font-black text-kas-dark-green mb-3">
+                    Welcome <span class="text-kas-light-brown">Back</span>
+                </h1>
+                <p class="text-slate-600">
+                    Sign in to access Kasarani Academy's Learning Management System
+                </p>
+            </div>
 
-        <div class="password-field">
-            <input type="password" name="password" id="password-input" placeholder="Password" required>
-            <i class="fas fa-eye toggle-password" data-target="password-input"></i>
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg mb-2 {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif category == 'success' %}bg-green-100 text-green-700 border border-green-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-6">
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-bold text-kas-dark-green mb-2">Email Address</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           placeholder="Enter your email"
+                           class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                           required>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password-input" class="block text-sm font-bold text-kas-dark-green mb-2">Password</label>
+                    <div class="password-field relative">
+                        <input type="password" 
+                               id="password-input" 
+                               name="password" 
+                               placeholder="Enter your password"
+                               class="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 focus:border-kas-light-brown focus:ring-2 focus:ring-kas-light-brown/20 focus:outline-none transition-all"
+                               required>
+                        <i class="fas fa-eye toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-kas-light-brown"></i>
+                    </div>
+                </div>
+
+                <!-- Remember & Forgot -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="remember" class="rounded text-kas-light-brown focus:ring-kas-light-brown">
+                        <span class="text-sm text-slate-700">Remember me</span>
+                    </label>
+                    <a href="{{ url_for('auth.forgot_password') }}" 
+                       class="text-sm text-red-500 hover:text-red-600 hover:underline font-bold">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full bg-kas-dark-green text-kas-white px-6 py-4 rounded-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold text-lg hover:bg-kas-light-brown hover:text-kas-dark-green">
+                    Sign In
+                    <i class="fas fa-sign-in-alt ml-3"></i>
+                </button>
+            </form>
+
+            <!-- Registration Link -->
+            <div class="mt-8 pt-8 border-t border-slate-100 text-center">
+                <p class="text-slate-600">
+                    Don't have an account?
+                    <a href="{{ url_for('auth.register') }}" class="text-kas-light-brown hover:text-kas-dark-green font-bold ml-2">
+                        Register here
+                    </a>
+                </p>
+            </div>
+
+            <!-- Quick Access -->
+            <div class="mt-6">
+                <p class="text-center text-sm text-slate-500 mb-4">Quick Access</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="#" class="p-3 bg-kas-light-brown/10 hover:bg-kas-light-brown/20 rounded-lg text-center transition-all">
+                        <i class="fas fa-question-circle text-kas-light-brown mb-1"></i>
+                        <p class="text-xs font-bold text-kas-dark-green">Help Center</p>
+                    </a>
+                    <a href="{{ url_for('main.contact') }}" class="p-3 bg-kas-dark-green/10 hover:bg-kas-dark-green/20 rounded-lg text-center transition-all">
+                        <i class="fas fa-headset text-kas-dark-green mb-1"></i>
+                        <p class="text-xs font-bold text-kas-dark-green">Contact Support</p>
+                    </a>
+                </div>
+            </div>
         </div>
-        
-        <button type="submit">Login</button>
-    </form>
-    <p>
-        <a href="{{ url_for('auth.forgot_password') }}">Forgot Password?</a>
-    </p>
-</section>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const toggleIcons = document.querySelectorAll('.toggle-password');
-        
-        toggleIcons.forEach(icon => {
-            icon.addEventListener('click', () => {
-                const targetId = icon.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
 
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            });
-        });
-    });
-</script>
+        <!-- Security Notice -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-shield-alt text-blue-500 text-xl mt-1"></i>
+                <div>
+                    <h3 class="font-bold text-blue-800 mb-2">Security Notice</h3>
+                    <p class="text-sm text-blue-700">
+                        For security reasons, please log out after each session when using shared devices. 
+                        Contact IT support immediately if you notice any suspicious activity on your account.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <style>
 .password-field {
     position: relative;
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
 }
 
 .password-field input {
     width: 100%;
-    padding-right: 40px; /* This creates space for the icon */
-    box-sizing: border-box; /* Ensures padding is included in the total width */
+    padding-right: 48px;
+    box-sizing: border-box;
 }
 
 .toggle-password {
     position: absolute;
-    right: 10px; /* Positions the icon from the right edge */
+    right: 16px;
     cursor: pointer;
-    color: #888;
+    transition: color 0.3s;
 }
-.form-logo {
-    max-width: 120px; /* Change this value to your preferred size */
-    height: auto;
-    display: block;
-    margin: 0 auto 20px auto;
+
+.toggle-password:hover {
+    color: #D4A76A;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleIcons = document.querySelectorAll('.toggle-password');
+    
+    toggleIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const passwordInput = icon.parentElement.querySelector('input');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

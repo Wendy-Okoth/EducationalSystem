@@ -1,17 +1,187 @@
 {% extends "base_student.html" %}
-{% block title %}Profile{% endblock %}
+{% block title %}Student Profile{% endblock %}
 
 {% block content %}
-<section id="contact-form" class="form-container">
-<div class="profile-card">
-    <h2>👤 Student Profile</h2>
+<div class="max-w-4xl mx-auto">
+    <!-- Profile Header -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-slate-100 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-20 h-20 bg-gradient-to-br from-kas-dark-green to-kas-light-brown rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-user text-3xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black text-kas-dark-green">{{ student.name }}</h1>
+                    <p class="text-slate-600">Student Profile</p>
+                </div>
+            </div>
+            <a href="{{ url_for('student.edit_profile') }}" 
+               class="px-6 py-3 rounded-xl bg-kas-dark-green text-white hover:bg-kas-light-brown hover:text-kas-dark-green transition font-bold flex items-center">
+                <i class="fas fa-edit mr-2"></i> Edit Profile
+            </a>
+        </div>
+        
+        <!-- Status Badges -->
+        <div class="flex flex-wrap gap-3 mb-6">
+            <span class="px-4 py-2 rounded-full text-sm font-bold {% if student.fees_paid %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                <i class="fas {% if student.fees_paid %}fa-check-circle{% else %}fa-times-circle{% endif %} mr-1"></i>
+                Fees: {% if student.fees_paid %}Paid{% else %}Pending{% endif %}
+            </span>
+            <span class="px-4 py-2 rounded-full text-sm font-bold {% if student.is_active %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                <i class="fas {% if student.is_active %}fa-user-check{% else %}fa-user-clock{% endif %} mr-1"></i>
+                Status: {% if student.is_active %}Active{% else %}Pending Approval{% endif %}
+            </span>
+            <span class="px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-700">
+                <i class="fas fa-graduation-cap mr-1"></i>
+                Student Account
+            </span>
+        </div>
+    </div>
 
-    <p><strong>Name:</strong> {{ student.name }}</p>
-    <p><strong>Email:</strong> {{ student.email }}</p>
-    <p><strong>Fees Paid:</strong> {{ "✅ Yes" if student.fees_paid else "❌ No" }}</p>
-    <p><strong>Status:</strong> {{ "Active" if student.is_active else "Pending Approval" }}</p>
+    <!-- Profile Details Grid -->
+    <div class="grid md:grid-cols-2 gap-6">
+        <!-- Personal Information -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 bg-kas-light-brown/10 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-id-card text-xl text-kas-light-brown"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-kas-dark-green">Personal Information</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Full Name</p>
+                    <p class="text-lg font-bold text-kas-dark-green">{{ student.name }}</p>
+                </div>
+                
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Email Address</p>
+                    <p class="text-lg font-bold text-kas-dark-green">{{ student.email }}</p>
+                </div>
+                
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Account Created</p>
+                    <p class="text-lg font-bold text-kas-dark-green">
+                        {{ student.created_at.strftime('%B %d, %Y') if student.created_at else 'Not available' }}
+                    </p>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ url_for('student.edit_profile') }}"class="btn"> Edit Profile</a>
+        <!-- Academic Information -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 bg-kas-dark-green/10 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-graduation-cap text-xl text-kas-dark-green"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-kas-dark-green">Academic Information</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Student ID</p>
+                    <p class="text-lg font-bold text-kas-dark-green">#{{ student.id }}</p>
+                </div>
+                
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Account Type</p>
+                    <p class="text-lg font-bold text-kas-dark-green">Student</p>
+                </div>
+                
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Enrolled Subjects</p>
+                    <p class="text-lg font-bold text-kas-light-brown">
+                        {% if student.enrolled_subjects %}
+                            {{ student.enrolled_subjects|length }} subjects
+                        {% else %}
+                            0 subjects
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Statistics -->
+    <div class="mt-8 bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+        <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
+            <i class="fas fa-chart-bar mr-3 text-kas-light-brown"></i>
+            Account Statistics
+        </h2>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="p-6 bg-gradient-to-br from-kas-dark-green to-kas-light-brown rounded-xl text-white">
+                <div class="flex items-center justify-between mb-4">
+                    <i class="fas fa-book text-2xl"></i>
+                    <span class="text-3xl font-black">
+                        {% if student.enrolled_subjects %}
+                            {{ student.enrolled_subjects|length }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </span>
+                </div>
+                <p class="text-sm opacity-90">Enrolled Subjects</p>
+            </div>
+            
+            <div class="p-6 bg-slate-50 rounded-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <i class="fas fa-tasks text-2xl text-kas-dark-green"></i>
+                    <span class="text-3xl font-bold text-kas-dark-green">0</span>
+                </div>
+                <p class="text-sm text-slate-600">Completed Assignments</p>
+            </div>
+            
+            <div class="p-6 bg-slate-50 rounded-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <i class="fas fa-calendar-check text-2xl text-kas-light-brown"></i>
+                    <span class="text-3xl font-bold text-kas-light-brown">
+                        {{ student.created_at.strftime('%d') if student.created_at else '01' }}
+                    </span>
+                </div>
+                <p class="text-sm text-slate-600">Days Active</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8 grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <h3 class="text-xl font-bold text-kas-dark-green mb-4 flex items-center">
+                <i class="fas fa-cog mr-3 text-kas-light-brown"></i>
+                Account Settings
+            </h3>
+            <div class="space-y-3">
+                <a href="{{ url_for('student.edit_profile') }}" 
+                   class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition">
+                    <span class="font-medium text-kas-dark-green">Edit Personal Information</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </a>
+                <a href="#" 
+                   class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition">
+                    <span class="font-medium text-kas-dark-green">Change Password</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </a>
+                <a href="#" 
+                   class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition">
+                    <span class="font-medium text-kas-dark-green">Privacy Settings</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+            <h3 class="text-xl font-bold text-kas-dark-green mb-4 flex items-center">
+                <i class="fas fa-headset mr-3 text-kas-light-brown"></i>
+                Need Help?
+            </h3>
+            <p class="text-slate-600 mb-4">If you have any issues with your account, contact our support team.</p>
+            <a href="{{ url_for('main.contact') }}" 
+               class="inline-flex items-center px-6 py-3 rounded-xl bg-kas-dark-green text-white hover:bg-kas-light-brown transition font-bold">
+                <i class="fas fa-envelope mr-2"></i> Contact Support
+            </a>
+        </div>
+    </div>
 </div>
-</section>
 {% endblock %}

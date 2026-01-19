@@ -1,22 +1,263 @@
 {% extends "base.html" %}
 
-{% block title %}EduSystem - Home{% endblock %}
+{% block title %}Kasarani Academy | Learning Management System{% endblock %}
 
-{% block content %}
-<section id="about">
-    <h1>Welcome to EduSystem 📚</h1>
-    <p>Your smart education management platform.</p>
-    <a href="{{ url_for('auth.register') }}" class="btn">Get Started</a>
+{% block landing_content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-gradient-to-br from-kas-slate via-kas-white to-kas-slate/50">
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-0 left-0 w-72 h-72 bg-kas-light-brown/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-kas-dark-green/10 rounded-full translate-x-1/3 translate-y-1/3"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-6 py-20 md:py-32 relative z-10">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="inline-flex items-center space-x-2 bg-kas-light-brown/10 text-kas-dark-green px-4 py-2 rounded-full mb-6">
+                    <i class="fas fa-graduation-cap text-sm"></i>
+                    <span class="text-sm font-bold uppercase tracking-widest">Strive for Excellence</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-6xl font-black text-kas-dark-green mb-6 leading-tight">
+                    Welcome to 
+                    <span class="text-kas-dark-green">Kasarani</span>
+                    <span class="text-kas-light-brown block">Academy LMS</span>
+                </h1>
+                
+                <p class="text-xl text-slate-600 mb-8 max-w-lg">
+                    A modern Learning Management System connecting students, teachers, and parents in our pursuit of academic excellence and holistic education.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{{ url_for('auth.register') }}" 
+                       class="bg-kas-dark-green text-kas-white px-8 py-4 rounded-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold text-lg inline-flex items-center justify-center group hover:bg-kas-light-brown hover:text-kas-dark-green">
+                        Get Started
+                        <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
+                    </a>
+                    <a href="{{ url_for('main.about') }}" 
+                       class="border-2 border-kas-dark-green text-kas-dark-green px-8 py-4 rounded-full hover:bg-kas-dark-green hover:text-kas-white transition-all duration-300 font-bold text-lg inline-flex items-center justify-center">
+                        <i class="fas fa-info-circle mr-3"></i>
+                        About Our School
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-6 mt-12">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-kas-light-brown/20 flex items-center justify-center">
+                            <i class="fas fa-users text-kas-light-brown"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-2xl text-kas-dark-green">500+</p>
+                            <p class="text-sm text-slate-500">Active Students</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-kas-dark-green/20 flex items-center justify-center">
+                            <i class="fas fa-chalkboard-teacher text-kas-dark-green"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-2xl text-kas-dark-green">30+</p>
+                            <p class="text-sm text-slate-500">Dedicated Teachers</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-kas-light-brown/20 flex items-center justify-center">
+                            <i class="fas fa-graduation-cap text-kas-light-brown"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-2xl text-kas-dark-green">95%</p>
+                            <p class="text-sm text-slate-500">KCSE Success Rate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative">
+                <div class="relative z-10">
+                    <!-- Using image1.jpg instead of graduation cap icon -->
+                    <div class="w-full h-96 rounded-2xl shadow-2xl overflow-hidden">
+                        <img src="{{ url_for('static', filename='images/image1.jpg') }}" 
+                             alt="Kasarani Academy Students Learning" 
+                             class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="absolute -bottom-6 -right-6 w-64 h-64 bg-kas-light-brown/20 rounded-2xl -z-10"></div>
+                <div class="absolute -top-6 -left-6 w-48 h-48 bg-kas-dark-green/20 rounded-full -z-10"></div>
+            </div>
+        </div>
+    </div>
 </section>
 
-<section id="about">
-    <h2>About Us</h2>
-    <p>EduSystem helps schools, teachers, and students connect seamlessly in a digital learning environment.</p>
+<!-- Features Section -->
+<section class="py-20 bg-kas-slate">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-black text-kas-dark-green mb-4">Our Digital Learning Platform</h2>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                Designed to support our school community with modern tools for teaching, learning, and communication.
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-kas-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-slate-100">
+                <div class="w-16 h-16 rounded-xl bg-kas-light-brown/10 flex items-center justify-center mb-6">
+                    <i class="fas fa-user-graduate text-3xl text-kas-light-brown"></i>
+                </div>
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">For Students</h3>
+                <p class="text-slate-600 mb-6">
+                    Access class materials, submit assignments online, track your academic progress, and communicate with teachers from anywhere.
+                </p>
+                <ul class="text-sm text-slate-600 space-y-2">
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Digital Assignment Submissions</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Online Study Materials</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Progress Tracking</li>
+                </ul>
+            </div>
+            
+            <div class="bg-kas-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-slate-100">
+                <div class="w-16 h-16 rounded-xl bg-kas-dark-green/10 flex items-center justify-center mb-6">
+                    <i class="fas fa-chalkboard-teacher text-3xl text-kas-dark-green"></i>
+                </div>
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">For Teachers</h3>
+                <p class="text-slate-600 mb-6">
+                    Create and share lessons, grade assignments efficiently, monitor student performance, and communicate with students and parents.
+                </p>
+                <ul class="text-sm text-slate-600 space-y-2">
+                    <li class="flex items-center"><i class="fas fa-check text-kas-dark-green mr-2"></i> Lesson Planning Tools</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-dark-green mr-2"></i> Automated Grading System</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-dark-green mr-2"></i> Parent Communication Portal</li>
+                </ul>
+            </div>
+            
+            <div class="bg-kas-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-slate-100">
+                <div class="w-16 h-16 rounded-xl bg-kas-light-brown/10 flex items-center justify-center mb-6">
+                    <i class="fas fa-school text-3xl text-kas-light-brown"></i>
+                </div>
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">For Parents</h3>
+                <p class="text-slate-600 mb-6">
+                    Monitor your child's academic progress, receive timely updates, and communicate directly with teachers through our secure portal.
+                </p>
+                <ul class="text-sm text-slate-600 space-y-2">
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Real-time Grade Access</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Attendance Monitoring</li>
+                    <li class="flex items-center"><i class="fas fa-check text-kas-light-brown mr-2"></i> Direct Teacher Messages</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </section>
 
-<section id="contact">
-    <h2>Contact Us</h2>
-    <p>Email: support@edusystem.com</p>
-    <p>Phone: +123 456 7890</p>
+<!-- About Us Preview Section -->
+<section class="py-20 bg-kas-white">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <div class="inline-flex items-center space-x-2 bg-kas-dark-green/10 text-kas-dark-green px-4 py-2 rounded-full mb-6">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="text-sm font-bold uppercase tracking-widest">About Our School</span>
+                </div>
+                
+                <h2 class="text-4xl font-black text-kas-dark-green mb-6">
+                    Kasarani<span class="text-kas-light-brown"> Academy</span>
+                </h2>
+                
+                <p class="text-lg text-slate-600 mb-6">
+                    Established in 2005, Kasarani Academy is a premier high school in Nairobi, Kenya, committed to providing quality education that combines academic excellence with character development.
+                </p>
+                
+                <p class="text-lg text-slate-600 mb-8">
+                    Our motto "Strive for Excellence" reflects our commitment to helping every student reach their full potential through dedicated teaching, modern facilities, and a supportive learning environment.
+                </p>
+                
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center space-x-2 bg-kas-light-brown/10 px-4 py-2 rounded-lg">
+                        <i class="fas fa-award text-kas-light-brown"></i>
+                        <span class="font-bold text-kas-dark-green">KCSE Top School</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-kas-dark-green/10 px-4 py-2 rounded-lg">
+                        <i class="fas fa-users text-kas-dark-green"></i>
+                        <span class="font-bold text-kas-dark-green">Qualified Staff</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-kas-light-brown/10 px-4 py-2 rounded-lg">
+                        <i class="fas fa-wifi text-kas-light-brown"></i>
+                        <span class="font-bold text-kas-dark-green">Digital Learning</span>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <a href="{{ url_for('main.about') }}" 
+                       class="inline-flex items-center bg-kas-dark-green text-kas-white px-6 py-3 rounded-full hover:bg-kas-light-brown hover:text-kas-dark-green transition-all duration-300 font-bold">
+                        Learn More About Us
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="relative">
+                <div class="relative z-10">
+                    <!-- Using image2.jpg instead of school icon -->
+                    <div class="w-full h-96 rounded-2xl shadow-2xl overflow-hidden">
+                        <img src="{{ url_for('static', filename='images/image2.jpg') }}" 
+                             alt="Kasarani Academy Campus" 
+                             class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-kas-light-brown/30 rounded-full -z-10"></div>
+                <div class="absolute -top-6 -left-6 w-24 h-24 bg-kas-dark-green/20 rounded-full -z-10"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact CTA Section -->
+<section class="py-20 bg-gradient-to-r from-kas-dark-green/5 to-kas-light-brown/5">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+        <div class="inline-flex items-center space-x-2 bg-kas-dark-green/10 text-kas-dark-green px-4 py-2 rounded-full mb-6">
+            <i class="fas fa-envelope"></i>
+            <span class="text-sm font-bold uppercase tracking-widest">Get In Touch</span>
+        </div>
+        
+        <h2 class="text-4xl font-black text-kas-dark-green mb-8">
+            Join the Kasarani<span class="text-kas-light-brown"> Academy</span> Community
+        </h2>
+        
+        <p class="text-lg text-slate-600 mb-12 max-w-2xl mx-auto">
+            Whether you're a prospective student, parent, or teacher, we welcome you to join our educational community dedicated to excellence.
+        </p>
+        
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <div class="bg-kas-white p-8 rounded-2xl shadow-lg border border-slate-100">
+                <div class="w-16 h-16 rounded-full bg-kas-dark-green/10 flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-envelope-open-text text-2xl text-kas-dark-green"></i>
+                </div>
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">Email Us</h3>
+                <p class="text-slate-600 mb-2">info@kasaraniacademy.ac.ke</p>
+                <p class="text-slate-600">admissions@kasaraniacademy.ac.ke</p>
+            </div>
+            
+            <div class="bg-kas-white p-8 rounded-2xl shadow-lg border border-slate-100">
+                <div class="w-16 h-16 rounded-full bg-kas-light-brown/10 flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-phone-alt text-2xl text-kas-light-brown"></i>
+                </div>
+                <h3 class="text-xl font-bold text-kas-dark-green mb-4">Call Us</h3>
+                <p class="text-slate-600 mb-2">+254 720 123 456</p>
+                <p class="text-slate-600">+254 734 567 890</p>
+                <p class="text-sm text-slate-500 mt-2">Monday - Friday, 8:00 AM - 4:00 PM</p>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('main.contact') }}" 
+               class="inline-flex items-center bg-kas-dark-green text-kas-white px-10 py-4 rounded-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold text-lg hover:bg-kas-light-brown hover:text-kas-dark-green">
+                <i class="fas fa-comments mr-3"></i>
+                Contact Admissions
+            </a>
+            <a href="{{ url_for('auth.register') }}" 
+               class="inline-flex items-center border-2 border-kas-dark-green text-kas-dark-green px-10 py-4 rounded-full hover:bg-kas-dark-green hover:text-kas-white transition-all duration-300 font-bold text-lg">
+                <i class="fas fa-user-plus mr-3"></i>
+                Create Account
+            </a>
+        </div>
+    </div>
 </section>
 {% endblock %}
