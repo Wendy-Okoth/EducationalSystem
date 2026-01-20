@@ -1,0 +1,48 @@
+{% extends "base_teacher.html" %}
+{% block title %}My Quizzes{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-black text-kas-dark-green">Manage Quizzes</h1>
+        <a href="{{ url_for('teacher.create_quiz') }}" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">
+            + New Quiz
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-4 text-xs font-black uppercase text-slate-400">Quiz Title</th>
+                    <th class="px-6 py-4 text-xs font-black uppercase text-slate-400">Subject</th>
+                    <th class="px-6 py-4 text-xs font-black uppercase text-slate-400">Status</th>
+                    <th class="px-6 py-4 text-xs font-black uppercase text-slate-400">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for quiz in quizzes %}
+                <tr>
+                    <td class="px-6 py-4 font-bold text-kas-dark-green">{{ quiz.title }}</td>
+                    <td class="px-6 py-4 text-slate-600">{{ quiz.subject.name }}</td>
+                    <td class="px-6 py-4">
+                        {% if quiz.is_published %}
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Published</span>
+                        {% else %}
+                        <span class="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold uppercase">Draft</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <button class="text-blue-600 hover:text-blue-800 font-bold text-sm">View Submissions</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">No quizzes found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

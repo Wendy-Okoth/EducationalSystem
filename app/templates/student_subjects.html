@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
-    <!-- Subjects Header -->
     <section class="mb-8">
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -23,7 +22,6 @@
         </div>
     </section>
 
-    <!-- Subjects Grid -->
     <section class="mb-8">
         {% if subjects %}
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -39,107 +37,81 @@
                         </span>
                     </div>
                     
-                    <h3 class="text-xl font-bold text-kas-dark-green mb-2 group-hover:text-kas-light-brown transition">{{ subject.name }}</h3>
+                    <h3 class="text-xl font-bold text-kas-dark-green mb-2 group-hover:text-kas-light-brown transition line-clamp-1">{{ subject.name }}</h3>
                     <p class="text-slate-600 text-sm mb-4 line-clamp-2">{{ subject.description or 'No description available' }}</p>
                     
                     <div class="flex items-center justify-between text-sm text-slate-500 mb-4">
                         <div class="flex items-center">
-                            <i class="fas fa-user-tie mr-2"></i>
-                            <span>{{ subject.teacher_name or 'Teacher' }}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-users mr-2"></i>
-                            <span>{{ subject.enrolled_count or 0 }} students</span>
+                            <i class="fas fa-user-tie mr-2 text-kas-light-brown"></i>
+                            <span>{{ subject.teacher_name }}</span>
                         </div>
                     </div>
                     
                     <div class="flex gap-2">
-                        <a href="{{ url_for('student.subject', subject_id=subject.id) }}"
+                        <a href="{{ url_for('student.subject_detail', subject_id=subject.id) }}"
                            class="flex-1 px-4 py-2 rounded-lg bg-kas-dark-green text-white text-center hover:bg-kas-light-brown hover:text-kas-dark-green transition font-bold">
                             <i class="fas fa-door-open mr-2"></i> Enter
                         </a>
-                        <button class="subject-info-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition"
+                        <button class="subject-info-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-slate-600"
                                 data-subject-id="{{ subject.id }}">
                             <i class="fas fa-info-circle"></i>
                         </button>
                     </div>
                 </div>
                 
-                <!-- Progress bar at bottom -->
-                {% if subject.progress_percentage is defined %}
                 <div class="px-6 pb-6">
                     <div class="flex justify-between text-sm mb-1">
                         <span class="font-medium text-kas-dark-green">Progress</span>
                         <span class="font-bold text-kas-light-brown">{{ subject.progress_percentage }}%</span>
                     </div>
-                    <div class="w-full bg-slate-200 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-kas-light-brown to-kas-dark-green h-2 rounded-full transition-all duration-500"
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-kas-light-brown to-kas-dark-green h-2 rounded-full transition-all duration-700"
                              style="width: {{ subject.progress_percentage }}%"></div>
                     </div>
                 </div>
-                {% endif %}
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
-            <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-book text-3xl text-slate-400"></i>
+        <div class="bg-white rounded-2xl shadow-lg p-12 text-center border border-slate-100">
+            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-book-reader text-3xl text-slate-300"></i>
             </div>
-            <h3 class="text-xl font-bold text-slate-700 mb-3">No Subjects Enrolled</h3>
-            <p class="text-slate-600 mb-6 max-w-md mx-auto">You haven't enrolled in any subjects yet. Search and enroll in subjects from your dashboard to get started.</p>
-            <a href="{{ url_for('student.dashboard') }}"
-               class="inline-flex items-center px-6 py-3 rounded-xl bg-kas-dark-green text-white hover:bg-kas-light-brown hover:text-kas-dark-green transition font-bold">
-                <i class="fas fa-search mr-2"></i> Browse Subjects
-            </a>
+            <h3 class="text-xl font-bold text-slate-700 mb-2">No Enrolled Subjects</h3>
+            <p class="text-slate-500 mb-6">Start your journey by enrolling in available subjects.</p>
+            <a href="{{ url_for('student.dashboard') }}" class="btn bg-kas-dark-green text-white px-8 py-3 rounded-xl font-bold">Find Subjects</a>
         </div>
         {% endif %}
     </section>
 
-    <!-- Subject Statistics -->
     {% if subjects %}
-    <section>
-        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
-            <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
-                <i class="fas fa-chart-pie mr-3 text-kas-light-brown"></i>
-                Learning Statistics
-            </h2>
-            
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="p-6 bg-slate-50 rounded-xl border border-slate-200">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-book text-xl text-blue-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-3xl font-black text-kas-dark-green">{{ subjects|length }}</p>
-                            <p class="text-sm text-slate-600">Total Subjects</p>
-                        </div>
-                    </div>
+    <section class="mt-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 bg-kas-dark-green/10 text-kas-dark-green rounded-xl flex items-center justify-center">
+                    <i class="fas fa-layer-group"></i>
                 </div>
-                
-                <div class="p-6 bg-slate-50 rounded-xl border border-slate-200">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-check-circle text-xl text-green-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-3xl font-black text-kas-dark-green">{{ completed_assignments or 0 }}</p>
-                            <p class="text-sm text-slate-600">Completed Assignments</p>
-                        </div>
-                    </div>
+                <div>
+                    <p class="text-2xl font-black text-kas-dark-green">{{ subjects|length }}</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Courses Enrolled</p>
                 </div>
-                
-                <div class="p-6 bg-slate-50 rounded-xl border border-slate-200">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-kas-light-brown/20 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-trophy text-xl text-kas-light-brown"></i>
-                        </div>
-                        <div>
-                            <p class="text-3xl font-black text-kas-dark-green">{{ average_progress or 0 }}%</p>
-                            <p class="text-sm text-slate-600">Average Progress</p>
-                        </div>
-                    </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 bg-kas-light-brown/10 text-kas-light-brown rounded-xl flex items-center justify-center">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-kas-dark-green">{{ completed_assignments }}</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Assignments Done</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-kas-dark-green">{{ average_progress }}%</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Completion</p>
                 </div>
             </div>
         </div>
@@ -147,19 +119,12 @@
     {% endif %}
 </div>
 
-<!-- Subject Info Modal -->
-<div class="modal fade" id="subjectInfoModal" tabindex="-1" aria-labelledby="subjectInfoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content rounded-2xl border-0 shadow-2xl">
-            <div class="modal-header bg-kas-dark-green text-white rounded-t-2xl p-6">
-                <h5 class="modal-title text-xl font-bold" id="subjectInfoModalLabel">
-                    <i class="fas fa-info-circle mr-2"></i> Subject Details
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-6">
-                <div id="subject-info-content">
-                    <!-- Content loaded dynamically -->
+<div class="modal fade" id="subjectInfoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3xl border-0 shadow-2xl overflow-hidden">
+            <div id="subject-info-content">
+                <div class="p-12 text-center">
+                    <div class="animate-spin inline-block w-8 h-8 border-4 border-kas-dark-green border-t-transparent rounded-full"></div>
                 </div>
             </div>
         </div>
@@ -170,95 +135,53 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const subjectInfoModal = new bootstrap.Modal(document.getElementById('subjectInfoModal'));
+        const modalEl = document.getElementById('subjectInfoModal');
+        const infoModal = new bootstrap.Modal(modalEl);
         
-        // Subject info buttons
         document.querySelectorAll('.subject-info-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const subjectId = this.getAttribute('data-subject-id');
-                loadSubjectInfo(subjectId);
+                const id = this.dataset.subjectId;
+                infoModal.show();
+                
+                fetch(`/student/api/subject/${id}/info`)
+                    .then(r => r.json())
+                    .then(data => {
+                        document.getElementById('subject-info-content').innerHTML = `
+                            <div class="bg-kas-dark-green p-6 text-white">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded mb-2 inline-block">${data.code}</span>
+                                        <h3 class="text-2xl font-bold">${data.name}</h3>
+                                    </div>
+                                    <button type="button" class="text-white/50 hover:text-white" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <p class="text-slate-600 mb-6">${data.description || 'No description provided.'}</p>
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-slate-50 p-3 rounded-xl">
+                                        <p class="text-[10px] uppercase font-bold text-slate-400">Instructor</p>
+                                        <p class="font-bold text-kas-dark-green">${data.teacher_name}</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-xl">
+                                        <p class="text-[10px] uppercase font-bold text-slate-400">Class Size</p>
+                                        <p class="font-bold text-kas-dark-green">${data.enrolled_count} Students</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="font-bold">Course Completion</span>
+                                        <span class="text-kas-light-brown font-bold">${data.progress_percentage}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full">
+                                        <div class="bg-kas-light-brown h-2 rounded-full" style="width: ${data.progress_percentage}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
             });
         });
-        
-        function loadSubjectInfo(subjectId) {
-            fetch(`/student/api/subject/${subjectId}/info`)
-                .then(response => response.json())
-                .then(data => {
-                    const content = document.getElementById('subject-info-content');
-                    content.innerHTML = `
-                        <div class="space-y-6">
-                            <div class="flex items-center gap-4">
-                                <div class="w-16 h-16 bg-gradient-to-br from-kas-dark-green to-kas-light-brown rounded-xl flex items-center justify-center">
-                                    <i class="fas fa-book text-2xl text-white"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold text-kas-dark-green">${data.name}</h3>
-                                    <p class="text-slate-600">${data.code || 'No code'}</p>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <h4 class="font-bold text-kas-dark-green mb-2">Description</h4>
-                                <p class="text-slate-600">${data.description || 'No description available.'}</p>
-                            </div>
-                            
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="p-4 bg-slate-50 rounded-xl">
-                                    <p class="text-sm text-slate-500 mb-1">Teacher</p>
-                                    <p class="font-bold text-kas-dark-green">${data.teacher_name || 'Not assigned'}</p>
-                                </div>
-                                <div class="p-4 bg-slate-50 rounded-xl">
-                                    <p class="text-sm text-slate-500 mb-1">Enrolled Students</p>
-                                    <p class="font-bold text-kas-dark-green">${data.enrolled_count || 0}</p>
-                                </div>
-                            </div>
-                            
-                            ${data.progress_percentage !== undefined ? `
-                                <div>
-                                    <h4 class="font-bold text-kas-dark-green mb-2">Your Progress</h4>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span>Completion</span>
-                                        <span class="font-bold text-kas-light-brown">${data.progress_percentage}%</span>
-                                    </div>
-                                    <div class="w-full bg-slate-200 rounded-full h-3">
-                                        <div class="bg-gradient-to-r from-kas-light-brown to-kas-dark-green h-3 rounded-full"
-                                             style="width: ${data.progress_percentage}%"></div>
-                                    </div>
-                                </div>
-                            ` : ''}
-                            
-                            ${data.assignments_count !== undefined ? `
-                                <div>
-                                    <h4 class="font-bold text-kas-dark-green mb-2">Assignments</h4>
-                                    <div class="flex gap-4">
-                                        <div class="p-3 bg-blue-50 rounded-lg">
-                                            <p class="text-sm text-blue-600 mb-1">Total</p>
-                                            <p class="text-xl font-bold">${data.assignments_count}</p>
-                                        </div>
-                                        <div class="p-3 bg-green-50 rounded-lg">
-                                            <p class="text-sm text-green-600 mb-1">Completed</p>
-                                            <p class="text-xl font-bold">${data.completed_assignments || 0}</p>
-                                        </div>
-                                        <div class="p-3 bg-yellow-50 rounded-lg">
-                                            <p class="text-sm text-yellow-600 mb-1">Pending</p>
-                                            <p class="text-xl font-bold">${data.pending_assignments || 0}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                    subjectInfoModal.show();
-                })
-                .catch(error => {
-                    console.error('Error loading subject info:', error);
-                    document.getElementById('subject-info-content').innerHTML = `
-                        <div class="text-center py-8 text-red-500">
-                            <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
-                            <p>Error loading subject information</p>
-                        </div>`;
-                });
-        }
     });
 </script>
 {% endblock %}

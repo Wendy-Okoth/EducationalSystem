@@ -116,35 +116,35 @@ class Material(db.Model):
     filename = db.Column(db.String(255), nullable=False)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-
 class Assignment(db.Model):
     __tablename__ = "assignments"
-
     id = db.Column(db.Integer, primary_key=True)
-    # Changed from course_id to subject_id to match your application's models
     subject_id = db.Column(db.Integer, db.ForeignKey("subjects.id"), nullable=False)
-    # Added teacher_id to link the assignment to a specific teacher
     teacher_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     due_date = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
+    # MISSING COLUMN: Add this to store the teacher's uploaded paper
+    attachment = db.Column(db.String(255), nullable=True) 
+
     subject = db.relationship('Subject', backref='assignments', lazy=True)
     teacher = db.relationship('User', backref='assignments', lazy=True)
 
-
 class Submission(db.Model):
     __tablename__ = "submissions"
-
     id = db.Column(db.Integer, primary_key=True)
     assignment_id = db.Column(db.Integer, db.ForeignKey("assignments.id"), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    filename = db.Column(db.String(255), nullable=False)
+    filename = db.Column(db.String(255), nullable=False) 
     grade = db.Column(db.Float, nullable=True)
     feedback = db.Column(db.Text, nullable=True)
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # ADD THESE RELATIONSHIPS: Makes it easier to access student name and assignment title
+    assignment = db.relationship('Assignment', backref='submissions_list', lazy=True)
+    student = db.relationship('User', backref='student_submissions', lazy=True)
 
 
 class Enrollment(db.Model):
@@ -181,8 +181,9 @@ class Quiz(db.Model):
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text)
-    duration_minutes = db.Column(db.Integer, default=30)  # Time limit for the quiz
+    duration_minutes = db.Column(db.Integer, default=30)
     release_date = db.Column(db.DateTime, default=datetime.utcnow)
+    due_date = db.Column(db.DateTime, nullable=True) # Added for calendar/deadline locking
     is_published = db.Column(db.Boolean, default=False)
     
     subject = db.relationship('Subject', backref=db.backref('quizzes', lazy=True))

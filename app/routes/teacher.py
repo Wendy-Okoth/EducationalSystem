@@ -3,6 +3,7 @@ from app.models import User , db , Subject , SubjectContent , Assignment , Quiz,
 from datetime import datetime
 import os
 from flask import current_app
+from werkzeug.utils import secure_filename
 
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
 
@@ -64,8 +65,7 @@ def calendar():
         return redirect(url_for("auth.login"))
     return render_template("calendar.html")
 
-import os
-from werkzeug.utils import secure_filename
+
 
 @teacher_bp.route('/add_content', methods=['GET', 'POST'])
 def add_content():
@@ -129,8 +129,8 @@ def create_assignment():
     if not is_teacher():
         return redirect(url_for('auth.login'))
 
-    # Corrected line: Fetch all subjects from the database
-    subjects = Subject.query.all()
+    teacher_id = session.get('user_id')
+    subjects = Subject.query.filter_by(teacher_id=teacher_id).all()
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -138,27 +138,83 @@ def create_assignment():
         subject_id = request.form.get('subject_id')
         due_date_str = request.form.get('due_date')
 
+        # Handle File Upload
+        file = request.files.get('assignment_file')
+        unique_filename = None
+        
+        if file and file.filename != '':
+            original_filename = secure_filename(file.filename)
+            # Create a unique filename: timestamp_filename.pdf
+            unique_filename = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{original_filename}"
+            
+            # Ensure path: app/static/uploads/assignments
+            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'assignments')
+            os.makedirs(upload_folder, exist_ok=True)
+            
+            file.save(os.path.join(upload_folder, unique_filename))
+
         try:
             due_date = datetime.strptime(due_date_str, '%Y-%m-%dT%H:%M')
         except (ValueError, TypeError):
             flash("Invalid date format.", "danger")
             return redirect(url_for('teacher.create_assignment'))
 
+        # Create New Assignment with 'attachment' assigned
         new_assignment = Assignment(
             title=title,
-            content=content,
+            description=content,
             due_date=due_date,
-            teacher_id=session['user_id'], # Use session user_id
-            subject_id=subject_id
+            teacher_id=teacher_id,
+            subject_id=subject_id,
+            attachment=unique_filename  # This links the file to the DB record
         )
 
         db.session.add(new_assignment)
         db.session.commit()
 
-        flash("Assignment created successfully!", "success")
+        flash("Assignment posted and added to calendar!", "success")
         return redirect(url_for('teacher.assignments'))
 
     return render_template('create_assignment.html', subjects=subjects)
+
+@teacher_bp.route('/api/calendar_events')
+def calendar_events():
+    """API endpoint for FullCalendar to fetch events"""
+    if not is_teacher():
+        return jsonify([])
+        
+    teacher_id = session.get('user_id')
+    assignments = Assignment.query.filter_by(teacher_id=teacher_id).all()
+    quizzes = Quiz.query.join(Subject).filter(Subject.teacher_id == teacher_id).all()
+    
+    events = []
+    
+    # Add Assignments
+    for a in assignments:
+        # Event 1: Start/Posted Date
+        events.append({
+            'title': f"📢 Posted: {a.title}",
+            'start': a.created_at.isoformat(),
+            'color': '#15803d', # Dark Green
+            'description': 'Assignment made available'
+        })
+        # Event 2: Deadline
+        events.append({
+            'title': f"⏰ DUE: {a.title}",
+            'start': a.due_date.isoformat(),
+            'color': '#92400e', # Light Brown
+            'description': 'Submission deadline'
+        })
+
+    # Add Quizzes
+    for q in quizzes:
+        events.append({
+            'title': f"📝 Quiz: {q.title}",
+            'start': q.release_date.isoformat(),
+            'color': '#2563eb' # Blue
+        })
+    
+    return jsonify(events)
 
 @teacher_bp.route('/api/assignments')
 def get_teacher_assignments():
@@ -166,15 +222,37 @@ def get_teacher_assignments():
         return jsonify([])
         
     teacher_id = session.get('user_id')
+    # Fetch Assignments
     assignments = Assignment.query.filter_by(teacher_id=teacher_id).all()
+    # Fetch Quizzes
+    quizzes = Quiz.query.join(Subject).filter(Subject.teacher_id == teacher_id).all()
     
-    assignments_data = [{
-        'title': f"Assignment: {a.title}",
-        'start': a.due_date.isoformat(),
-        'end': a.due_date.isoformat(),
-    } for a in assignments]
+    events = []
     
-    return jsonify(assignments_data)
+    for a in assignments:
+        # 1. When it was made available
+        events.append({
+            'title': f"📢 Available: {a.title}",
+            'start': a.created_at.isoformat(),
+            'backgroundColor': '#15803d', # Dark Green
+            'allDay': True
+        })
+        # 2. When it is due
+        events.append({
+            'title': f"⏰ DUE: {a.title}",
+            'start': a.due_date.isoformat(),
+            'backgroundColor': '#92400e', # Light Brown
+            'allDay': False
+        })
+
+    for q in quizzes:
+        events.append({
+            'title': f"📝 Quiz: {q.title}",
+            'start': q.release_date.isoformat(),
+            'backgroundColor': '#2563eb', # Blue
+        })
+    
+    return jsonify(events)
 
 @teacher_bp.route('/quizzes/create', methods=['GET', 'POST'])
 def create_quiz():

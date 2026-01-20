@@ -75,39 +75,49 @@
             <!-- Tab Content -->
             <div class="p-6">
                 <!-- Materials Tab -->
-                <div id="materials-tab" class="tab-content active">
-                    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Learning Materials</h2>
-                    {% if materials %}
-                    <div class="grid md:grid-cols-2 gap-4">
-                        {% for material in materials %}
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition-colors">
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 bg-white rounded-lg border border-slate-300 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-{{ material.icon }} text-kas-light-brown"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="font-bold text-kas-dark-green mb-1">{{ material.title }}</h3>
-                                    <p class="text-sm text-slate-600 mb-2">{{ material.description }}</p>
-                                    <div class="flex items-center justify-between text-sm">
-                                        <span class="text-slate-500">{{ material.date }}</span>
-                                        <a href="{{ material.url }}" 
-                                           class="text-kas-light-brown font-bold hover:text-kas-dark-green transition">
-                                            <i class="fas fa-{{ material.action_icon }} mr-1"></i> {{ material.action }}
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-12 text-slate-500">
-                        <i class="fas fa-file-alt text-4xl mb-3 opacity-50"></i>
-                        <p class="text-lg font-medium">No learning materials available yet</p>
-                        <p class="text-slate-400 mt-1">Your teacher will upload materials soon.</p>
-                    </div>
-                    {% endif %}
+     <div id="materials-tab" class="tab-content active">
+    <h2 class="text-2xl font-bold text-kas-dark-green mb-4">Learning Materials</h2>
+    
+    {% if contents %}
+    <div class="grid md:grid-cols-2 gap-4">
+        {% for content in contents %}
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition-colors">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-white rounded-lg border border-slate-300 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-file-pdf text-red-500 text-xl"></i>
                 </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-kas-dark-green mb-1">{{ content.title }}</h3>
+                    <p class="text-sm text-slate-600 mb-2 line-clamp-2">{{ content.content_body }}</p>
+                    
+                    <div class="flex items-center justify-between text-sm mt-3 pt-3 border-t border-slate-100">
+                        <span class="text-slate-500">
+                            <i class="far fa-clock mr-1"></i>
+                            {{ content.created_at.strftime('%d %b, %Y') if content.created_at else 'Recently' }}
+                        </span>
+                        
+                        {% if content.file_path %}
+                        <a href="{{ url_for('static', filename='uploads/' + content.file_path) }}" 
+                           download
+                           class="text-kas-light-brown font-bold hover:text-kas-dark-green transition flex items-center">
+                            <i class="fas fa-download mr-1"></i> Download File
+                        </a>
+                        {% else %}
+                        <span class="text-slate-400 italic text-xs">No attachment</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-slate-500">
+        <i class="fas fa-file-alt text-4xl mb-3 opacity-50"></i>
+        <p class="text-lg font-medium">No learning materials available yet</p>
+    </div>
+    {% endif %}
+</div>
                 
                 <!-- Assignments Tab -->
                 <div id="assignments-tab" class="tab-content hidden">

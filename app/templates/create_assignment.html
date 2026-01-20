@@ -1,46 +1,84 @@
-{% extends "base_teacher.html" %} 
-{% block title %}Content{% endblock %} 
+{% extends "base_teacher.html" %}
+{% block title %}Create Assignment{% endblock %}
+
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Assignment</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <section id="contact-form" class="form-container">
-    <div class="container mt-5">
-        <h1 class="mb-4">Create New Assignment</h1>
-        <form method="POST" action="{{ url_for('teacher.create_assignment') }}">
-            <div class="mb-3">
-                <h5><label for="title" class="form-label">Assignment Title</label></h5>
-                <input type="text" class="form-control" id="title" name="title" required>
-            </div>
-            <div class="mb-3">
-                <h5><label for="content" class="form-label">Assignment Content</label></h5>
-                <textarea class="form-control" id="content" name="content" rows="6" required></textarea>
-            </div>
-            <div class="mb-3">
-                <h5><label for="subject_id" class="form-label">Select Subject</label></h5>
-                <select class="form-control" id="subject_id" name="subject_id" required>
-                    {% for subject in subjects %}
-                    <option value="{{ subject.id }}">{{ subject.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <h5><label for="due_date" class="form-label">Due Date and Time</label></h5>
-                <input type="datetime-local" class="form-control" id="due_date" name="due_date" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Post Assignment</button>
-            <a href="{{ url_for('teacher.assignments') }}" class="btn btn-secondary">Cancel</a>
-        </form>
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+        <div class="bg-kas-dark-green p-8 text-white">
+            <h3 class="text-2xl font-black flex items-center">
+                <i class="fas fa-tasks mr-3 text-kas-light-brown"></i>
+                Create New Assignment
+            </h3>
+        </div>
+
+        <div class="p-8">
+            <form method="POST" action="{{ url_for('teacher.create_assignment') }}" enctype="multipart/form-data" class="space-y-6">
+                
+                <div>
+                    <label class="block text-sm font-black text-kas-dark-green uppercase mb-2">Assignment Title</label>
+                    <input type="text" name="title" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition" placeholder="e.g. Calculus Homework 1" required>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-black text-kas-dark-green uppercase mb-2">Subject</label>
+                        <select name="subject_id" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none" required>
+                            {% for subject in subjects %}
+                                <option value="{{ subject.id }}" 
+                                    {% if request.args.get('subject_id')|int == subject.id %}selected{% endif %}>
+                                    {{ subject.name }} (Form {{ subject.form }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black text-kas-dark-green uppercase mb-2">Due Date & Time</label>
+                        <input type="datetime-local" name="due_date" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-black text-kas-dark-green uppercase mb-2">Instructions</label>
+                    <textarea name="content" rows="4" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition" placeholder="Describe the assignment requirements..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-black text-kas-dark-green uppercase mb-2">Upload Question Paper / Resource</label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-xl hover:border-kas-light-brown transition">
+                        <div class="space-y-1 text-center">
+                            <i class="fas fa-file-upload text-3xl text-slate-300 mb-2"></i>
+                            <div class="flex text-sm text-slate-600">
+                                <label for="assignment_file" class="relative cursor-pointer bg-white rounded-md font-bold text-kas-light-brown hover:text-kas-dark-green focus-within:outline-none">
+                                    <span>Upload a file</span>
+                                    <input id="assignment_file" name="assignment_file" type="file" class="sr-only" onchange="updateFileName(this)">
+                                </label>
+                                <p class="pl-1" id="file-label">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-slate-400">PDF, DOCX, or ZIP up to 10MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-grow bg-blue-600 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                        Post Assignment
+                    </button>
+                    <a href="{{ url_for('teacher.assignments') }}" class="px-8 bg-slate-100 text-slate-500 flex items-center rounded-xl font-bold hover:bg-slate-200 transition">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </section>
-</body>
-</html>
+</div>
+
+<script>
+function updateFileName(input) {
+    const label = document.getElementById('file-label');
+    if (input.files.length > 0) {
+        label.textContent = "Selected: " + input.files[0].name;
+        label.classList.add('text-kas-dark-green');
+    }
+}
+</script>
 {% endblock %}

@@ -3,61 +3,75 @@
 {% block title %}Add Subject Content{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-primary text-white py-3">
-                    <h3 class="mb-0 fs-4"><i class="fas fa-file-upload me-2"></i>Add Subject Content</h3>
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <a href="{{ url_for('teacher.dashboard') }}" class="inline-flex items-center text-slate-500 hover:text-kas-dark-green mb-6 transition font-medium">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+    </a>
+
+    <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+        <div class="bg-kas-dark-green p-8 text-white">
+            <h3 class="text-2xl font-black flex items-center">
+                <i class="fas fa-file-upload mr-3 text-kas-light-brown"></i>
+                Upload Subject Material
+            </h3>
+            <p class="text-white/70 mt-1">Create a new lesson or upload resources for your students.</p>
+        </div>
+
+        <div class="p-8">
+            <form method="POST" action="{{ url_for('teacher.add_content') }}" enctype="multipart/form-data" class="space-y-6">
+                
+                <div>
+                    <label for="subject_id" class="block text-sm font-black text-kas-dark-green uppercase tracking-wider mb-2">Target Subject</label>
+                    <div class="relative">
+                        <select class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition appearance-none font-medium text-slate-700" id="subject_id" name="subject_id" required>
+                            <option value="" disabled>Choose a subject...</option>
+                            {% for subject in subjects %}
+                                <option value="{{ subject.id }}" {% if request.args.get('subject_id')|int == subject.id %}selected{% endif %}>
+                                    {{ subject.name }} — Form {{ subject.form }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('teacher.add_content') }}" enctype="multipart/form-data">
-                        
-                        <div class="mb-4">
-                            <label for="subject_id" class="form-label fw-bold">Select Subject</label>
-                            <select class="form-select shadow-sm" id="subject_id" name="subject_id" required>
-                                <option value="" selected disabled>Choose a subject...</option>
-                                {% for subject in subjects %}
-                                    <option value="{{ subject.id }}">{{ subject.name }} - Form {{ subject.form }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
 
-                        <div class="mb-4">
-                            <label for="title" class="form-label fw-bold">Content Title</label>
-                            <input type="text" class="form-control shadow-sm" id="title" name="title" 
-                                   placeholder="e.g. Introduction to Algebra" required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="resource_file" class="form-label fw-bold">Upload Resource (Optional)</label>
-                            <div class="input-group shadow-sm">
-                                <input type="file" class="form-control" id="resource_file" name="resource_file" 
-                                       accept=".pdf,.doc,.docx">
-                                <label class="input-group-text" for="resource_file"><i class="fas fa-paperclip"></i></label>
-                            </div>
-                            <div class="form-text text-muted">
-                                Accepted formats: <strong>PDF, DOC, DOCX</strong> (Max size: 10MB)
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="content_body" class="form-label fw-bold">Content Body / Lesson Notes</label>
-                            <textarea class="form-control shadow-sm" id="content_body" name="content_body" rows="8" 
-                                      placeholder="Write your lesson summary or notes here..." required></textarea>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3 border-top">
-                            <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-light border px-4 me-md-2">
-                                <i class="fas fa-times me-1"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary px-5 fw-bold">
-                                <i class="fas fa-paper-plane me-1"></i> Publish Content
-                            </button>
-                        </div>
-                    </form>
+                <div>
+                    <label for="title" class="block text-sm font-black text-kas-dark-green uppercase tracking-wider mb-2">Lesson Title</label>
+                    <input type="text" class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition placeholder:text-slate-400" 
+                           id="title" name="title" placeholder="e.g. Introduction to Algebra" required>
                 </div>
-            </div>
+
+                <div class="p-6 bg-kas-light-brown/5 border-2 border-dashed border-kas-light-brown/30 rounded-2xl">
+                    <label for="resource_file" class="block text-sm font-black text-kas-light-brown uppercase tracking-wider mb-2">Attach Document (Optional)</label>
+                    <input type="file" class="block w-full text-sm text-slate-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-xs file:font-black file:uppercase
+                        file:bg-kas-light-brown file:text-white
+                        hover:file:bg-kas-dark-green transition cursor-pointer" 
+                        id="resource_file" name="resource_file" accept=".pdf,.doc,.docx">
+                    <p class="mt-3 text-xs text-slate-400 font-medium">
+                        <i class="fas fa-info-circle mr-1"></i> PDF, DOC, or DOCX (Max 10MB)
+                    </p>
+                </div>
+
+                <div>
+                    <label for="content_body" class="block text-sm font-black text-kas-dark-green uppercase tracking-wider mb-2">Lesson Summary / Notes</label>
+                    <textarea class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition min-h-[200px]" 
+                              id="content_body" name="content_body" placeholder="Write your lesson summary or notes here..." required></textarea>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-4 pt-6 border-t border-slate-100">
+                    <button type="submit" class="flex-grow bg-blue-600 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                        <i class="fas fa-paper-plane mr-2"></i> Publish Content
+                    </button>
+                    <a href="{{ url_for('teacher.dashboard') }}" class="md:w-1/3 bg-slate-100 text-slate-600 text-center py-4 rounded-xl font-bold hover:bg-slate-200 transition">
+                        Cancel
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>

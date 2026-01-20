@@ -1,24 +1,61 @@
 {% extends "base_teacher.html" %}
-
-{% block title %}My Assignments{% endblock %}
+{% block title %}Manage Assignments{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">My Assignments</h1>
-    <a href="{{ url_for('teacher.create_assignment') }}" class="btn btn-primary mb-4">Create New Assignment</a>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-kas-dark-green">Assignment Manager</h1>
+            <p class="text-slate-500 font-medium">Create and manage tasks for your students.</p>
+        </div>
+        <a href="{{ url_for('teacher.create_assignment') }}" 
+           class="bg-kas-light-brown text-white px-6 py-3 rounded-2xl font-bold hover:bg-kas-dark-green transition shadow-lg shadow-kas-light-brown/20 flex items-center">
+            <i class="fas fa-plus-circle mr-2"></i> Create New
+        </a>
+    </div>
 
-    <ul class="list-group">
+    <div class="grid grid-cols-1 gap-4">
         {% for assignment in assignments %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <h5>{{ assignment.title }}</h5>
-                <p><strong>Subject:</strong> {{ assignment.subject.name }}</p>
-                <p><strong>Due Date:</strong> {{ assignment.due_date.strftime('%B %d, %Y %I:%M %p') }}</p>
+        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="space-y-1">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-bold text-slate-800">{{ assignment.title }}</h2>
+                    <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                        {{ assignment.subject.name }}
+                    </span>
+                </div>
+                <div class="flex flex-wrap gap-4 text-sm text-slate-500 font-semibold">
+                    <span class="flex items-center">
+                        <i class="far fa-clock mr-1.5 text-kas-light-brown"></i> 
+                        Due: {{ assignment.due_date.strftime('%d %b, %H:%M') }}
+                    </span>
+                    
+                    {% if assignment.attachment %}
+                    <a href="{{ url_for('static', filename='uploads/assignments/' + assignment.attachment) }}" 
+                       class="flex items-center text-blue-600 hover:text-blue-800 transition font-bold" download>
+                        <i class="fas fa-paperclip mr-1.5"></i> Download Question Paper
+                    </a>
+                    {% else %}
+                    <span class="text-slate-300 italic"><i class="fas fa-ghost mr-1.5"></i> No file attached</span>
+                    {% endif %}
+                </div>
             </div>
-        </li>
+
+            <div class="flex gap-3 mt-4 md:mt-0">
+                <a href="#" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-kas-dark-green hover:text-white transition text-sm">
+                    View Submissions
+                </a>
+            </div>
+        </div>
         {% else %}
-        <li class="list-group-item text-center text-muted">No assignments created yet.</li>
+        <div class="bg-slate-50 rounded-3xl py-20 text-center border-2 border-dashed border-slate-200">
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <i class="fas fa-clipboard-list text-slate-300 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700">No Assignments Yet</h3>
+            <p class="text-slate-500">Click the 'Create New' button to get started.</p>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 </div>
 {% endblock %}

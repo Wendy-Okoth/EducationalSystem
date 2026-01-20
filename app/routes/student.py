@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify
-from app.models import User, Role , Subject , db ,  Assignment , Notification , CompletedAssignment
+from app.models import User, Role , Subject , db ,  Assignment , Notification , CompletedAssignment , Submission , SubjectContent
 from app import db
 from flask_login import current_user, login_required
+from flask import render_template, redirect, url_for, session, jsonify, flash
+from datetime import datetime, timedelta
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
 
@@ -41,52 +43,180 @@ def edit_profile():
         return redirect(url_for("student.profile"))
     return render_template("edit_profile.html") 
 
+
+@student_bp.route("/subject/<int:subject_id>")
+def subject_detail(subject_id):
+    if not is_student():
+        return redirect(url_for("auth.login"))
+    
+    student_id = session.get('user_id')
+    student = User.query.get(student_id)
+    subject = Subject.query.get_or_404(subject_id)
+    
+    # Verify enrollment
+    if subject not in student.enrolled_subjects:
+        flash("You are not enrolled in this subject.", "danger")
+        return redirect(url_for('student.dashboard'))
+
+    # Fetch materials using the correct model name: SubjectContent
+    contents_query = SubjectContent.query.filter_by(subject_id=subject.id).all()
+
+    # Fetch assignments
+    assignments_query = Assignment.query.filter_by(subject_id=subject.id).order_by(Assignment.due_date.asc()).all()
+    
+    formatted_assignments = []
+    for a in assignments_query:
+        submission = Submission.query.filter_by(assignment_id=a.id, student_id=student_id).first()
+        status = 'pending'
+        if submission:
+            status = 'completed'
+        elif a.due_date < datetime.utcnow():
+            status = 'overdue'
+            
+        formatted_assignments.append({
+            'id': a.id,
+            'title': a.title,
+            'description': a.description,
+            'due_date': a.due_date.strftime('%d %b, %Y %H:%M'),
+            'status': status,
+            'weight': getattr(a, 'weight', 0),
+            'submitted_date': submission.submitted_at.strftime('%d %b, %H:%M') if submission else None
+        })
+
+    subject_info = {
+        'id': subject.id,
+        'name': subject.name,
+        'code': subject.code,
+        'description': subject.description,
+        'teacher_name': subject.teacher.name if subject.teacher else "Not Assigned",
+        'enrolled_date': "Active" 
+    }
+
+    return render_template('subject_detail.html', 
+                           subject=subject_info, 
+                           assignments=formatted_assignments,
+                           contents=contents_query)
+
 @student_bp.route("/calendar")
 def calendar():
     if not is_student():
         return redirect(url_for("auth.login"))
-    return render_template("student_calendar.html") 
+    return render_template("student_calendar.html")
 
-# In student.py - Update the subject route
-@student_bp.route("/subject/<int:subject_id>")
-def subject(subject_id):
+@student_bp.route('/api/calendar_events')
+def calendar_events():
     if not is_student():
-        return redirect(url_for("auth.login"))
-    
-    # Get the specific subject from database
-    subject = Subject.query.get_or_404(subject_id)
-    
-    # Check if student is enrolled in this subject
+        return jsonify([])
+
     student_id = session.get('user_id')
     student = User.query.get(student_id)
+    events = []
     
-    if subject not in student.enrolled_subjects:
-        return redirect(url_for('student.dashboard'))
+    for subject in student.enrolled_subjects:
+        assignments = Assignment.query.filter_by(subject_id=subject.id).all()
+        for a in assignments:
+            events.append({
+                'id': a.id,
+                'title': f"[{subject.code}] {a.title}",
+                'start': a.due_date.isoformat(),
+                'backgroundColor': '#2E5B27', 
+                'borderColor': '#2E5B27',
+                'textColor': '#ffffff',
+                'url': url_for('student.subject_detail', subject_id=subject.id)
+            })
+    return jsonify(events)
+
+@student_bp.route('/api/upcoming_events')
+def upcoming_events():
+    """Returns assignments due in the next 7 days"""
+    if not is_student():
+        return jsonify([])
+
+    student_id = session.get('user_id')
+    student = User.query.get(student_id)
+    now = datetime.utcnow()
+    one_week_later = now + timedelta(days=7)
     
-    # Get subject content
-    subject_contents = subject.contents.all()
-    
-    # Get assignments for this subject
-    assignments = Assignment.query.filter_by(subject_id=subject_id).all()
-    
-    return render_template(
-        "student_subject.html", 
-        subject=subject,
-        contents=subject_contents,
-        assignments=assignments
-    )
+    upcoming = []
+    for subject in student.enrolled_subjects:
+        assignments = Assignment.query.filter(
+            Assignment.subject_id == subject.id,
+            Assignment.due_date >= now,
+            Assignment.due_date <= one_week_later
+        ).all()
+        
+        for a in assignments:
+            upcoming.append({
+                'title': a.title,
+                'date': a.due_date.isoformat(),
+                'time': a.due_date.strftime('%I:%M %p'),
+                'type': 'assignment',
+                'icon': 'tasks',
+                'description': f"Subject: {subject.name}"
+            })
+            
+    # Sort by date
+    upcoming.sort(key=lambda x: x['date'])
+    return jsonify(upcoming)
 
 @student_bp.route("/subjects")
 def subjects():
     if not is_student():
         return redirect(url_for("auth.login"))
 
-    subjects = [
-        {"id": 1, "name": "Mathematics"},
-        {"id": 2, "name": "English"},
-        {"id": 3, "name": "Science"},
-    ]
-    return render_template("student_subjects.html", subjects=subjects)
+    student = User.query.get(session.get('user_id'))
+    enrolled_subjects = student.enrolled_subjects
+    
+    # Calculate global stats for the bottom of the page
+    total_completed = 0
+    total_possible = 0
+    
+    # Add dynamic progress to each subject object for the template
+    for s in enrolled_subjects:
+        total_assignments = Assignment.query.filter_by(subject_id=s.id).count()
+        completed = Submission.query.filter(
+            Submission.student_id == student.id,
+            Submission.assignment_id.in_([a.id for a in s.assignments])
+        ).count()
+        
+        s.progress_percentage = round((completed / total_assignments * 100), 1) if total_assignments > 0 else 0
+        s.teacher_name = s.teacher.name if s.teacher else "Not Assigned"
+        
+        total_completed += completed
+        total_possible += total_assignments
+
+    avg_progress = round((total_completed / total_possible * 100), 1) if total_possible > 0 else 0
+
+    return render_template("student_subjects.html", 
+                           subjects=enrolled_subjects,
+                           completed_assignments=total_completed,
+                           average_progress=avg_progress)
+
+@student_bp.route('/api/subject/<int:subject_id>/info')
+def subject_info_api(subject_id):
+    """API for the info modal"""
+    if not is_student():
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    subject = Subject.query.get_or_404(subject_id)
+    student_id = session.get('user_id')
+    
+    total_assignments = Assignment.query.filter_by(subject_id=subject.id).count()
+    completed = Submission.query.filter_by(student_id=student_id).filter(
+        Submission.assignment_id.in_([a.id for a in subject.assignments])
+    ).count()
+
+    return jsonify({
+        'name': subject.name,
+        'code': subject.code,
+        'description': subject.description,
+        'teacher_name': subject.teacher.name if subject.teacher else "Unassigned",
+        'enrolled_count': len(subject.enrolled_students),
+        'assignments_count': total_assignments,
+        'completed_assignments': completed,
+        'pending_assignments': total_assignments - completed,
+        'progress_percentage': round((completed/total_assignments*100), 1) if total_assignments > 0 else 0
+    })
 
 @student_bp.route("/profile")
 def profile():
