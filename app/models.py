@@ -28,6 +28,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), default=Role.STUDENT, nullable=False)
     form = db.Column(db.Integer, nullable=True)  
+    profile_image = db.Column(db.String(255), nullable=True, default='default.png')
 
     # Status flags
     is_active = db.Column(db.Boolean, default=False)   # Admin approval

@@ -3,218 +3,222 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
-    <!-- Welcome Section -->
-    <div class="bg-gradient-to-r from-kas-dark-green to-kas-light-brown rounded-2xl p-6 md:p-8 text-white mb-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-                <h1 class="text-3xl md:text-4xl font-black mb-2">Karibu, Mwalimu {{ session.get('user_name', 'Teacher') }}! 📚</h1>
-                <p class="text-white/90">Empowering minds, shaping futures at Kasarani Academy</p>
+   <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-slate-100 mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl overflow-hidden shadow-inner border-2 border-slate-100">
+                {% if session.get('profile_image') %}
+                    <img src="{{ url_for('static', filename='uploads/profiles/' + session.get('profile_image')) }}" class="w-full h-full object-cover">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ session.get('user_name') }}&background=004d40&color=fff" class="w-full h-full object-cover">
+                {% endif %}
             </div>
-            <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
-                <p class="text-sm">Teacher ID: #{{ session.get('user_id', '0000') }}</p>
-                <p class="text-lg font-bold">Today: {{ now.strftime('%A, %B %d, %Y') if now else 'Today' }}</p>
+            <div>
+                <h1 class="text-3xl md:text-4xl font-black text-kas-dark-green mb-1">
+                    Karibu, Mwalimu {{ session.get('user_name', 'Teacher') }}! 
+                </h1>
+                <p class="text-slate-600 font-medium">Empowering minds, shaping futures at Kasarani Academy</p>
             </div>
         </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full md:w-auto">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Teacher ID: #{{ session.get('user_id', '0000') }}</p>
+            <p class="text-lg font-extrabold text-kas-dark-green">
+                <i class="fas fa-calendar-day mr-2 text-kas-light-brown"></i>
+                {{ now.strftime('%A, %B %d, %Y') if now else 'Today' }}
+            </p>
+        </div>
     </div>
+</div>
 
-    <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-book text-xl text-blue-600"></i>
+                <div class="w-12 h-12 bg-kas-dark-green/10 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-book text-xl text-kas-dark-green"></i>
                 </div>
                 <span class="text-3xl font-bold text-kas-dark-green">{{ subjects_count or 0 }}</span>
             </div>
-            <h3 class="font-bold text-kas-dark-green mb-1">Subjects Assigned</h3>
-            <p class="text-sm text-slate-600">Teaching responsibilities</p>
+            <h3 class="font-bold text-kas-dark-green mb-1">Subjects</h3>
+            <p class="text-sm text-slate-600">Assigned classes</p>
         </div>
         
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-users text-xl text-green-600"></i>
+                <div class="w-12 h-12 bg-kas-light-brown/10 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-xl text-kas-light-brown"></i>
                 </div>
                 <span class="text-3xl font-bold text-kas-dark-green">{{ students_count or 0 }}</span>
             </div>
             <h3 class="font-bold text-kas-dark-green mb-1">Total Students</h3>
-            <p class="text-sm text-slate-600">Across all subjects</p>
+            <p class="text-sm text-slate-600">Active learners</p>
         </div>
         
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-tasks text-xl text-purple-600"></i>
+                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-tasks text-xl text-blue-600"></i>
                 </div>
                 <span class="text-3xl font-bold text-kas-dark-green">{{ assignments_count or 0 }}</span>
             </div>
-            <h3 class="font-bold text-kas-dark-green mb-1">Active Assignments</h3>
+            <h3 class="font-bold text-kas-dark-green mb-1">Assignments</h3>
             <p class="text-sm text-slate-600">Pending grading</p>
         </div>
         
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-bell text-xl text-yellow-600"></i>
+                <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-bell text-xl text-red-600"></i>
                 </div>
                 <span class="text-3xl font-bold text-kas-dark-green">{{ notifications_count or 0 }}</span>
             </div>
-            <h3 class="font-bold text-kas-dark-green mb-1">Notifications</h3>
-            <p class="text-sm text-slate-600">Unread messages</p>
+            <h3 class="font-bold text-kas-dark-green mb-1">Alerts</h3>
+            <p class="text-sm text-slate-600">Unread notifications</p>
         </div>
     </div>
 
-    <!-- Quiz Management Section -->
     <div class="grid md:grid-cols-2 gap-8 mb-8">
-        <!-- Quiz Card -->
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <div class="w-16 h-16 bg-kas-dark-green rounded-xl flex items-center justify-center shadow-lg shadow-kas-dark-green/20">
                     <i class="fas fa-edit text-2xl text-white"></i>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-kas-dark-green">Quiz & Exam Management 📝</h2>
-                    <p class="text-slate-600">Assess your students with online quizzes and exams</p>
+                    <h2 class="text-2xl font-bold text-kas-dark-green">Quiz Management 📝</h2>
+                    <p class="text-slate-600 italic">Assess student progress</p>
                 </div>
             </div>
             
             <div class="space-y-4">
-                <p class="text-slate-700">Ready to assess your students? Create new online quizzes and exams or manage existing ones.</p>
-                
+                <p class="text-slate-700">Create new online assessments or manage your existing question bank.</p>
                 <div class="flex flex-col sm:flex-row gap-4">
                     <a href="{{ url_for('teacher.create_quiz') }}" 
-                       class="px-6 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 transition font-bold flex items-center justify-center">
-                        <i class="fas fa-plus mr-2"></i> Create New Quiz
+                       class="px-6 py-3 rounded-xl bg-kas-dark-green text-white hover:bg-opacity-90 transition font-bold flex items-center justify-center">
+                        <i class="fas fa-plus mr-2"></i> New Quiz
                     </a>
                     <a href="{{ url_for('teacher.list_quizzes') }}" 
-                       class="px-6 py-3 rounded-xl border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transition font-bold flex items-center justify-center">
-                        <i class="fas fa-list mr-2"></i> View/Edit Quizzes
+                       class="px-6 py-3 rounded-xl border-2 border-kas-light-brown text-kas-light-brown hover:bg-kas-light-brown/5 transition font-bold flex items-center justify-center">
+                        <i class="fas fa-list mr-2"></i> View All
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions Card -->
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
             <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
                 <i class="fas fa-bolt mr-3 text-kas-light-brown"></i>
                 Quick Actions
             </h2>
-            
             <div class="grid grid-cols-2 gap-4">
                 <a href="{{ url_for('teacher.add_content') }}" 
-                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
-                    <i class="fas fa-file-upload text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
-                    <p class="font-bold text-kas-dark-green">Upload Content</p>
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-file-upload text-2xl text-kas-dark-green mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green text-sm">Upload Content</p>
                 </a>
-                
                 <a href="{{ url_for('teacher.assignments') }}" 
-                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
-                    <i class="fas fa-tasks text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
-                    <p class="font-bold text-kas-dark-green">Create Assignment</p>
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-tasks text-2xl text-kas-dark-green mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green text-sm">Assignments</p>
                 </a>
-                
                 <a href="{{ url_for('teacher.subjects') }}" 
-                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
-                    <i class="fas fa-book text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
-                    <p class="font-bold text-kas-dark-green">Manage Subjects</p>
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-book text-2xl text-kas-dark-green mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green text-sm">Subjects</p>
                 </a>
-                
                 <a href="{{ url_for('teacher.calendar') }}" 
-                   class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition text-center group">
-                    <i class="fas fa-calendar text-2xl text-kas-light-brown mb-2 group-hover:scale-110 transition"></i>
-                    <p class="font-bold text-kas-dark-green">Academic Calendar</p>
+                   class="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-kas-light-brown transition text-center group">
+                    <i class="fas fa-calendar text-2xl text-kas-dark-green mb-2 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-kas-dark-green text-sm">Calendar</p>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activity / Subjects -->
     <div class="grid md:grid-cols-2 gap-8">
-        <!-- Recent Subjects -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
-            <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
-                <i class="fas fa-chalkboard-teacher mr-3 text-kas-light-brown"></i>
-                Your Subjects
-            </h2>
-            
-            {% if subjects and subjects|length > 0 %}
-            <div class="space-y-4">
-                {% for subject in subjects[:5] %}
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-kas-dark-green">{{ subject.name }}</h3>
-                        <span class="px-3 py-1 text-xs font-bold bg-kas-light-brown/20 text-kas-dark-green rounded-full">
-                            {{ subject.student_count or 0 }} students
-                        </span>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-3">{{ subject.description or 'No description' }}</p>
-                    <a href="{{ url_for('teacher.subject_detail', subject_id=subject.id) }}" 
-                       class="text-sm font-bold text-kas-light-brown hover:text-kas-dark-green transition">
-                        <i class="fas fa-eye mr-1"></i> View Details
-                    </a>
+    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+        <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
+            <i class="fas fa-chalkboard-teacher mr-3 text-kas-light-brown"></i>
+            Your Subjects
+        </h2>
+        
+        {% if subjects and subjects|length > 0 %}
+        <div class="space-y-4">
+            {% for subject in subjects[:5] %}
+            <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-kas-light-brown transition group">
+                <div class="mb-2">
+                    <h3 class="text-xl font-black text-kas-dark-green group-hover:text-kas-light-brown transition">
+                        {{ subject.name }}
+                    </h3>
                 </div>
-                {% endfor %}
                 
-                {% if subjects|length > 5 %}
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('teacher.subjects') }}" 
-                       class="text-kas-light-brown font-bold hover:text-kas-dark-green transition">
-                        View all {{ subjects|length }} subjects <i class="fas fa-arrow-right ml-1"></i>
+                <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                    {{ subject.description or 'Subject materials and assessments.' }}
+                </p>
+                
+                <div class="flex justify-end">
+                    <a href="{{ url_for('teacher.subject_detail', subject_id=subject.id) }}" 
+                       class="text-sm font-bold text-kas-light-brown hover:text-kas-dark-green transition flex items-center group-hover:translate-x-1 duration-300">
+                        Manage Subject <i class="fas fa-arrow-right ml-2 text-xs"></i>
                     </a>
                 </div>
-                {% endif %}
             </div>
-            {% else %}
-            <div class="text-center py-8 text-slate-500">
-                <i class="fas fa-chalkboard text-4xl mb-3 opacity-50"></i>
-                <p>No subjects assigned yet</p>
-                <p class="text-sm mt-1">Contact admin to get subjects assigned</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Upcoming Deadlines -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
-            <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
-                <i class="fas fa-clock mr-3 text-kas-light-brown"></i>
-                Upcoming Deadlines
-            </h2>
+            {% endfor %}
             
-            {% if deadlines and deadlines|length > 0 %}
-            <div class="space-y-4">
-                {% for deadline in deadlines[:5] %}
-                <div class="p-4 bg-red-50 rounded-xl border border-red-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-red-700">{{ deadline.title }}</h3>
-                        <span class="px-3 py-1 text-xs font-bold bg-red-100 text-red-700 rounded-full">
-                            {{ deadline.days_left }} days
-                        </span>
-                    </div>
-                    <p class="text-sm text-slate-700 mb-2">{{ deadline.subject }}</p>
-                    <div class="flex items-center text-sm text-slate-600">
-                        <i class="fas fa-calendar-alt mr-2"></i>
-                        <span>Due: {{ deadline.due_date }}</span>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="text-center py-8 text-slate-500">
-                <i class="fas fa-check-circle text-4xl mb-3 opacity-50"></i>
-                <p>No upcoming deadlines</p>
-                <p class="text-sm mt-1">You're all caught up!</p>
-            </div>
-            {% endif %}
-            
-            <div class="mt-6 pt-6 border-t border-slate-200">
-                <a href="{{ url_for('teacher.calendar') }}" 
-                   class="flex items-center justify-center px-4 py-3 rounded-xl border border-slate-300 hover:bg-slate-50 transition">
-                    <i class="fas fa-calendar-plus mr-2"></i>
-                    View Full Calendar
+            {% if subjects|length > 5 %}
+            <div class="text-center mt-4">
+                <a href="{{ url_for('teacher.subjects') }}" 
+                   class="text-kas-light-brown font-bold hover:text-kas-dark-green transition text-sm">
+                    View all {{ subjects|length }} subjects <i class="fas fa-chevron-right ml-1"></i>
                 </a>
             </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-slate-500">
+            <i class="fas fa-chalkboard text-4xl mb-3 opacity-50"></i>
+            <p>No subjects assigned yet</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+        <h2 class="text-2xl font-bold text-kas-dark-green mb-6 flex items-center">
+            <i class="fas fa-clock mr-3 text-kas-light-brown"></i>
+            Upcoming Deadlines
+        </h2>
+        
+        {% if deadlines and deadlines|length > 0 %}
+        <div class="space-y-4">
+            {% for deadline in deadlines[:3] %}
+            <div class="p-4 bg-red-50/50 rounded-xl border border-red-100">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-bold text-red-700">{{ deadline.title }}</h3>
+                    <span class="px-2 py-1 text-[10px] font-black bg-red-100 text-red-700 rounded uppercase">
+                        {{ deadline.days_left }} days left
+                    </span>
+                </div>
+                <p class="text-sm text-slate-700 mb-2">{{ deadline.subject }}</p>
+                <div class="flex items-center text-xs text-slate-500 font-medium">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    <span>Due: {{ deadline.due_date }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-slate-500">
+            <i class="fas fa-check-circle text-4xl mb-3 opacity-30 text-kas-dark-green"></i>
+            <p>All caught up!</p>
+        </div>
+        {% endif %}
+        
+        <div class="mt-6 pt-6 border-t border-slate-100">
+            <a href="{{ url_for('teacher.calendar') }}" 
+               class="flex items-center justify-center px-4 py-3 rounded-xl border border-slate-200 text-kas-dark-green font-bold hover:bg-slate-50 transition text-sm">
+                <i class="fas fa-calendar-alt mr-2 text-kas-light-brown"></i>
+                Open Full Schedule
+            </a>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

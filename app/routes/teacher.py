@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , flash
+from flask import Blueprint, render_template, session, redirect, url_for , request , jsonify , flash , current_app
 from app.models import User , db , Subject , SubjectContent , Assignment , Quiz, Question, Option
 from datetime import datetime
 import os
 from flask import current_app
 from werkzeug.utils import secure_filename
+from app import db          
 
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
 
@@ -378,3 +379,46 @@ def delete_content(content_id):
     db.session.commit()
     flash('Resource deleted permanently.', 'success')
     return redirect(url_for('teacher.subject_detail', subject_id=subject_id))
+
+@teacher_bp.route('/profile/update_image', methods=['POST'])
+def update_profile_image():
+    if 'profile_image' not in request.files:
+        flash('No file selected', 'error')
+        return redirect(url_for('teacher.profile'))
+    
+    file = request.files['profile_image']
+    if file.filename == '':
+        return redirect(url_for('teacher.profile'))
+
+    if file:
+        filename = secure_filename(f"user_{session.get('user_id')}_{file.filename}")
+        
+        upload_path = os.path.join(current_app.static_folder, 'uploads', 'profiles')
+        os.makedirs(upload_path, exist_ok=True)
+        
+        file.save(os.path.join(upload_path, filename))
+        
+        # FIXED: Use 'User' instead of 'Teacher'
+        user = User.query.get(session.get('user_id'))
+        if user:
+            user.profile_image = filename
+            db.session.commit()
+            
+            # Update session so the dashboard reflects the change immediately
+            session['profile_image'] = filename
+            flash('Profile image updated!', 'success')
+        
+    return redirect(url_for('teacher.profile'))
+
+@teacher_bp.route('/profile/remove_image', methods=['POST'])
+def remove_profile_image():
+    user = User.query.get(session.get('user_id'))
+    if user and user.profile_image:
+        file_path = os.path.join(current_app.static_folder, 'uploads/profiles', user.profile_image)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        user.profile_image = None
+        db.session.commit()
+        session.pop('profile_image', None)
+        flash('Profile image removed.', 'success')
+    return redirect(url_for('teacher.profile'))

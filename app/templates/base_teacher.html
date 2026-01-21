@@ -42,59 +42,64 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-gray-100 min-h-screen">
-
-<!-- Simple header that works -->
-<nav class="bg-white shadow-md py-4 px-6">
-    <div class="container mx-auto flex justify-between items-center">
+<nav class="bg-kas-dark-green shadow-xl sticky top-0 z-50 px-6">
+    <div class="max-w-7xl mx-auto flex justify-between items-center h-20">
+        
         <div class="flex items-center space-x-3">
-            <img src="{{ url_for('static', filename='images/kasalogo.png') }}" 
-                 alt="Kasarani Academy Logo" 
-                 class="h-10 w-auto">
-            <span class="text-2xl font-black text-kas-dark-green">
-                Kasarani<span class="text-kas-light-brown"> Academy</span>
-            </span>
+            <a href="{{ url_for('teacher.dashboard') }}" class="flex items-center space-x-3 group">
+                <img src="{{ url_for('static', filename='images/kasalogo.png') }}" 
+                     alt="Kasarani Logo" 
+                     class="h-14 w-auto object-contain"> <span class="text-2xl font-black text-white tracking-tighter transition group-hover:text-kas-light-brown">
+                    KALMS
+                </span>
+            </a>
         </div>
-        <div class="flex items-center space-x-6">
-            <span class="text-gray-600">Welcome, {{ session.get('user_name', 'Teacher') }}</span>
-            <a href="{{ url_for('auth.logout') }}" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                Logout
+
+        <div class="flex items-center space-x-6 md:space-x-10">
+            
+            <div class="flex items-center space-x-2 md:space-x-6">
+                <a href="{{ url_for('teacher.dashboard') }}" 
+                   class="p-2 transition-all hover:text-kas-light-brown {% if request.endpoint == 'teacher.dashboard' %}text-kas-light-brown border-b-2 border-kas-light-brown{% else %}text-white/80{% endif %}"
+                   title="Dashboard">
+                    <i class="fas fa-th-large text-xl"></i>
+                </a>
+                <a href="{{ url_for('teacher.profile') }}" 
+                   class="p-2 transition-all hover:text-kas-light-brown {% if request.endpoint == 'teacher.profile' %}text-kas-light-brown border-b-2 border-kas-light-brown{% else %}text-white/80{% endif %}"
+                   title="Profile">
+                    <i class="fas fa-user text-xl"></i>
+                </a>
+                <a href="{{ url_for('teacher.calendar') }}" 
+                   class="p-2 transition-all hover:text-kas-light-brown {% if request.endpoint == 'teacher.calendar' %}text-kas-light-brown border-b-2 border-kas-light-brown{% else %}text-white/80{% endif %}"
+                   title="Calendar">
+                    <i class="fas fa-calendar-alt text-xl"></i>
+                </a>
+                <a href="{{ url_for('teacher.subjects') }}" 
+                   class="p-2 transition-all hover:text-kas-light-brown {% if request.endpoint == 'teacher.subjects' %}text-kas-light-brown border-b-2 border-kas-light-brown{% else %}text-white/80{% endif %}"
+                   title="Subjects">
+                    <i class="fas fa-book text-xl"></i>
+                </a>
+                <a href="{{ url_for('teacher.assignments') }}" 
+                   class="p-2 transition-all hover:text-kas-light-brown {% if request.endpoint == 'teacher.assignments' %}text-kas-light-brown border-b-2 border-kas-light-brown{% else %}text-white/80{% endif %}"
+                   title="Assignments">
+                    <i class="fas fa-tasks text-xl"></i>
+                </a>
+
+                <button class="p-2 text-white/80 hover:text-kas-light-brown transition relative" title="Notifications">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="absolute top-2 right-2 flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                </button>
+            </div>
+
+            <a href="{{ url_for('auth.logout') }}" 
+               class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-bold text-sm shadow-md flex items-center shrink-0">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
             </a>
         </div>
     </div>
 </nav>
-
-<!-- Teacher Navigation -->
-<div class="bg-kas-dark-green text-white py-3">
-    <div class="container mx-auto">
-        <div class="flex flex-wrap justify-center gap-4 md:gap-6">
-            <a href="{{ url_for('teacher.dashboard') }}" 
-               class="px-4 py-2 rounded-lg hover:bg-white/10 transition {% if request.endpoint == 'teacher.dashboard' %}bg-white/20{% endif %}">
-                <i class="fas fa-th-large mr-2"></i>Dashboard
-            </a>
-            <a href="{{ url_for('teacher.profile') }}" 
-               class="px-4 py-2 rounded-lg hover:bg-white/10 transition {% if request.endpoint == 'teacher.profile' %}bg-white/20{% endif %}">
-                <i class="fas fa-user mr-2"></i>Profile
-            </a>
-            <a href="{{ url_for('teacher.calendar') }}" 
-               class="px-4 py-2 rounded-lg hover:bg-white/10 transition {% if request.endpoint == 'teacher.calendar' %}bg-white/20{% endif %}">
-                <i class="fas fa-calendar-alt mr-2"></i>Calendar
-            </a>
-            <a href="{{ url_for('teacher.add_content') }}" 
-               class="px-4 py-2 rounded-lg hover:bg-white/10 transition {% if request.endpoint == 'teacher.add_content' %}bg-white/20{% endif %}">
-                <i class="fas fa-file-alt mr-2"></i>Content
-            </a>
-            <a href="{{ url_for('teacher.assignments') }}" 
-               class="px-4 py-2 rounded-lg hover:bg-white/10 transition {% if request.endpoint == 'teacher.assignments' %}bg-white/20{% endif %}">
-                <i class="fas fa-tasks mr-2"></i>Assignments
-            </a>
-            <a href="{{ url_for('teacher.subjects') }}" 
-               class="px-4 py-2 rounded-lg hover:bg-white/10 transition {% if request.endpoint == 'teacher.subjects' %}bg-white/20{% endif %}">
-                <i class="fas fa-book mr-2"></i>Subjects
-            </a>
-        </div>
-    </div>
-</div>
-
 <!-- Main content -->
 <main class="container mx-auto mt-6 px-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
