@@ -53,6 +53,69 @@
 
             <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
                 <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-kas-dark-green">Quizzes & Performance</h2>
+                    <a href="{{ url_for('teacher.create_quiz', subject_id=subject.id) }}" class="px-3 py-1 bg-kas-light-brown text-white rounded-lg text-xs font-bold hover:bg-kas-dark-green transition">
+                        + New Quiz
+                    </a>
+                </div>
+                <div class="p-6">
+                    {% if quizzes %}
+                        {% for quiz in quizzes %}
+                        <div class="mb-10 last:mb-0">
+                            <div class="flex justify-between items-end border-b-2 border-slate-50 pb-2 mb-4">
+                                <div>
+                                    <h3 class="text-lg font-black text-kas-dark-green">{{ quiz.title }}</h3>
+                                    <p class="text-xs text-slate-500">
+                                        Scheduled: {{ quiz.start_time.strftime('%d %b, %H:%M') }} — {{ quiz.end_time.strftime('%d %b, %H:%M') }}
+                                    </p>
+                                </div>
+                                <span class="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-600">
+                                    {{ quiz.duration_minutes }} Mins
+                                </span>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead>
+                                        <tr class="text-slate-400 text-[10px] uppercase tracking-widest">
+                                            <th class="pb-3">Student Name</th>
+                                            <th class="pb-3">Started At</th>
+                                            <th class="pb-3">Finished At</th>
+                                            <th class="pb-3 text-right">Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                                        {% for student in students %}
+                                            {% set attempt = attempt_map.get((student.id, quiz.id)) %}
+                                            <tr>
+                                                <td class="py-3 font-medium">{{ student.name }}</td>
+                                                {% if attempt %}
+                                                    <td class="py-3 text-slate-500">{{ attempt.start_time.strftime('%H:%M:%S') }}</td>
+                                                    <td class="py-3 text-slate-500">{{ attempt.end_time.strftime('%H:%M:%S') if attempt.end_time else 'In Progress' }}</td>
+                                                    <td class="py-3 text-right font-bold text-kas-dark-green">{{ attempt.score }}</td>
+                                                {% else %}
+                                                    <td class="py-3 text-slate-300 italic">Not Started</td>
+                                                    <td class="py-3 text-slate-300">--</td>
+                                                    <td class="py-3 text-right font-bold text-red-400">0</td>
+                                                {% endif %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-stopwatch text-3xl text-slate-200 mb-2"></i>
+                            <p class="text-slate-500 text-sm">No quizzes created for this subject yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                     <h2 class="text-xl font-bold text-kas-dark-green">Lessons & Resources</h2>
                     <span class="bg-kas-dark-green text-white px-3 py-1 rounded-full text-xs font-bold">{{ contents|length }} items</span>
                 </div>
@@ -62,19 +125,17 @@
                             {% for item in contents %}
                             <div class="p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition relative group">
                                 <div class="absolute top-4 right-4 flex gap-2">
-                                    <a href="{{ url_for('teacher.edit_content', content_id=item.id) }}" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition shadow-sm" title="Edit">
+                                    <a href="{{ url_for('teacher.edit_content', content_id=item.id) }}" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition shadow-sm">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ url_for('teacher.delete_content', content_id=item.id) }}" method="POST" onsubmit="return confirm('Delete this lesson permanently?');">
-                                        <button type="submit" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition shadow-sm" title="Delete">
+                                    <form action="{{ url_for('teacher.delete_content', content_id=item.id) }}" method="POST" onsubmit="return confirm('Delete this lesson?');">
+                                        <button type="submit" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition shadow-sm">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>
-
                                 <h4 class="font-bold text-kas-dark-green pr-20">{{ item.title }}</h4>
                                 <p class="text-sm text-slate-600 mb-3">{{ item.content_body }}</p>
-                                
                                 {% if item.file_path %}
                                 <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200">
                                     <div class="flex items-center text-sm text-slate-700">
@@ -112,37 +173,21 @@
                             {% for sub in submissions %}
                             <div class="p-5 rounded-2xl border border-slate-100 bg-white hover:shadow-md transition-all">
                                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                                    
                                     <div class="flex-1">
                                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ sub.assignment.title }}</p>
                                         <h3 class="text-lg font-bold text-kas-dark-green">{{ sub.student.name }}</h3>
-                                        <div class="flex items-center gap-4 mt-2">
-                                            <span class="text-xs text-slate-500">
-                                                <i class="far fa-calendar-alt mr-1"></i> {{ sub.submitted_at.strftime('%d %b, %Y') }}
-                                            </span>
-                                            <span class="text-xs text-slate-500">
-                                                <i class="far fa-clock mr-1"></i> {{ sub.submitted_at.strftime('%H:%M') }}
-                                            </span>
+                                        <div class="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                                            <span><i class="far fa-calendar-alt mr-1"></i> {{ sub.submitted_at.strftime('%d %b, %Y') }}</span>
+                                            <span><i class="far fa-clock mr-1"></i> {{ sub.submitted_at.strftime('%H:%M') }}</span>
                                         </div>
                                     </div>
-
                                     <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                                        <a href="{{ url_for('static', filename='uploads/submissions/' + sub.filename) }}" 
-                                           class="px-4 py-2 bg-slate-100 text-kas-dark-green rounded-xl font-bold text-sm hover:bg-kas-dark-green hover:text-white transition" 
-                                           download>
-                                            <i class="fas fa-download mr-2"></i>Download Work
+                                        <a href="{{ url_for('static', filename='uploads/submissions/' + sub.filename) }}" class="px-4 py-2 bg-slate-100 text-kas-dark-green rounded-xl font-bold text-sm hover:bg-kas-dark-green hover:text-white transition" download>
+                                            <i class="fas fa-download mr-2"></i>Download
                                         </a>
-
                                         <form action="{{ url_for('teacher.grade_submission', submission_id=sub.id) }}" method="POST" class="flex items-center gap-2">
-                                            <div class="relative">
-                                                <input type="number" name="grade" step="0.5" min="0" max="15" 
-                                                       class="w-20 px-3 py-2 border-2 border-slate-100 rounded-xl font-bold text-center focus:border-kas-light-brown outline-none"
-                                                       placeholder="Mark"
-                                                       value="{{ sub.grade if sub.grade is not none else '' }}">
-                                            </div>
-                                            <button type="submit" class="px-4 py-2 bg-kas-light-brown text-white rounded-xl font-bold text-sm hover:bg-kas-dark-green transition shadow-sm">
-                                                Save
-                                            </button>
+                                            <input type="number" name="grade" step="0.5" class="w-20 px-3 py-2 border-2 border-slate-100 rounded-xl font-bold text-center" placeholder="Mark" value="{{ sub.grade or '' }}">
+                                            <button type="submit" class="px-4 py-2 bg-kas-light-brown text-white rounded-xl font-bold text-sm hover:bg-kas-dark-green transition">Save</button>
                                         </form>
                                     </div>
                                 </div>
@@ -152,7 +197,7 @@
                     {% else %}
                         <div class="text-center py-12">
                             <i class="fas fa-clipboard-check text-4xl text-slate-200 mb-3"></i>
-                            <p class="text-slate-500">No student work submitted for grading yet.</p>
+                            <p class="text-slate-500">No submissions yet.</p>
                         </div>
                     {% endif %}
                 </div>
@@ -169,6 +214,9 @@
                     <a href="{{ url_for('teacher.create_assignment', subject_id=subject.id) }}" class="block w-full text-center py-3 border-2 border-kas-dark-green text-kas-dark-green rounded-xl font-bold hover:bg-kas-dark-green hover:text-white transition">
                         <i class="fas fa-tasks mr-2"></i> Create Assignment
                     </a>
+                    <a href="{{ url_for('teacher.create_quiz', subject_id=subject.id) }}" class="block w-full text-center py-3 bg-kas-light-brown text-white rounded-xl font-bold hover:bg-kas-dark-green transition">
+                        <i class="fas fa-stopwatch mr-2"></i> Create Quiz
+                    </a>
                 </div>
                 
                 <div class="mt-8 pt-6 border-t border-slate-100">
@@ -178,12 +226,8 @@
                         <span class="font-black text-kas-dark-green">{{ students|length }}</span>
                     </div>
                     <div class="flex justify-between text-sm mb-2">
-                        <span class="text-slate-500 font-medium">Resources</span>
-                        <span class="font-black text-kas-dark-green">{{ contents|length }}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500 font-medium">Submissions</span>
-                        <span class="font-black text-kas-dark-green">{{ submissions|length }}</span>
+                        <span class="text-slate-500 font-medium">Quizzes</span>
+                        <span class="font-black text-kas-dark-green">{{ quizzes|length }}</span>
                     </div>
                 </div>
             </div>

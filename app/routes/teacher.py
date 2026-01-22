@@ -180,41 +180,30 @@ def create_assignment():
 
 @teacher_bp.route('/api/calendar_events')
 def calendar_events():
-    """API endpoint for FullCalendar to fetch events"""
-    if not is_teacher():
+    if session.get('role') != 'TEACHER':
         return jsonify([])
-        
+
     teacher_id = session.get('user_id')
     assignments = Assignment.query.filter_by(teacher_id=teacher_id).all()
     quizzes = Quiz.query.join(Subject).filter(Subject.teacher_id == teacher_id).all()
-    
     events = []
-    
-    # Add Assignments
+
     for a in assignments:
-        # Event 1: Start/Posted Date
         events.append({
-            'title': f"📢 Posted: {a.title}",
-            'start': a.created_at.isoformat(),
-            'color': '#15803d', # Dark Green
-            'description': 'Assignment made available'
-        })
-        # Event 2: Deadline
-        events.append({
-            'title': f"⏰ DUE: {a.title}",
+            'title': f"📢 Assignment: {a.title}",
             'start': a.due_date.isoformat(),
-            'color': '#92400e', # Light Brown
-            'description': 'Submission deadline'
+            'color': '#92400e'
         })
 
-    # Add Quizzes
     for q in quizzes:
         events.append({
-            'title': f"📝 Quiz: {q.title}",
-            'start': q.release_date.isoformat(),
-            'color': '#2563eb' # Blue
+            'title': f"📝 QUIZ: {q.title}",
+            'start': q.start_time.isoformat(),
+            'end': q.end_time.isoformat(),
+            'color': '#2563eb',
+            'description': f'Duration: {q.duration_minutes} mins'
         })
-    
+
     return jsonify(events)
 
 @teacher_bp.route('/api/assignments')
@@ -256,8 +245,8 @@ def get_teacher_assignments():
     return jsonify(events)
 
 @teacher_bp.route('/quizzes/create', methods=['GET', 'POST'])
-def create_quiz():
-    # Authentication and role checking (assuming 'is_teacher' is implemented)
+@teacher_bp.route('/quizzes/create/<int:subject_id>', methods=['GET', 'POST'])
+def create_quiz(subject_id=None):
     if 'user_id' not in session or session.get('role') != 'TEACHER':
         return redirect(url_for('auth.login'))
 
@@ -267,19 +256,22 @@ def create_quiz():
     if request.method == 'POST':
         try:
             data = request.json
-            
-            # 1. Create the Quiz object
+            start_dt = datetime.fromisoformat(data['start_time'])
+            end_dt = datetime.fromisoformat(data['end_time'])
+
             new_quiz = Quiz(
                 subject_id=data['subject_id'],
                 title=data['title'],
                 description=data.get('description', ''),
-                duration_minutes=data.get('duration_minutes', 30),
+                duration_minutes=int(data['duration_minutes']),
+                start_time=start_dt,
+                end_time=end_dt,
                 is_published=data.get('is_published', False)
             )
-            db.session.add(new_quiz)
-            db.session.flush() # Get the new_quiz.id before committing
 
-            # 2. Add Questions and Options
+            db.session.add(new_quiz)
+            db.session.flush()
+
             for q_data in data.get('questions', []):
                 new_question = Question(
                     quiz_id=new_quiz.id,
@@ -287,10 +279,10 @@ def create_quiz():
                     type=q_data.get('type', 'MCQ'),
                     points=q_data.get('points', 1)
                 )
+
                 db.session.add(new_question)
                 db.session.flush()
 
-                # Add options only for MCQ type
                 if new_question.type == 'MCQ':
                     for opt_data in q_data.get('options', []):
                         new_option = Option(
@@ -301,14 +293,13 @@ def create_quiz():
                         db.session.add(new_option)
 
             db.session.commit()
-            return jsonify({'success': True, 'message': 'Quiz created successfully!', 'quiz_id': new_quiz.id})
+            return jsonify({'success': True, 'message': 'Quiz scheduled and created successfully!', 'quiz_id': new_quiz.id})
 
         except Exception as e:
             db.session.rollback()
-            return jsonify({'success': False, 'message': f'Error creating quiz: {str(e)}'}), 500
+            return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
-    # GET request: render the creation form
-    return render_template('create_quiz.html', subjects=teacher_subjects)
+    return render_template('create_quiz.html', subjects=teacher_subjects, selected_subject_id=subject_id)
 
 @teacher_bp.route('/quizzes')
 def list_quizzes():
@@ -327,6 +318,8 @@ def subject_detail(subject_id):
     if not is_teacher():
         return redirect(url_for("auth.login"))
     
+    from app.models import Subject, SubjectContent, Submission, Assignment, Quiz, QuizAttempt, User
+    
     subject = Subject.query.get_or_404(subject_id)
     students = subject.students if hasattr(subject, 'students') else []
 
@@ -334,17 +327,30 @@ def subject_detail(subject_id):
     contents = SubjectContent.query.filter_by(subject_id=subject_id)\
                .order_by(SubjectContent.created_at.desc()).all()
 
-    # 2. Fetch all submissions for assignments belonging to THIS subject
-    # We join with Assignment to filter by subject_id
-    from app.models import Submission, Assignment
+    # 2. Fetch Assignments & Submissions
     submissions = Submission.query.join(Assignment).filter(Assignment.subject_id == subject_id)\
                   .order_by(Submission.submitted_at.desc()).all()
+
+    # 3. Fetch Quizzes for this subject
+    quizzes = Quiz.query.filter_by(subject_id=subject_id)\
+              .order_by(Quiz.created_at.desc()).all()
+
+    # 4. Fetch Quiz Attempts (to show start/end times and scores)
+    # We create a mapping { (student_id, quiz_id): attempt_object } for easy lookup in template
+    attempts = QuizAttempt.query.filter(QuizAttempt.quiz_id.in_([q.id for q in quizzes])).all() if quizzes else []
+    
+    # Organize attempts by student and quiz for the template logic
+    attempt_map = {}
+    for a in attempts:
+        attempt_map[(a.student_id, a.quiz_id)] = a
 
     return render_template('teacher_subject_detail.html', 
                            subject=subject, 
                            students=students,
                            contents=contents,
-                           submissions=submissions)
+                           submissions=submissions,
+                           quizzes=quizzes,
+                           attempt_map=attempt_map)
 
 @teacher_bp.route('/edit_content/<int:content_id>', methods=['GET', 'POST'])
 def edit_content(content_id):

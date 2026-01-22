@@ -185,10 +185,14 @@ class Quiz(db.Model):
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text)
-    duration_minutes = db.Column(db.Integer, default=30)
-    release_date = db.Column(db.DateTime, default=datetime.utcnow)
-    due_date = db.Column(db.DateTime, nullable=True) # Added for calendar/deadline locking
+    
+    duration_minutes = db.Column(db.Integer, default=30) 
+    
+    start_time = db.Column(db.DateTime, nullable=False) 
+    end_time = db.Column(db.DateTime, nullable=False)   
+    
     is_published = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     subject = db.relationship('Subject', backref=db.backref('quizzes', lazy=True))
     questions = db.relationship('Question', backref='quiz', lazy=True, cascade='all, delete-orphan')
@@ -209,4 +213,18 @@ class Option(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     text = db.Column(db.String(255), nullable=False)
     is_correct = db.Column(db.Boolean, default=False)
+
+class QuizAttempt(db.Model):
+    __tablename__ = 'quiz_attempts'
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Linked to users
+    start_time = db.Column(db.DateTime, default=datetime.utcnow)
+    end_time = db.Column(db.DateTime)
+    score = db.Column(db.Float, default=0.0)
+    total_possible = db.Column(db.Integer) # This was the missing link!
+    status = db.Column(db.String(20), default='started')
+
+    quiz = db.relationship('Quiz', backref='attempts')
+    student = db.relationship('User', backref='quiz_attempts')
     
