@@ -45,6 +45,23 @@ def edit_profile():
         return redirect(url_for("student.profile"))
     return render_template("edit_profile.html") 
 
+@student_bp.route("/profile")
+def profile():
+    student_id = session.get("user_id")
+    if not student_id:
+        return redirect(url_for("auth.login"))
+
+    student = User.query.filter_by(id=student_id, role=Role.STUDENT).first()
+    if not student:
+        return "Student not found", 404
+
+    # Logic to get the first letter of the first name
+    # e.g., "John Doe" -> "J"
+    initial = student.name[0].upper() if student.name else "S"
+
+    return render_template("profile.html", student=student, initial=initial)
+
+
 @student_bp.route("/subject/<int:subject_id>")
 def subject_detail(subject_id):
     if not is_student():
@@ -289,19 +306,6 @@ def subject_info_api(subject_id):
         'pending_assignments': total_assignments - completed,
         'progress_percentage': round((completed/total_assignments*100), 1) if total_assignments > 0 else 0
     })
-
-@student_bp.route("/profile")
-def profile():
-    student_id = session.get("user_id")
-    
-    if not student_id:
-        return redirect(url_for("auth.login"))
-
-    student = User.query.filter_by(id=student_id, role=Role.STUDENT).first()
-
-    if not student:
-        return "Student not found", 404
-    return render_template("profile.html", student=student)
 
 @student_bp.route('/search_subjects')
 def search_subjects():
