@@ -4,26 +4,9 @@
 {% block content %}
 <div class="bg-white rounded-lg shadow p-6">
     <h1 class="text-3xl font-bold text-kas-dark-green mb-2">Welcome, {{ session.get('user_name', 'Student') }}! 👋</h1>
-    <p class="text-gray-600 mb-6">Kasarani Academy Student Dashboard</p>
+    <p class="text-gray-600 mb-8">Kasarani Academy Student Dashboard</p>
     
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="bg-kas-light-brown/10 p-4 rounded-lg">
-            <h3 class="font-bold text-kas-dark-green mb-1">Enrolled Subjects</h3>
-            <p class="text-2xl font-bold text-kas-light-brown">
-                {% if subjects %}{{ subjects|length }}{% else %}0{% endif %}
-            </p>
-        </div>
-        <div class="bg-kas-dark-green/10 p-4 rounded-lg">
-            <h3 class="font-bold text-kas-dark-green mb-1">Assignments</h3>
-            <p class="text-2xl font-bold text-kas-dark-green">0</p>
-        </div>
-        <div class="bg-kas-light-brown/10 p-4 rounded-lg">
-            <h3 class="font-bold text-kas-dark-green mb-1">Notifications</h3>
-            <p class="text-2xl font-bold text-kas-light-brown">0</p>
-        </div>
-    </div>
-    
-    <div class="mb-6">
+    <div class="mb-10">
         <h2 class="text-xl font-bold text-kas-dark-green mb-3">Find Subjects</h2>
         <div class="relative">
             <input type="text" 
@@ -35,7 +18,7 @@
         </div>
     </div>
     
-    <div class="mb-6">
+    <div class="mb-10">
         <h2 class="text-xl font-bold text-kas-dark-green mb-3">Your Subjects</h2>
         {% if subjects and subjects|length > 0 %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -48,7 +31,6 @@
                     </div>
                     <span class="bg-kas-dark-green/10 text-kas-dark-green text-xs font-bold px-2 py-1 rounded">Active</span>
                 </div>
-                
                 <a href="{{ url_for('student.subject_detail', subject_id=subject.id) }}" 
                    class="inline-block mt-4 px-6 py-2 bg-kas-dark-green text-white rounded-lg hover:bg-kas-light-brown hover:text-kas-dark-green transition font-bold text-sm">
                     <i class="fas fa-door-open mr-2"></i>Enter Subject
@@ -57,59 +39,44 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
-            <i class="fas fa-book-open text-4xl text-gray-300 mb-3"></i>
-            <p class="text-gray-500 font-medium">No subjects enrolled yet</p>
-            <p class="text-sm text-gray-400 mt-1">Search for a subject above to get started</p>
+        <div class="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
+            <p class="text-gray-500 font-medium">No subjects enrolled yet.</p>
         </div>
         {% endif %}
     </div>
-    
-    <hr class="my-8 border-gray-100">
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <a href="{{ url_for('student.subjects') }}" 
-           class="bg-white border rounded-xl p-4 text-center hover:border-kas-light-brown hover:shadow-sm transition">
-            <i class="fas fa-layer-group text-2xl text-kas-light-brown mb-2"></i>
-            <p class="font-bold text-kas-dark-green text-sm">My Learning</p>
-        </a>
-        <a href="{{ url_for('student.calendar') }}" 
-           class="bg-white border rounded-xl p-4 text-center hover:border-kas-light-brown hover:shadow-sm transition">
-            <i class="fas fa-calendar-check text-2xl text-kas-light-brown mb-2"></i>
-            <p class="font-bold text-kas-dark-green text-sm">Calendar</p>
-        </a>
-        <a href="{{ url_for('student.profile') }}" 
-           class="bg-white border rounded-xl p-4 text-center hover:border-kas-light-brown hover:shadow-sm transition">
-            <i class="fas fa-id-card text-2xl text-kas-light-brown mb-2"></i>
-            <p class="font-bold text-kas-dark-green text-sm">My Profile</p>
-        </a>
-        <a href="{{ url_for('student.notifications') }}" 
-           class="bg-white border rounded-xl p-4 text-center hover:border-kas-light-brown hover:shadow-sm transition">
-            <i class="fas fa-bell text-2xl text-kas-light-brown mb-2"></i>
-            <p class="font-bold text-kas-dark-green text-sm">Alerts</p>
-        </a>
-    </div>
-</div>
-
-<div class="modal fade" id="enrollmentKeyModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-2xl">
-            <div class="modal-header bg-kas-dark-green text-white rounded-t-2xl">
-                <h5 class="modal-title font-bold">Enroll in <span id="modal-subject-name"></span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-6">
-                <p class="text-gray-600 mb-4 text-sm">Please enter the secret enrollment key provided by your teacher to join this class.</p>
-                <div class="mb-3">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Enrollment Key</label>
-                    <input type="text" class="form-control rounded-lg border-gray-300 focus:ring-kas-light-brown focus:border-kas-light-brown" 
-                           id="enrollment-key-input" placeholder="e.g. MATH_2026_XYZ">
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-kas-dark-green mb-4 flex items-center">
+            <i class="fas fa-history mr-3 text-kas-light-brown"></i> Learning Timeline
+        </h2>
+        
+        <div class="relative border-l-2 border-slate-100 ml-3 space-y-6">
+            {% if upcoming_tasks %}
+                {% for task in upcoming_tasks %}
+                <div class="relative pl-8">
+                    <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white border-4 {% if task.type == 'quiz' %}border-kas-light-brown{% else %}border-kas-dark-green{% endif %}"></div>
+                    
+                    <div class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 group hover:border-kas-light-brown transition">
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-widest {% if task.type == 'quiz' %}text-kas-light-brown{% else %}text-kas-dark-green{% endif %}">
+                                {{ task.type }} • {{ task.subject_name }}
+                            </span>
+                            <h4 class="font-bold text-kas-dark-green">{{ task.title }}</h4>
+                        </div>
+                        <div class="mt-2 md:mt-0 text-right">
+                            <p class="text-sm font-bold text-slate-500">
+                                <i class="far fa-calendar-alt mr-1"></i> Due: {{ task.deadline.strftime('%b %d, %H:%M') }}
+                            </p>
+                            <p class="text-[10px] text-slate-400 font-medium uppercase">
+                                {{ task.days_left }} days remaining
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer bg-gray-50 rounded-b-2xl">
-                <button type="button" class="px-4 py-2 text-gray-500 font-bold hover:text-gray-700" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="px-6 py-2 bg-kas-dark-green text-white rounded-lg font-bold hover:bg-kas-light-brown hover:text-kas-dark-green transition" id="enroll-button">Confirm Enrollment</button>
-            </div>
+                {% endfor %}
+            {% else %}
+                <div class="pl-8 text-slate-400 italic">No upcoming assignments or quizzes found.</div>
+            {% endif %}
         </div>
     </div>
 </div>

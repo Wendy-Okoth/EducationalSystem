@@ -13,25 +13,90 @@ def is_student():
     """Helper function to check if the user has a student role."""
     return session.get('role') == 'STUDENT'
 
+
 @student_bp.route('/dashboard')
 def dashboard():
     if not is_student():
         return redirect(url_for('auth.login'))
     
+    # Use the student ID from session to get the user object
     student = User.query.get(session['user_id'])
-    
-    # Get subjects for student's form
     student_form = getattr(student, 'form', None)
+    
+    # Filter subjects by the student's form
     if student_form:
-        # Get subjects for the student's form that they're enrolled in
         enrolled_subjects = [s for s in student.enrolled_subjects if s.form == student_form]
     else:
         enrolled_subjects = student.enrolled_subjects
     
+    upcoming_tasks = []
+    now = datetime.utcnow()
+    total_tasks_count = 0
+    completed_tasks_count = 0
+
+    for subject in enrolled_subjects:
+        # 1. Process Assignments
+        for assign in subject.assignments:
+            total_tasks_count += 1
+            
+            # Check if this assignment is completed (exists in CompletedAssignment model)
+            is_done = CompletedAssignment.query.filter_by(
+                student_id=student.id, 
+                assignment_id=assign.id
+            ).first() is not None
+            
+            if is_done:
+                completed_tasks_count += 1
+            
+            # Add to timeline if not completed and deadline hasn't passed
+            if not is_done and assign.due_date and assign.due_date > now:
+                upcoming_tasks.append({
+                    'title': assign.title,
+                    'type': 'Assignment',
+                    'subject_name': subject.name,
+                    'deadline': assign.due_date,
+                    'id': assign.id
+                })
+        
+        # 2. Process Quizzes
+        for quiz in subject.quizzes:
+            total_tasks_count += 1
+            
+            # Check if this quiz is completed (exists in QuizAttempt with status 'completed')
+            attempt = QuizAttempt.query.filter_by(
+                student_id=student.id, 
+                quiz_id=quiz.id, 
+                status='completed'
+            ).first()
+            
+            if attempt:
+                completed_tasks_count += 1
+            
+            # Add to timeline if not completed and still open
+            if not attempt and quiz.end_time and quiz.end_time > now:
+                upcoming_tasks.append({
+                    'title': quiz.title,
+                    'type': 'Quiz',
+                    'subject_name': subject.name,
+                    'deadline': quiz.end_time,
+                    'id': quiz.id
+                })
+
+    # Sort timeline by deadline (closest first) and take top 7
+    upcoming_tasks = sorted(upcoming_tasks, key=lambda x: x['deadline'])[:7]
+
+    # Calculate Progress Percentage
+    progress = 0
+    if total_tasks_count > 0:
+        progress = round((completed_tasks_count / total_tasks_count) * 100)
+
     return render_template('student_dashboard.html', 
                          student=student, 
                          subjects=enrolled_subjects,
-                         student_form=student_form)
+                         student_form=student_form,
+                         upcoming_tasks=upcoming_tasks,
+                         progress=progress,
+                         pending_count=len(upcoming_tasks))
 
 @student_bp.route("/edit-profile", methods=["GET", "POST"])
 def edit_profile():
